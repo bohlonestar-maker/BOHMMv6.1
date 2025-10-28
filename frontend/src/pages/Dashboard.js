@@ -157,6 +157,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       dues: member.dues || {
         year: new Date().getFullYear(),
         months: Array(12).fill(false)
+      },
+      meeting_attendance: member.meeting_attendance || {
+        year: new Date().getFullYear(),
+        meetings: Array(24).fill(false)
       }
     });
     setDialogOpen(true);
