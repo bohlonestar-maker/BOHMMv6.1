@@ -191,6 +191,36 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
   const handleEdit = (member) => {
     setEditingMember(member);
+    
+    // Handle meeting_attendance - support both old and new format
+    let attendanceData = {};
+    const currentYear = new Date().getFullYear().toString();
+    
+    if (member.meeting_attendance) {
+      // Check if it's new format (keys are years) or old format (has 'year' key)
+      if (member.meeting_attendance.year) {
+        // Old format - convert to new
+        const yearStr = member.meeting_attendance.year.toString();
+        const meetings = member.meeting_attendance.meetings || [];
+        attendanceData[yearStr] = meetings.map(m => {
+          if (typeof m === 'object' && m !== null) {
+            return { status: m.status || 0, note: m.note || "" };
+          } else {
+            return { status: m || 0, note: "" };
+          }
+        });
+      } else {
+        // New format - use as is, ensuring current year exists
+        attendanceData = { ...member.meeting_attendance };
+        if (!attendanceData[currentYear]) {
+          attendanceData[currentYear] = Array(24).fill(null).map(() => ({ status: 0, note: "" }));
+        }
+      }
+    } else {
+      // No attendance data
+      attendanceData[currentYear] = Array(24).fill(null).map(() => ({ status: 0, note: "" }));
+    }
+    
     setFormData({
       chapter: member.chapter,
       title: member.title,
@@ -203,25 +233,13 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
         year: new Date().getFullYear(),
         months: Array(12).fill(false)
       },
-      meeting_attendance: member.meeting_attendance ? {
-        year: member.meeting_attendance.year || new Date().getFullYear(),
-        meetings: member.meeting_attendance.meetings ? member.meeting_attendance.meetings.map(m => {
-          // Handle both old format (number) and new format (object)
-          if (typeof m === 'object' && m !== null) {
-            return { status: m.status || 0, note: m.note || "" };
-          } else {
-            return { status: m || 0, note: "" };
-          }
-        }) : Array(24).fill(null).map(() => ({ status: 0, note: "" }))
-      } : {
-        year: new Date().getFullYear(),
-        meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
-      }
+      meeting_attendance: attendanceData
     });
     setDialogOpen(true);
   };
 
   const resetForm = () => {
+    const currentYear = new Date().getFullYear().toString();
     setFormData({
       chapter: "",
       title: "",
@@ -235,9 +253,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
         months: Array(12).fill(false)
       },
       meeting_attendance: {
-        year: new Date().getFullYear(),
-        meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
+        [currentYear]: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
       }
+    });
     });
     setEditingMember(null);
   };
