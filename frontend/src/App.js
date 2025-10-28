@@ -66,7 +66,7 @@ function App() {
             path="/"
             element={
               isAuthenticated ? (
-                <Dashboard onLogout={handleLogout} userRole={userRole} />
+                <Dashboard onLogout={handleLogout} userRole={userRole} userPermissions={userPermissions} />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -75,7 +75,7 @@ function App() {
           <Route
             path="/users"
             element={
-              isAuthenticated && userRole === 'admin' ? (
+              isAuthenticated && (userRole === 'admin' || userPermissions?.admin_actions) ? (
                 <UserManagement onLogout={handleLogout} />
               ) : (
                 <Navigate to="/" replace />
