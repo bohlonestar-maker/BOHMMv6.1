@@ -129,7 +129,9 @@ export default function UserManagement({ onLogout }) {
       role: user.role,
       permissions: user.permissions || {
         basic_info: true,
-        contact_info: false,
+        email: false,
+        phone: false,
+        address: false,
         dues_tracking: false,
         admin_actions: false
       }
