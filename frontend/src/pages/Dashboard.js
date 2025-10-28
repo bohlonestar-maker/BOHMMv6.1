@@ -199,6 +199,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     });
   };
 
+  const handleAttendanceToggle = (meetingIndex) => {
+    const newMeetings = [...formData.meeting_attendance.meetings];
+    newMeetings[meetingIndex] = !newMeetings[meetingIndex];
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        meetings: newMeetings
+      }
+    });
+  };
+
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const handleExportCSV = async () => {
