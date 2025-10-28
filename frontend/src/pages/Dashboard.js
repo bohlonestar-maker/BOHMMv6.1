@@ -381,18 +381,19 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 data-testid="search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 py-6 text-base border-2 border-slate-300 focus:border-slate-600 rounded-lg"
+                className="w-full pl-10 py-4 sm:py-6 text-sm sm:text-base border-2 border-slate-300 focus:border-slate-600 rounded-lg"
               />
             </div>
           </div>
           
           {hasPermission('admin_actions') && (
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
               <Button
                 onClick={handleExportCSV}
                 variant="outline"
+                size="sm"
                 data-testid="export-csv-button"
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
@@ -404,20 +405,21 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 <DialogTrigger asChild>
                   <Button
                     data-testid="add-member-button"
-                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900"
+                    size="sm"
+                    className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4" />
                     Add Member
                   </Button>
                 </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>
+                      <DialogTitle className="text-lg sm:text-xl">
                         {editingMember ? "Edit Member" : "Add New Member"}
                       </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label>Chapter</Label>
                           <Select
