@@ -400,6 +400,47 @@ export default function Dashboard({ onLogout, userRole }) {
                         />
                       </div>
 
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <Label>Dues Tracking - {formData.dues.year}</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormData({
+                              ...formData,
+                              dues: {
+                                year: formData.dues.year + 1,
+                                months: Array(12).fill(false)
+                              }
+                            })}
+                            data-testid="change-dues-year"
+                          >
+                            Change Year
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-6 gap-2">
+                          {monthNames.map((month, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleDuesToggle(index)}
+                              className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                formData.dues.months[index]
+                                  ? 'bg-green-600 text-white hover:bg-green-700'
+                                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                              }`}
+                              data-testid={`dues-month-${index}`}
+                            >
+                              {month}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          Click months to mark as paid (green) or unpaid (gray)
+                        </p>
+                      </div>
+
                       <div className="flex gap-3 justify-end pt-4">
                         <Button
                           type="button"
