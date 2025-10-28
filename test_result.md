@@ -210,6 +210,18 @@ frontend:
       - working: true
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED ✅ User Management Button Reorganization Verified: 1) Login successful with testadmin/testpass123 credentials 2) Navigation to /users page successful 3) Button Layout Verified: All 4 buttons present in correct order (Activity Log → Manage Invites → Invite User → Add User) 4) Button Styling Verified: First 3 buttons have outline styling, Add User has filled/primary styling (bg-slate-800) 5) Icon Verification: Activity Log (Shield), Manage Invites (Mail), Invite User (Mail), Add User (Plus) - all icons present 6) Functionality Testing: All buttons successfully open their respective dialogs (Activity Log, Manage Invitation Links, Invite New User, Add New User) 7) Spacing and Layout: Buttons properly spaced with gap-2 in header section. Button reorganization is working perfectly as specified."
+  
+  - task: "Activity Log dialog close button positioning"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/UserManagement.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "CLOSE BUTTON POSITIONING FIX COMPLETE ✅ Issue: Close button on Activity Log dialog needed to be moved to far right corner. Fixed by removing custom flex classes from DialogHeader that were interfering with default shadcn Dialog close button positioning. Also fixed Manage Invites dialog for consistency. Verified via screenshot that close button (X icon) now appears correctly in far right corner of both dialogs. Changes made: Removed 'className=\"flex flex-row items-center justify-between\"' from DialogHeader components in both Activity Log and Manage Invites dialogs, allowing default shadcn Dialog styling to properly position the close button."
 
 metadata:
   created_by: "main_agent"
