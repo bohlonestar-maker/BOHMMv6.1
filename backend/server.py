@@ -273,19 +273,31 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     writer = csv.writer(output)
     
     # Write header
-    writer.writerow(['Chapter', 'Title', 'Member Handle', 'Name', 'Email', 'Phone', 'Address'])
+    month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    header = ['Chapter', 'Title', 'Member Handle', 'Name', 'Email', 'Phone', 'Address', 'Dues Year'] + month_names
+    writer.writerow(header)
     
     # Write data
     for member in sorted_members:
-        writer.writerow([
+        dues = member.get('dues', {})
+        dues_year = dues.get('year', '') if dues else ''
+        dues_months = dues.get('months', [False] * 12) if dues else [False] * 12
+        
+        # Convert boolean dues to Paid/Unpaid
+        dues_status = ['Paid' if paid else 'Unpaid' for paid in dues_months]
+        
+        row = [
             member.get('chapter', ''),
             member.get('title', ''),
             member.get('handle', ''),
             member.get('name', ''),
             member.get('email', ''),
             member.get('phone', ''),
-            member.get('address', '')
-        ])
+            member.get('address', ''),
+            dues_year
+        ] + dues_status
+        
+        writer.writerow(row)
     
     output.seek(0)
     return StreamingResponse(
