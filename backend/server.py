@@ -369,6 +369,14 @@ async def create_member(member_data: MemberCreate, current_user: dict = Depends(
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
     await db.members.insert_one(doc)
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="member_create",
+        details=f"Created member: {member.name} ({member.handle})"
+    )
+    
     return member
 
 @api_router.put("/members/{member_id}", response_model=Member)
@@ -387,13 +395,33 @@ async def update_member(member_id: str, member_data: MemberUpdate, current_user:
         updated_member['created_at'] = datetime.fromisoformat(updated_member['created_at'])
     if isinstance(updated_member.get('updated_at'), str):
         updated_member['updated_at'] = datetime.fromisoformat(updated_member['updated_at'])
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="member_update",
+        details=f"Updated member: {updated_member.get('name', 'Unknown')} ({updated_member.get('handle', 'Unknown')})"
+    )
+    
     return updated_member
 
 @api_router.delete("/members/{member_id}")
 async def delete_member(member_id: str, current_user: dict = Depends(verify_admin)):
+    # Get member info before deleting
+    member = await db.members.find_one({"id": member_id}, {"_id": 0})
+    
     result = await db.members.delete_one({"id": member_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Member not found")
+    
+    # Log activity
+    if member:
+        await log_activity(
+            username=current_user["username"],
+            action="member_delete",
+            details=f"Deleted member: {member.get('name', 'Unknown')} ({member.get('handle', 'Unknown')})"
+        )
+    
     return {"message": "Member deleted successfully"}
 
 # Dues tracking endpoint
