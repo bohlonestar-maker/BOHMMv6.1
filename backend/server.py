@@ -398,6 +398,8 @@ async def update_user(user_id: str, user_data: UserUpdate, current_user: dict = 
         update_data['password_hash'] = hash_password(user_data.password)
     if user_data.role:
         update_data['role'] = user_data.role
+    if user_data.permissions is not None:
+        update_data['permissions'] = user_data.permissions
     
     if update_data:
         await db.users.update_one({"id": user_id}, {"$set": update_data})
