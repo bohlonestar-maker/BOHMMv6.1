@@ -253,15 +253,30 @@ export default function Dashboard({ onLogout, userRole }) {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex-1 max-w-md">
-              <Input
-                placeholder="Search by chapter, name, or handle..."
-                data-testid="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-              />
+          <div className="flex justify-between items-center mb-6 gap-4">
+            <div className="flex-1 max-w-xl">
+              <div className="relative">
+                <Input
+                  placeholder="Search by chapter, name, or handle..."
+                  data-testid="search-input"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 py-6 text-base border-2 border-slate-300 focus:border-slate-600 rounded-lg"
+                />
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
             </div>
             <div className="flex gap-3">
               {userRole === "admin" && (
