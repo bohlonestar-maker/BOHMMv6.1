@@ -1125,6 +1125,61 @@ export default function UserManagement({ onLogout }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Activity Log Dialog */}
+      <Dialog open={logsDialogOpen} onOpenChange={setLogsDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Activity Log</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <p className="text-sm text-slate-600">
+              Showing last 50 activities
+            </p>
+
+            {logs.length === 0 ? (
+              <p className="text-center text-slate-500 py-8">No activity logs found</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {logs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell className="text-sm text-slate-600">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="font-medium">{log.username}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          log.action.includes('delete') 
+                            ? 'bg-red-100 text-red-800' 
+                            : log.action.includes('create')
+                            ? 'bg-green-100 text-green-800'
+                            : log.action.includes('update')
+                            ? 'bg-blue-100 text-blue-800'
+                            : log.action === 'login'
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-slate-100 text-slate-800'
+                        }`}>
+                          {log.action.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-600">{log.details}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
