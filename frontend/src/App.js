@@ -99,6 +99,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/chat"
+            element={
+              isAuthenticated && userRole === 'admin' ? (
+                <Chat onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
       </BrowserRouter>
       <Toaster />
