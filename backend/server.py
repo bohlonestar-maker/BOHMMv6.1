@@ -220,6 +220,10 @@ class Member(BaseModel):
         "year": datetime.now(timezone.utc).year,
         "months": [False] * 12  # Jan-Dec, False = unpaid, True = paid
     })
+    meeting_attendance: dict = Field(default_factory=lambda: {
+        "year": datetime.now(timezone.utc).year,
+        "meetings": [False] * 24  # 2 meetings per month (1st & 3rd Wed) x 12 months
+    })
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
