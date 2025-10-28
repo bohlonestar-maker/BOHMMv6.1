@@ -87,13 +87,6 @@ export default function Login({ onLogin }) {
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-            <p className="text-xs text-slate-600 text-center">
-              Default admin credentials:<br />
-              <span className="font-mono text-slate-800">admin / admin123</span>
-            </p>
-          </div>
         </div>
       </div>
     </div>
