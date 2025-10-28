@@ -256,7 +256,7 @@ export default function Dashboard({ onLogout, userRole }) {
           <div className="flex justify-between items-center mb-6">
             <div className="flex-1 max-w-md">
               <Input
-                placeholder="Search members..."
+                placeholder="Search by chapter, name, or handle..."
                 data-testid="search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
