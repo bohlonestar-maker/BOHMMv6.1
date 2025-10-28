@@ -319,17 +319,47 @@ export default function UserManagement({ onLogout }) {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox
-                          id="contact_info"
-                          checked={formData.permissions.contact_info}
+                          id="email"
+                          checked={formData.permissions.email}
                           onCheckedChange={(checked) =>
                             setFormData({
                               ...formData,
-                              permissions: { ...formData.permissions, contact_info: checked }
+                              permissions: { ...formData.permissions, email: checked }
                             })
                           }
                         />
-                        <label htmlFor="contact_info" className="text-sm font-medium cursor-pointer">
-                          Contact Info (Email, Phone, Address)
+                        <label htmlFor="email" className="text-sm font-medium cursor-pointer">
+                          Email
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="phone"
+                          checked={formData.permissions.phone}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              permissions: { ...formData.permissions, phone: checked }
+                            })
+                          }
+                        />
+                        <label htmlFor="phone" className="text-sm font-medium cursor-pointer">
+                          Phone
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="address"
+                          checked={formData.permissions.address}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              permissions: { ...formData.permissions, address: checked }
+                            })
+                          }
+                        />
+                        <label htmlFor="address" className="text-sm font-medium cursor-pointer">
+                          Address
                         </label>
                       </div>
                       <div className="flex items-center space-x-2">
