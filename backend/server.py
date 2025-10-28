@@ -79,7 +79,13 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
     password_hash: str
-    role: str = "user"  # admin or user
+    role: str = "user"  # admin or user or custom
+    permissions: dict = Field(default_factory=lambda: {
+        "basic_info": True,        # Chapter, Title, Handle, Name
+        "contact_info": False,     # Email, Phone, Address
+        "dues_tracking": False,    # View dues
+        "admin_actions": False     # Add/Edit/Delete, Export CSV, User Management
+    })
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
