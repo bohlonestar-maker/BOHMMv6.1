@@ -88,6 +88,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/prospects"
+            element={
+              isAuthenticated && userRole === 'admin' ? (
+                <Prospects onLogout={handleLogout} userRole={userRole} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
       </BrowserRouter>
       <Toaster />
