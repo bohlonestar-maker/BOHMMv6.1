@@ -606,34 +606,23 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <Label>Meeting Attendance - {formData.meeting_attendance.year}</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setFormData({
-                              ...formData,
-                              meeting_attendance: {
-                                year: formData.meeting_attendance.year + 1,
-                                meetings: Array(24).fill(false)
-                              }
-                            })}
-                            data-testid="change-attendance-year"
-                          >
-                            Change Year
-                          </Button>
+                          <Label>Meeting Attendance ({new Date().getFullYear()})</Label>
                         </div>
                         <div className="space-y-3">
-                          {monthNames.map((month, monthIndex) => (
+                          {monthNames.map((month, monthIndex) => {
+                            const currentYear = new Date().getFullYear().toString();
+                            const yearMeetings = formData.meeting_attendance[currentYear] || Array(24).fill(null).map(() => ({ status: 0, note: "" }));
+                            
+                            return (
                             <div key={month} className="space-y-2">
                               <div className="grid grid-cols-2 gap-2">
                                 <button
                                   type="button"
                                   onClick={() => handleAttendanceToggle(monthIndex * 2)}
                                   className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
-                                    formData.meeting_attendance.meetings[monthIndex * 2].status === 1
+                                    yearMeetings[monthIndex * 2]?.status === 1
                                       ? 'bg-green-600 text-white hover:bg-green-700'
-                                      : formData.meeting_attendance.meetings[monthIndex * 2].status === 2
+                                      : yearMeetings[monthIndex * 2]?.status === 2
                                       ? 'bg-yellow-500 text-white hover:bg-yellow-600'
                                       : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                                   }`}
@@ -645,9 +634,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                                   type="button"
                                   onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
                                   className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
-                                    formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 1
+                                    yearMeetings[monthIndex * 2 + 1]?.status === 1
                                       ? 'bg-green-600 text-white hover:bg-green-700'
-                                      : formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2
+                                      : yearMeetings[monthIndex * 2 + 1]?.status === 2
                                       ? 'bg-yellow-500 text-white hover:bg-yellow-600'
                                       : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                                   }`}
@@ -656,26 +645,24 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                                   {month}-3rd {meetingDates[monthIndex * 2 + 1] && `(${formatMeetingDate(meetingDates[monthIndex * 2 + 1])})`}
                                 </button>
                               </div>
-                              {(formData.meeting_attendance.meetings[monthIndex * 2].status === 0 || 
-                                formData.meeting_attendance.meetings[monthIndex * 2].status === 2) && (
+                              {(yearMeetings[monthIndex * 2]?.status === 0 || yearMeetings[monthIndex * 2]?.status === 2) && (
                                 <Input
-                                  placeholder={`${month}-1st note (${formData.meeting_attendance.meetings[monthIndex * 2].status === 2 ? 'excused' : 'unexcused'} absence)`}
-                                  value={formData.meeting_attendance.meetings[monthIndex * 2].note}
+                                  placeholder={`${month}-1st note (${yearMeetings[monthIndex * 2]?.status === 2 ? 'excused' : 'unexcused'} absence)`}
+                                  value={yearMeetings[monthIndex * 2]?.note || ''}
                                   onChange={(e) => handleAttendanceNote(monthIndex * 2, e.target.value)}
                                   className="text-xs"
                                 />
                               )}
-                              {(formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 0 || 
-                                formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2) && (
+                              {(yearMeetings[monthIndex * 2 + 1]?.status === 0 || yearMeetings[monthIndex * 2 + 1]?.status === 2) && (
                                 <Input
-                                  placeholder={`${month}-3rd note (${formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2 ? 'excused' : 'unexcused'} absence)`}
-                                  value={formData.meeting_attendance.meetings[monthIndex * 2 + 1].note}
+                                  placeholder={`${month}-3rd note (${yearMeetings[monthIndex * 2 + 1]?.status === 2 ? 'excused' : 'unexcused'} absence)`}
+                                  value={yearMeetings[monthIndex * 2 + 1]?.note || ''}
                                   onChange={(e) => handleAttendanceNote(monthIndex * 2 + 1, e.target.value)}
                                   className="text-xs"
                                 />
                               )}
                             </div>
-                          ))}
+                          )})}
                         </div>
                         <p className="text-xs text-slate-600">
                           Click to cycle: <span className="font-medium">Gray (Absent)</span> → <span className="font-medium text-green-600">Green (Present)</span> → <span className="font-medium text-yellow-600">Yellow (Excused)</span>
