@@ -47,23 +47,23 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 relative px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-slate-200">
           <div className="flex justify-center mb-6">
             <img 
               src="/brothers-logo.png" 
               alt="Brothers of the Highway Logo" 
-              className="w-48 h-auto"
+              className="w-40 sm:w-48 h-auto"
             />
           </div>
           
-          <h1 className="text-3xl font-bold text-center mb-2 text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-slate-900">
             Brothers of the Highway
           </h1>
-          <p className="text-center text-slate-600 mb-8">Member Directory</p>
+          <p className="text-center text-slate-600 mb-6 sm:mb-8 text-sm sm:text-base">Member Directory</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div>
               <Label htmlFor="username" className="text-slate-700">Username</Label>
               <Input
@@ -96,7 +96,7 @@ export default function Login({ onLogin }) {
               type="submit"
               data-testid="login-submit-button"
               disabled={loading}
-              className="w-full bg-slate-800 hover:bg-slate-900 text-white py-6 rounded-lg font-medium text-base"
+              className="w-full bg-slate-800 hover:bg-slate-900 text-white py-5 sm:py-6 rounded-lg font-medium text-sm sm:text-base"
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
@@ -104,11 +104,11 @@ export default function Login({ onLogin }) {
         </div>
       </div>
       
-      <div className="absolute bottom-4 left-0 right-0 text-center space-y-2">
-        <p className="text-slate-600 text-sm">Property of Brothers of the Highway TC</p>
+      <div className="absolute bottom-4 left-0 right-0 text-center space-y-2 px-4">
+        <p className="text-slate-600 text-xs sm:text-sm">Property of Brothers of the Highway TC</p>
         <a 
           href="mailto:bohlonestar@gmail.com?subject=Support Request - Brothers of the Highway Directory"
-          className="text-slate-600 text-sm hover:text-slate-800 underline inline-block"
+          className="text-slate-600 text-xs sm:text-sm hover:text-slate-800 underline inline-block"
         >
           Support
         </a>
