@@ -165,7 +165,9 @@ async def create_default_admin():
             role="admin",
             permissions={
                 "basic_info": True,
-                "contact_info": True,
+                "email": True,
+                "phone": True,
+                "address": True,
                 "dues_tracking": True,
                 "admin_actions": True
             }
