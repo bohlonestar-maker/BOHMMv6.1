@@ -12,13 +12,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -31,9 +24,6 @@ import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
-
-const CHAPTERS = ["National", "AD", "HA", "HS"];
-const TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM"];
 
 // Helper function to get the Nth occurrence of a weekday in a month
 const getNthWeekdayOfMonth = (year, month, weekday, n) => {
@@ -56,9 +46,7 @@ const getNthWeekdayOfMonth = (year, month, weekday, n) => {
 const getMeetingDates = (year) => {
   const dates = [];
   for (let month = 0; month < 12; month++) {
-    // Get 1st Wednesday (weekday 3 = Wednesday)
     const firstWed = getNthWeekdayOfMonth(year, month, 3, 1);
-    // Get 3rd Wednesday
     const thirdWed = getNthWeekdayOfMonth(year, month, 3, 3);
     dates.push(firstWed, thirdWed);
   }
@@ -73,52 +61,21 @@ const formatMeetingDate = (date) => {
   return `${month}/${day}`;
 };
 
-// Helper function to sort members by chapter and title
-const sortMembers = (members) => {
-  return members.sort((a, b) => {
-    // First sort by chapter
-    const chapterA = CHAPTERS.indexOf(a.chapter);
-    const chapterB = CHAPTERS.indexOf(b.chapter);
-    
-    if (chapterA !== chapterB) {
-      return chapterA - chapterB;
-    }
-    
-    // Then sort by title
-    const titleA = TITLES.indexOf(a.title);
-    const titleB = TITLES.indexOf(b.title);
-    
-    return titleA - titleB;
-  });
-};
-
-export default function Dashboard({ onLogout, userRole, userPermissions }) {
-  const [members, setMembers] = useState([]);
+export default function Prospects({ onLogout, userRole }) {
+  const [prospects, setProspects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState(null);
+  const [editingProspect, setEditingProspect] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [meetingDates, setMeetingDates] = useState([]);
   const navigate = useNavigate();
 
-  // Helper to check permissions
-  const hasPermission = (permission) => {
-    if (userRole === 'admin') return true;
-    return userPermissions?.[permission] === true;
-  };
-
   const [formData, setFormData] = useState({
-    chapter: "",
-    title: "",
     handle: "",
     name: "",
     email: "",
     phone: "",
     address: "",
-    dues: {
-      year: new Date().getFullYear(),
-      months: Array(12).fill(false)
-    },
     meeting_attendance: {
       year: new Date().getFullYear(),
       meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
@@ -126,25 +83,23 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   });
 
   useEffect(() => {
-    fetchMembers();
+    fetchProspects();
   }, []);
 
-  // Update meeting dates whenever the attendance year changes
   useEffect(() => {
     const dates = getMeetingDates(formData.meeting_attendance.year);
     setMeetingDates(dates);
   }, [formData.meeting_attendance.year]);
 
-  const fetchMembers = async () => {
+  const fetchProspects = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API}/members`, {
+      const response = await axios.get(`${API}/prospects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const sortedMembers = sortMembers(response.data);
-      setMembers(sortedMembers);
+      setProspects(response.data);
     } catch (error) {
-      toast.error("Failed to load members");
+      toast.error("Failed to load prospects");
     } finally {
       setLoading(false);
     }
@@ -155,188 +110,185 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     const token = localStorage.getItem("token");
 
     try {
-      if (editingMember) {
-        await axios.put(`${API}/members/${editingMember.id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        toast.success("Member updated successfully");
+      if (editingProspect) {
+        await axios.put(
+          `${API}/prospects/${editingProspect.id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success("Prospect updated successfully");
       } else {
-        await axios.post(`${API}/members`, formData, {
+        await axios.post(`${API}/prospects`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("Member added successfully");
+        toast.success("Prospect added successfully");
       }
+      fetchProspects();
       setDialogOpen(false);
       resetForm();
-      fetchMembers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Operation failed");
+      toast.error("Failed to save prospect");
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this member?")) return;
+  const handleEdit = (prospect) => {
+    setEditingProspect(prospect);
+    const attendanceData = prospect.meeting_attendance || {
+      year: new Date().getFullYear(),
+      meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
+    };
 
-    const token = localStorage.getItem("token");
-    try {
-      await axios.delete(`${API}/members/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success("Member deleted successfully");
-      fetchMembers();
-    } catch (error) {
-      toast.error("Failed to delete member");
-    }
-  };
+    const meetings = attendanceData.meetings.map((meeting) => {
+      if (typeof meeting === 'object' && meeting !== null) {
+        return {
+          status: meeting.status || 0,
+          note: meeting.note || ""
+        };
+      }
+      return { status: meeting || 0, note: "" };
+    });
 
-  const handleEdit = (member) => {
-    setEditingMember(member);
     setFormData({
-      chapter: member.chapter,
-      title: member.title,
-      handle: member.handle,
-      name: member.name,
-      email: member.email,
-      phone: member.phone,
-      address: member.address,
-      dues: member.dues || {
-        year: new Date().getFullYear(),
-        months: Array(12).fill(false)
-      },
-      meeting_attendance: member.meeting_attendance ? {
-        year: member.meeting_attendance.year || new Date().getFullYear(),
-        meetings: member.meeting_attendance.meetings ? member.meeting_attendance.meetings.map(m => {
-          // Handle both old format (number) and new format (object)
-          if (typeof m === 'object' && m !== null) {
-            return { status: m.status || 0, note: m.note || "" };
-          } else {
-            return { status: m || 0, note: "" };
-          }
-        }) : Array(24).fill(null).map(() => ({ status: 0, note: "" }))
-      } : {
-        year: new Date().getFullYear(),
-        meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
+      handle: prospect.handle,
+      name: prospect.name,
+      email: prospect.email,
+      phone: prospect.phone,
+      address: prospect.address,
+      meeting_attendance: {
+        year: attendanceData.year || new Date().getFullYear(),
+        meetings: meetings
       }
     });
     setDialogOpen(true);
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this prospect?")) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/prospects/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Prospect deleted successfully");
+      fetchProspects();
+    } catch (error) {
+      toast.error("Failed to delete prospect");
+    }
+  };
+
   const resetForm = () => {
     setFormData({
-      chapter: "",
-      title: "",
       handle: "",
       name: "",
       email: "",
       phone: "",
       address: "",
-      dues: {
-        year: new Date().getFullYear(),
-        months: Array(12).fill(false)
-      },
       meeting_attendance: {
         year: new Date().getFullYear(),
         meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
       }
     });
-    setEditingMember(null);
+    setEditingProspect(null);
   };
 
-  const handleDuesToggle = (monthIndex) => {
-    const newMonths = [...formData.dues.months];
-    newMonths[monthIndex] = !newMonths[monthIndex];
-    setFormData({
-      ...formData,
-      dues: {
-        ...formData.dues,
-        months: newMonths
+  const handleAttendanceToggle = (index) => {
+    setFormData(prevData => {
+      const newMeetings = [...prevData.meeting_attendance.meetings];
+      const currentStatus = newMeetings[index].status;
+      
+      if (currentStatus === 0) {
+        newMeetings[index] = { status: 1, note: "" };
+      } else if (currentStatus === 1) {
+        newMeetings[index] = { status: 2, note: "" };
+      } else {
+        newMeetings[index] = { status: 0, note: "" };
       }
+      
+      return {
+        ...prevData,
+        meeting_attendance: {
+          ...prevData.meeting_attendance,
+          meetings: newMeetings
+        }
+      };
     });
   };
 
-  const handleAttendanceToggle = (meetingIndex) => {
-    const newMeetings = [...formData.meeting_attendance.meetings];
-    // Cycle through states: 0 (Absent) -> 1 (Present) -> 2 (Excused) -> 0
-    const currentStatus = newMeetings[meetingIndex].status;
-    newMeetings[meetingIndex] = {
-      ...newMeetings[meetingIndex],
-      status: (currentStatus + 1) % 3
-    };
-    setFormData({
-      ...formData,
-      meeting_attendance: {
-        ...formData.meeting_attendance,
-        meetings: newMeetings
-      }
+  const handleAttendanceNoteChange = (index, note) => {
+    setFormData(prevData => {
+      const newMeetings = [...prevData.meeting_attendance.meetings];
+      newMeetings[index] = { ...newMeetings[index], note };
+      
+      return {
+        ...prevData,
+        meeting_attendance: {
+          ...prevData.meeting_attendance,
+          meetings: newMeetings
+        }
+      };
     });
   };
-
-  const handleAttendanceNote = (meetingIndex, note) => {
-    const newMeetings = [...formData.meeting_attendance.meetings];
-    newMeetings[meetingIndex] = {
-      ...newMeetings[meetingIndex],
-      note: note
-    };
-    setFormData({
-      ...formData,
-      meeting_attendance: {
-        ...formData.meeting_attendance,
-        meetings: newMeetings
-      }
-    });
-  };
-
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const handleExportCSV = async () => {
-    const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${API}/members/export/csv`, {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/prospects/export/csv`, {
         headers: { Authorization: `Bearer ${token}` },
-        responseType: "blob",
+        responseType: 'blob'
       });
+      
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "members.csv");
+      link.setAttribute('download', 'prospects.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
+      
       toast.success("CSV exported successfully");
     } catch (error) {
       toast.error("Failed to export CSV");
     }
   };
 
-  const filteredMembers = members.filter((member) => {
+  const filteredProspects = prospects.filter((prospect) => {
     const search = searchTerm.toLowerCase();
     return (
-      member.name.toLowerCase().includes(search) ||
-      member.handle.toLowerCase().includes(search) ||
-      member.email.toLowerCase().includes(search) ||
-      member.chapter.toLowerCase().includes(search)
+      prospect.name.toLowerCase().includes(search) ||
+      prospect.handle.toLowerCase().includes(search)
     );
   });
 
-  // Sort filtered members to maintain order
-  const sortedFilteredMembers = sortMembers([...filteredMembers]);
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <nav className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Brothers of the Highway</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Hangarounds/Prospects</h1>
             <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
               <span className="text-xs sm:text-sm text-slate-600">
                 {localStorage.getItem("username")} ({userRole})
               </span>
-              {hasPermission('admin_actions') && (
+              <Button
+                onClick={() => navigate("/")}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+              >
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Members</span>
+                <span className="sm:hidden">Members</span>
+              </Button>
+              {userRole === 'admin' && (
                 <Button
                   onClick={() => navigate("/users")}
                   variant="outline"
                   size="sm"
-                  data-testid="user-management-button"
                   className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                 >
                   <Users className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -348,7 +300,6 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 onClick={onLogout}
                 variant="outline"
                 size="sm"
-                data-testid="logout-button"
                 className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
               >
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -377,8 +328,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 />
               </svg>
               <Input
-                placeholder="Search by chapter, name, or handle..."
-                data-testid="search-input"
+                placeholder="Search by name or handle..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 py-4 sm:py-6 text-sm sm:text-base border-2 border-slate-300 focus:border-slate-600 rounded-lg"
@@ -386,409 +336,249 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             </div>
           </div>
           
-          {hasPermission('admin_actions') && (
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
-              <Button
-                onClick={handleExportCSV}
-                variant="outline"
-                size="sm"
-                data-testid="export-csv-button"
-                className="flex items-center justify-center gap-2 w-full sm:w-auto"
-              >
-                <Download className="w-4 h-4" />
-                Export CSV
-              </Button>
-              <Dialog open={dialogOpen} onOpenChange={(open) => {
-                setDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button
-                    data-testid="add-member-button"
-                    size="sm"
-                    className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 w-full sm:w-auto"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Member
-                  </Button>
-                </DialogTrigger>
-                  <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="text-lg sm:text-xl">
-                        {editingMember ? "Edit Member" : "Add New Member"}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label>Chapter</Label>
-                          <Select
-                            value={formData.chapter}
-                            onValueChange={(value) =>
-                              setFormData({ ...formData, chapter: value })
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <Button
+              onClick={handleExportCSV}
+              variant="outline"
+              size="sm"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto"
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button
+                  size="sm"
+                  className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Prospect
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-lg sm:text-xl">
+                    {editingProspect ? "Edit Prospect" : "Add New Prospect"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Handle</Label>
+                      <Input
+                        value={formData.handle}
+                        onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label>Name</Label>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label>Phone</Label>
+                      <Input
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Address</Label>
+                    <Input
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <Label className="text-base font-semibold">Meeting Attendance</Label>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm">Year:</Label>
+                        <Input
+                          type="number"
+                          value={formData.meeting_attendance.year}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            meeting_attendance: {
+                              ...formData.meeting_attendance,
+                              year: parseInt(e.target.value)
                             }
-                            required
-                          >
-                            <SelectTrigger data-testid="chapter-select">
-                              <SelectValue placeholder="Select chapter" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CHAPTERS.map((ch) => (
-                                <SelectItem key={ch} value={ch}>
-                                  {ch}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Title</Label>
-                          <Select
-                            value={formData.title}
-                            onValueChange={(value) =>
-                              setFormData({ ...formData, title: value })
-                            }
-                            required
-                          >
-                            <SelectTrigger data-testid="title-select">
-                              <SelectValue placeholder="Select title" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TITLES.map((t) => (
-                                <SelectItem key={t} value={t}>
-                                  {t}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label>Member Handle</Label>
-                        <Input
-                          data-testid="handle-input"
-                          value={formData.handle}
-                          onChange={(e) =>
-                            setFormData({ ...formData, handle: e.target.value })
-                          }
-                          required
+                          })}
+                          className="w-24"
                         />
                       </div>
+                    </div>
 
-                      <div>
-                        <Label>Name</Label>
-                        <Input
-                          data-testid="name-input"
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Email</Label>
-                        <Input
-                          data-testid="email-input"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData({ ...formData, email: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Phone</Label>
-                        <Input
-                          data-testid="phone-input"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Address</Label>
-                        <Input
-                          data-testid="address-input"
-                          value={formData.address}
-                          onChange={(e) =>
-                            setFormData({ ...formData, address: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Dues Tracking - {formData.dues.year}</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setFormData({
-                              ...formData,
-                              dues: {
-                                year: formData.dues.year + 1,
-                                months: Array(12).fill(false)
-                              }
-                            })}
-                            data-testid="change-dues-year"
-                          >
-                            Change Year
-                          </Button>
-                        </div>
-                        <div className="grid grid-cols-6 gap-2">
-                          {monthNames.map((month, index) => (
-                            <button
-                              key={index}
-                              type="button"
-                              onClick={() => handleDuesToggle(index)}
-                              className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                formData.dues.months[index]
-                                  ? 'bg-green-600 text-white hover:bg-green-700'
-                                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                              }`}
-                              data-testid={`dues-month-${index}`}
-                            >
-                              {month}
-                            </button>
-                          ))}
-                        </div>
-                        <p className="text-xs text-slate-600">
-                          Click months to mark as paid (green) or unpaid (gray)
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Meeting Attendance - {formData.meeting_attendance.year}</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setFormData({
-                              ...formData,
-                              meeting_attendance: {
-                                year: formData.meeting_attendance.year + 1,
-                                meetings: Array(24).fill(false)
-                              }
-                            })}
-                            data-testid="change-attendance-year"
-                          >
-                            Change Year
-                          </Button>
-                        </div>
-                        <div className="space-y-3">
-                          {monthNames.map((month, monthIndex) => (
-                            <div key={month} className="space-y-2">
-                              <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleAttendanceToggle(monthIndex * 2)}
-                                  className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
-                                    formData.meeting_attendance.meetings[monthIndex * 2].status === 1
-                                      ? 'bg-green-600 text-white hover:bg-green-700'
-                                      : formData.meeting_attendance.meetings[monthIndex * 2].status === 2
-                                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                                  }`}
-                                  data-testid={`attendance-${monthIndex}-1st`}
-                                >
-                                  {month}-1st {meetingDates[monthIndex * 2] && `(${formatMeetingDate(meetingDates[monthIndex * 2])})`}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
-                                  className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
-                                    formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 1
-                                      ? 'bg-green-600 text-white hover:bg-green-700'
-                                      : formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2
-                                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                                  }`}
-                                  data-testid={`attendance-${monthIndex}-3rd`}
-                                >
-                                  {month}-3rd {meetingDates[monthIndex * 2 + 1] && `(${formatMeetingDate(meetingDates[monthIndex * 2 + 1])})`}
-                                </button>
-                              </div>
-                              {(formData.meeting_attendance.meetings[monthIndex * 2].status === 0 || 
-                                formData.meeting_attendance.meetings[monthIndex * 2].status === 2) && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+                      {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, monthIndex) => (
+                        <div key={month} className="border rounded p-3">
+                          <p className="text-sm font-medium mb-2">{month}</p>
+                          <div className="space-y-2">
+                            <div>
+                              <button
+                                type="button"
+                                onClick={() => handleAttendanceToggle(monthIndex * 2)}
+                                className={`w-full px-2 py-2 rounded text-xs font-medium transition-colors ${
+                                  formData.meeting_attendance.meetings[monthIndex * 2].status === 1
+                                    ? 'bg-green-600 text-white hover:bg-green-700'
+                                    : formData.meeting_attendance.meetings[monthIndex * 2].status === 2
+                                    ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                }`}
+                              >
+                                {month}-1st {meetingDates[monthIndex * 2] && `(${formatMeetingDate(meetingDates[monthIndex * 2])})`}
+                              </button>
+                              {(formData.meeting_attendance.meetings[monthIndex * 2].status === 0 || formData.meeting_attendance.meetings[monthIndex * 2].status === 2) && (
                                 <Input
                                   placeholder={`${month}-1st note (${formData.meeting_attendance.meetings[monthIndex * 2].status === 2 ? 'excused' : 'unexcused'} absence)`}
                                   value={formData.meeting_attendance.meetings[monthIndex * 2].note}
-                                  onChange={(e) => handleAttendanceNote(monthIndex * 2, e.target.value)}
-                                  className="text-xs"
-                                />
-                              )}
-                              {(formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 0 || 
-                                formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2) && (
-                                <Input
-                                  placeholder={`${month}-3rd note (${formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2 ? 'excused' : 'unexcused'} absence)`}
-                                  value={formData.meeting_attendance.meetings[monthIndex * 2 + 1].note}
-                                  onChange={(e) => handleAttendanceNote(monthIndex * 2 + 1, e.target.value)}
-                                  className="text-xs"
+                                  onChange={(e) => handleAttendanceNoteChange(monthIndex * 2, e.target.value)}
+                                  className="mt-1 text-xs"
                                 />
                               )}
                             </div>
-                          ))}
+                            <div>
+                              <button
+                                type="button"
+                                onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
+                                className={`w-full px-2 py-2 rounded text-xs font-medium transition-colors ${
+                                  formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 1
+                                    ? 'bg-green-600 text-white hover:bg-green-700'
+                                    : formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2
+                                    ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                }`}
+                              >
+                                {month}-3rd {meetingDates[monthIndex * 2 + 1] && `(${formatMeetingDate(meetingDates[monthIndex * 2 + 1])})`}
+                              </button>
+                              {(formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 0 || formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2) && (
+                                <Input
+                                  placeholder={`${month}-3rd note (${formData.meeting_attendance.meetings[monthIndex * 2 + 1].status === 2 ? 'excused' : 'unexcused'} absence)`}
+                                  value={formData.meeting_attendance.meetings[monthIndex * 2 + 1].note}
+                                  onChange={(e) => handleAttendanceNoteChange(monthIndex * 2 + 1, e.target.value)}
+                                  className="mt-1 text-xs"
+                                />
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-xs text-slate-600">
-                          Click to cycle: <span className="font-medium">Gray (Absent)</span> → <span className="font-medium text-green-600">Green (Present)</span> → <span className="font-medium text-yellow-600">Yellow (Excused)</span>
-                        </p>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
 
-                      <div className="flex gap-3 justify-end pt-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setDialogOpen(false);
-                            resetForm();
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          type="submit"
-                          data-testid="submit-member-button"
-                          className="bg-slate-800 hover:bg-slate-900"
-                        >
-                          {editingMember ? "Update" : "Add"} Member
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-            </div>
-          )}
+                  <div className="flex gap-3 justify-end pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setDialogOpen(false);
+                        resetForm();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="bg-slate-800 hover:bg-slate-900">
+                      {editingProspect ? "Update" : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-          {loading ? (
-            <div className="text-center py-12 text-slate-600">Loading members...</div>
-          ) : sortedFilteredMembers.length === 0 ? (
-            <div className="text-center py-12 text-slate-600">
-              {searchTerm ? "No members found" : "No members yet. Add your first member!"}
-            </div>
+          {filteredProspects.length === 0 ? (
+            <p className="text-center text-slate-500 py-8">No prospects found</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Chapter</TableHead>
-                    <TableHead>Title</TableHead>
                     <TableHead>Handle</TableHead>
                     <TableHead>Name</TableHead>
-                    {hasPermission('email') && <TableHead>Email</TableHead>}
-                    {hasPermission('phone') && <TableHead>Phone</TableHead>}
-                    {hasPermission('address') && <TableHead>Address</TableHead>}
-                    {hasPermission('dues_tracking') && <TableHead>Dues</TableHead>}
-                    {hasPermission('meeting_attendance') && <TableHead>Attendance</TableHead>}
-                    {hasPermission('admin_actions') && <TableHead className="text-right">Actions</TableHead>}
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedFilteredMembers.map((member) => (
-                    <TableRow key={member.id} data-testid={`member-row-${member.id}`}>
-                      <TableCell className="font-medium">{member.chapter}</TableCell>
-                      <TableCell>{member.title}</TableCell>
-                      <TableCell>{member.handle}</TableCell>
-                      <TableCell>{member.name}</TableCell>
-                      {hasPermission('email') && (
-                        <TableCell>
-                          <a
-                            href={`mailto:${member.email}`}
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
-                            data-testid={`email-link-${member.id}`}
+                  {filteredProspects.map((prospect) => (
+                    <TableRow key={prospect.id}>
+                      <TableCell>{prospect.handle}</TableCell>
+                      <TableCell>{prospect.name}</TableCell>
+                      <TableCell>
+                        <a
+                          href={`mailto:${prospect.email}`}
+                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                        >
+                          <Mail className="w-3 h-3" />
+                          {prospect.email}
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <a
+                          href={`tel:${prospect.phone}`}
+                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                        >
+                          <Phone className="w-3 h-3" />
+                          {prospect.phone}
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prospect.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                        >
+                          <MapPin className="w-3 h-3" />
+                          {prospect.address}
+                        </a>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(prospect)}
                           >
-                            <Mail className="w-3 h-3" />
-                            {member.email}
-                          </a>
-                        </TableCell>
-                      )}
-                      {hasPermission('phone') && (
-                        <TableCell>
-                          <a
-                            href={`tel:${member.phone}`}
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
-                            data-testid={`phone-link-${member.id}`}
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => handleDelete(prospect.id)}
                           >
-                            <Phone className="w-3 h-3" />
-                            {member.phone}
-                          </a>
-                        </TableCell>
-                      )}
-                      {hasPermission('address') && (
-                        <TableCell>
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                              member.address
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
-                            data-testid={`address-link-${member.id}`}
-                          >
-                            <MapPin className="w-3 h-3" />
-                            {member.address}
-                          </a>
-                        </TableCell>
-                      )}
-                      {hasPermission('dues_tracking') && (
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-slate-600">{member.dues?.year || new Date().getFullYear()}</span>
-                            <span className="text-xs font-medium text-slate-700">
-                              {member.dues?.months?.filter(p => p).length || 0}/12
-                            </span>
-                          </div>
-                        </TableCell>
-                      )}
-                      {hasPermission('meeting_attendance') && (
-                        <TableCell>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-xs text-slate-600">{member.meeting_attendance?.year || new Date().getFullYear()}</span>
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="text-green-600 font-medium">
-                                P:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? m.status === 1 : m === 1)).length || 0}
-                              </span>
-                              <span className="text-yellow-600 font-medium">
-                                E:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? m.status === 2 : m === 2)).length || 0}
-                              </span>
-                              <span className="text-slate-500">
-                                A:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? (m.status === 0 || !m.status) : (m === 0 || !m))).length || 24}
-                              </span>
-                            </div>
-                          </div>
-                        </TableCell>
-                      )}
-                      {hasPermission('admin_actions') && (
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEdit(member)}
-                              data-testid={`edit-member-${member.id}`}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(member.id)}
-                              data-testid={`delete-member-${member.id}`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      )}
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
