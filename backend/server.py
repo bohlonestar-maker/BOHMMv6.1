@@ -264,7 +264,7 @@ async def get_users(current_user: dict = Depends(verify_admin)):
             user['created_at'] = datetime.fromisoformat(user['created_at'])
     return users
 
-@api_router.post("/users", response_model=UserResponse)
+@api_router.post("/users", response_model=UserResponse, status_code=201)
 async def create_user(user_data: UserCreate, current_user: dict = Depends(verify_admin)):
     # Check if username exists
     existing = await db.users.find_one({"username": user_data.username})
