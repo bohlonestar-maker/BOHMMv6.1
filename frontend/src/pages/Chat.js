@@ -121,25 +121,33 @@ export default function Chat() {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div className="bg-slate-800 rounded-xl shadow-xl border border-slate-700 flex flex-col h-[calc(100vh-200px)]">
-          {/* Chat Header */}
-          <div className="p-4 border-b border-slate-700 bg-slate-800/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base sm:text-lg font-semibold text-slate-100">Admin Discussion</h2>
-                <p className="text-xs sm:text-sm text-slate-400">Messages auto-refresh every 15 seconds</p>
-              </div>
-              <Button
-                onClick={fetchMessages}
-                variant="outline"
-                size="sm"
-                className="border-slate-600 text-slate-300 hover:bg-slate-700"
-              >
-                Refresh
-              </Button>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Voice Chat Sidebar */}
+          <div className="lg:col-span-1">
+            <VoiceChat />
           </div>
+
+          {/* Text Chat Main Area */}
+          <div className="lg:col-span-2">
+            <div className="bg-slate-800 rounded-xl shadow-xl border border-slate-700 flex flex-col h-[calc(100vh-200px)]">
+              {/* Chat Header */}
+              <div className="p-4 border-b border-slate-700 bg-slate-800/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-slate-100">Admin Discussion</h2>
+                    <p className="text-xs sm:text-sm text-slate-400">Messages auto-refresh every 15 seconds</p>
+                  </div>
+                  <Button
+                    onClick={fetchMessages}
+                    variant="outline"
+                    size="sm"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                  >
+                    Refresh
+                  </Button>
+                </div>
+              </div>
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-900/30">
