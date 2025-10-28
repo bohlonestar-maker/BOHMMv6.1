@@ -231,6 +231,27 @@ async def delete_member(member_id: str, current_user: dict = Depends(verify_admi
         raise HTTPException(status_code=404, detail="Member not found")
     return {"message": "Member deleted successfully"}
 
+# Dues tracking endpoint
+@api_router.put("/members/{member_id}/dues")
+async def update_member_dues(member_id: str, dues_data: dict, current_user: dict = Depends(verify_admin)):
+    member = await db.members.find_one({"id": member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    
+    update_data = {
+        'dues': dues_data,
+        'updated_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.members.update_one({"id": member_id}, {"$set": update_data})
+    
+    updated_member = await db.members.find_one({"id": member_id}, {"_id": 0})
+    if isinstance(updated_member.get('created_at'), str):
+        updated_member['created_at'] = datetime.fromisoformat(updated_member['created_at'])
+    if isinstance(updated_member.get('updated_at'), str):
+        updated_member['updated_at'] = datetime.fromisoformat(updated_member['updated_at'])
+    return updated_member
+
 # CSV Export endpoint
 @api_router.get("/members/export/csv")
 async def export_members_csv(current_user: dict = Depends(verify_token)):
