@@ -497,15 +497,17 @@ export default function Dashboard({ onLogout, userRole }) {
                       <TableCell>{member.handle}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <a
-                            href={`mailto:${member.email}`}
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
-                            data-testid={`email-link-${member.id}`}
-                          >
-                            <Mail className="w-3 h-3" />
-                            {member.email}
-                          </a>
+                        <a
+                          href={`mailto:${member.email}`}
+                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                          data-testid={`email-link-${member.id}`}
+                        >
+                          <Mail className="w-3 h-3" />
+                          {member.email}
+                        </a>
+                      </TableCell>
+                      {userRole === "admin" && (
+                        <TableCell>
                           <a
                             href={`tel:${member.phone}`}
                             className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
@@ -514,44 +516,34 @@ export default function Dashboard({ onLogout, userRole }) {
                             <Phone className="w-3 h-3" />
                             {member.phone}
                           </a>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                            member.address
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
-                          data-testid={`address-link-${member.id}`}
-                        >
-                          <MapPin className="w-3 h-3" />
-                          {member.address}
-                        </a>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {member.dues && member.dues.months ? (
-                            <>
-                              <span className="text-xs font-medium text-slate-600">{member.dues.year}:</span>
-                              {member.dues.months.map((paid, idx) => (
-                                <span
-                                  key={idx}
-                                  className={`inline-flex items-center justify-center w-6 h-6 text-xs rounded ${
-                                    paid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'
-                                  }`}
-                                  title={`${monthNames[idx]} ${paid ? 'Paid' : 'Unpaid'}`}
-                                >
-                                  {monthNames[idx][0]}
-                                </span>
-                              ))}
-                            </>
-                          ) : (
-                            <span className="text-xs text-slate-400">No dues data</span>
-                          )}
-                        </div>
-                      </TableCell>
+                        </TableCell>
+                      )}
+                      {userRole === "admin" && (
+                        <TableCell>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                              member.address
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                            data-testid={`address-link-${member.id}`}
+                          >
+                            <MapPin className="w-3 h-3" />
+                            {member.address}
+                          </a>
+                        </TableCell>
+                      )}
+                      {userRole === "admin" && (
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-slate-600">{member.dues?.year || new Date().getFullYear()}</span>
+                            <span className="text-xs font-medium text-slate-700">
+                              {member.dues?.months?.filter(p => p).length || 0}/12
+                            </span>
+                          </div>
+                        </TableCell>
+                      )}
                       {userRole === "admin" && (
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
