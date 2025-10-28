@@ -357,10 +357,12 @@ export default function UserManagement({ onLogout }) {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-slate-900">System Users</h2>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
+              {/* Management Buttons Group */}
               <Button
                 onClick={handleViewLogs}
                 variant="outline"
+                size="default"
                 className="flex items-center gap-2"
               >
                 <Shield className="w-4 h-4" />
@@ -370,12 +372,14 @@ export default function UserManagement({ onLogout }) {
               <Button
                 onClick={handleViewInvites}
                 variant="outline"
+                size="default"
                 className="flex items-center gap-2"
               >
                 <Mail className="w-4 h-4" />
                 Manage Invites
               </Button>
               
+              {/* Add User Actions Group */}
               <Dialog open={inviteDialogOpen} onOpenChange={(open) => {
                 setInviteDialogOpen(open);
                 if (!open) resetInviteForm();
@@ -384,6 +388,7 @@ export default function UserManagement({ onLogout }) {
                   <Button
                     data-testid="invite-user-button"
                     variant="outline"
+                    size="default"
                     className="flex items-center gap-2"
                   >
                     <Mail className="w-4 h-4" />
