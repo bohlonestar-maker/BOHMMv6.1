@@ -270,6 +270,29 @@ frontend:
       - working: true
         agent: "main"
         comment: "CHAT NAVIGATION & NOTIFICATIONS COMPLETE ✅ Added chat button with notification badge to all admin pages: 1) Dashboard - Chat button with MessageCircle icon and red badge counter for unread messages 2) UserManagement - Chat button in navigation bar 3) Prospects - Chat button in navigation bar 4) App.js - Added /chat route with admin-only access 5) Unread count auto-refreshes every 30 seconds 6) Badge shows count up to 99 (displays '99+' for larger numbers) 7) Badge only appears when unread_count > 0 8) Consistent dark theme styling across all pages. Verified via screenshots - chat buttons visible on Dashboard, User Management, and Prospects pages with proper styling."
+
+  - task: "Voice chat with Bluetooth device support"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/VoiceChat.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "BLUETOOTH DEVICE SUPPORT COMPLETE ✅ Enhanced VoiceChat component with full audio device management: 1) Device Enumeration - Automatically lists all available audio input (microphones) and output (speakers/headphones) devices 2) Bluetooth Detection - Bluetooth devices automatically appear in device lists when connected, removed when disconnected 3) Device Change Listener - Monitors 'devicechange' events to update device lists in real-time 4) Hot-Swapping - Admins can switch between devices (including Bluetooth) before or during active calls 5) Device Selection UI - Toggle-able settings panel with separate dropdowns for microphone and speaker selection 6) Permission Handling - Requests microphone permissions on component mount 7) Daily.co Integration - Passes selected device IDs to Daily.co call object via audioSource and setOutputDevice() 8) User Feedback - Toast notifications when devices are changed successfully. Verified working via screenshots showing 'Show Audio Settings' button, device dropdowns, and '💡 Bluetooth devices will appear here when connected' message."
+
+  - task: "Activity Log dialog close button positioning"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/UserManagement.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
         comment: "CLOSE BUTTON POSITIONING FIX COMPLETE ✅ Issue: Close button on Activity Log dialog needed to be moved to far right corner. Fixed by removing custom flex classes from DialogHeader that were interfering with default shadcn Dialog close button positioning. Also fixed Manage Invites dialog for consistency. Verified via screenshot that close button (X icon) now appears correctly in far right corner of both dialogs. Changes made: Removed 'className=\"flex flex-row items-center justify-between\"' from DialogHeader components in both Activity Log and Manage Invites dialogs, allowing default shadcn Dialog styling to properly position the close button."
 
 metadata:
@@ -280,14 +303,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Prospects (Hangarounds) functionality testing completed"
+    - "Voice chat with Bluetooth support completed"
   stuck_tasks: []
   test_all: false
   test_priority: "completed"
 
 agent_communication:
   - agent: "main"
-    message: "Implemented meeting date display feature. Added calculation functions for 1st and 3rd Wednesday of each month. Dates now appear in attendance buttons as 'Month-1st (MM/DD)' and 'Month-3rd (MM/DD)'. Ready for testing to verify dates are correctly calculated and displayed, and that notes functionality works for both Excused and Unexcused absences."
+    message: "Implemented Bluetooth device support for admin voice chat. Added device enumeration, real-time device change detection, and hot-swapping capabilities. Admins can now select any connected audio device (including Bluetooth headsets) before joining or during active voice calls. UI includes toggle-able settings panel with microphone and speaker dropdowns. All changes verified working via screenshots."
   - agent: "testing"
     message: "BACKEND TESTING COMPLETE - All priority tests PASSED ✅ Authentication: Successfully tested login with existing credentials (testadmin/testpass123) ✅ Member CRUD: Verified 24-meeting attendance structure creation, status updates (0/1/2), and note functionality ✅ Notes: Confirmed notes work for BOTH Excused (status=2) and Unexcused (status=0) absences as requested ✅ Permissions: Verified meeting_attendance permission allows CSV export ✅ CSV Export: Confirmed includes meeting attendance data with proper column structure (Jan-1st, Jan-3rd, Feb-1st, etc.) Fixed 2 backend issues during testing: member creation (dues field handling) and CSV export permissions. All 51 comprehensive backend tests passed. Backend is fully functional and ready for production use."
   - agent: "main"
