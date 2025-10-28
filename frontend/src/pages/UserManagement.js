@@ -106,6 +106,72 @@ export default function UserManagement({ onLogout }) {
     }
   };
 
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setEditFormData({
+      role: user.role,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.put(`${API}/users/${editingUser.id}`, editFormData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("User updated successfully");
+      setEditDialogOpen(false);
+      setEditingUser(null);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to update user");
+    }
+  };
+
+  const handlePasswordChange = (user) => {
+    setEditingUser(user);
+    setPasswordFormData({
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setPasswordDialogOpen(true);
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (passwordFormData.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.put(
+        `${API}/users/${editingUser.id}`,
+        { password: passwordFormData.newPassword },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast.success("Password changed successfully");
+      setPasswordDialogOpen(false);
+      setEditingUser(null);
+      setPasswordFormData({ newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to change password");
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       username: "",
