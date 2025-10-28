@@ -486,6 +486,62 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         </p>
                       </div>
 
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <Label>Meeting Attendance - {formData.meeting_attendance.year}</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormData({
+                              ...formData,
+                              meeting_attendance: {
+                                year: formData.meeting_attendance.year + 1,
+                                meetings: Array(24).fill(false)
+                              }
+                            })}
+                            data-testid="change-attendance-year"
+                          >
+                            Change Year
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-6 gap-2">
+                          {monthNames.map((month, monthIndex) => (
+                            <>
+                              <button
+                                key={`${monthIndex}-1st`}
+                                type="button"
+                                onClick={() => handleAttendanceToggle(monthIndex * 2)}
+                                className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
+                                  formData.meeting_attendance.meetings[monthIndex * 2]
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                }`}
+                                data-testid={`attendance-${monthIndex}-1st`}
+                              >
+                                {month}-1st
+                              </button>
+                              <button
+                                key={`${monthIndex}-3rd`}
+                                type="button"
+                                onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
+                                className={`px-2 py-2 rounded text-xs font-medium transition-colors ${
+                                  formData.meeting_attendance.meetings[monthIndex * 2 + 1]
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                }`}
+                                data-testid={`attendance-${monthIndex}-3rd`}
+                              >
+                                {month}-3rd
+                              </button>
+                            </>
+                          ))}
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          Click meetings to mark attendance: Present (blue) or Absent (gray). Meetings on 1st & 3rd Wednesday of each month.
+                        </p>
+                      </div>
+
                       <div className="flex gap-3 justify-end pt-4">
                         <Button
                           type="button"
