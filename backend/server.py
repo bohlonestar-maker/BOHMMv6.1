@@ -313,7 +313,7 @@ async def login(login_data: LoginRequest):
     await log_activity(
         username=user["username"],
         action="login",
-        details=f"User logged in successfully"
+        details="User logged in successfully"
     )
     
     return LoginResponse(token=token, username=user["username"], role=user["role"])
