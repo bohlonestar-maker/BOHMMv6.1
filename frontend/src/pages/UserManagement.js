@@ -242,6 +242,23 @@ export default function UserManagement({ onLogout }) {
         phone: false,
         address: false,
         dues_tracking: false,
+        meeting_attendance: false,
+        admin_actions: false
+      }
+    });
+  };
+
+  const resetInviteForm = () => {
+    setInviteFormData({
+      email: "",
+      role: "user",
+      permissions: {
+        basic_info: true,
+        email: false,
+        phone: false,
+        address: false,
+        dues_tracking: false,
+        meeting_attendance: false,
         admin_actions: false
       }
     });
