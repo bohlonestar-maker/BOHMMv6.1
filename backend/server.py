@@ -587,6 +587,110 @@ async def delete_user(user_id: str, current_user: dict = Depends(verify_admin)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
 
+# Invite endpoints
+@api_router.post("/invites")
+async def create_invite(invite_data: InviteCreate, current_user: dict = Depends(verify_admin)):
+    # Check if user with email already exists
+    existing = await db.users.find_one({"username": invite_data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    # Check for existing unused invite
+    existing_invite = await db.invites.find_one({"email": invite_data.email, "used": False})
+    if existing_invite:
+        raise HTTPException(status_code=400, detail="An active invitation already exists for this email")
+    
+    # Create invite
+    invite = Invite(
+        email=invite_data.email,
+        role=invite_data.role,
+        permissions=invite_data.permissions,
+        expires_at=datetime.now(timezone.utc) + timedelta(days=7)
+    )
+    
+    doc = invite.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['expires_at'] = doc['expires_at'].isoformat()
+    await db.invites.insert_one(doc)
+    
+    # Send email
+    email_sent = await send_invite_email(invite.email, invite.token, invite.role)
+    
+    return {
+        "message": "Invitation created and email sent" if email_sent else "Invitation created (email failed to send)",
+        "invite_link": f"{FRONTEND_URL}/accept-invite?token={invite.token}",
+        "email_sent": email_sent
+    }
+
+@api_router.get("/invites/{token}")
+async def get_invite(token: str):
+    invite = await db.invites.find_one({"token": token, "used": False}, {"_id": 0})
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invite not found or already used")
+    
+    # Check if expired
+    if isinstance(invite['expires_at'], str):
+        expires_at = datetime.fromisoformat(invite['expires_at'])
+    else:
+        expires_at = invite['expires_at']
+    
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invite has expired")
+    
+    return {
+        "email": invite['email'],
+        "role": invite['role'],
+        "permissions": invite['permissions']
+    }
+
+@api_router.post("/invites/accept")
+async def accept_invite(accept_data: InviteAccept):
+    invite = await db.invites.find_one({"token": accept_data.token, "used": False})
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invite not found or already used")
+    
+    # Check if expired
+    if isinstance(invite['expires_at'], str):
+        expires_at = datetime.fromisoformat(invite['expires_at'])
+    else:
+        expires_at = invite['expires_at']
+    
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invite has expired")
+    
+    # Check if username exists
+    existing = await db.users.find_one({"username": accept_data.username})
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Create user
+    user = User(
+        username=accept_data.username,
+        password_hash=hash_password(accept_data.password),
+        role=invite['role'],
+        permissions=invite['permissions']
+    )
+    
+    doc = user.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.users.insert_one(doc)
+    
+    # Mark invite as used
+    await db.invites.update_one(
+        {"token": accept_data.token},
+        {"$set": {"used": True}}
+    )
+    
+    # Generate login token
+    token = create_access_token({"sub": user.username, "role": user.role})
+    
+    return {
+        "message": "Account created successfully",
+        "token": token,
+        "username": user.username,
+        "role": user.role
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
