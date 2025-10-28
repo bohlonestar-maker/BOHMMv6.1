@@ -141,6 +141,22 @@ async def verify_admin(current_user: dict = Depends(verify_token)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+# Audit logging helper
+async def log_activity(username: str, action: str, details: str, ip_address: str = None):
+    """Log user activity to audit log"""
+    try:
+        log = AuditLog(
+            username=username,
+            action=action,
+            details=details,
+            ip_address=ip_address
+        )
+        doc = log.model_dump()
+        doc['timestamp'] = doc['timestamp'].isoformat()
+        await db.audit_logs.insert_one(doc)
+    except Exception as e:
+        logger.error(f"Failed to log activity: {str(e)}")
+
 # Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
