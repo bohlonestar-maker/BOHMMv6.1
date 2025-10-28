@@ -629,6 +629,127 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
         headers={"Content-Disposition": "attachment; filename=members.csv"}
     )
 
+# Prospect management endpoints (admin only)
+@api_router.get("/prospects", response_model=List[Prospect])
+async def get_prospects(current_user: dict = Depends(verify_admin)):
+    prospects = await db.prospects.find({}, {"_id": 0}).to_list(1000)
+    
+    for prospect in prospects:
+        if isinstance(prospect.get('created_at'), str):
+            prospect['created_at'] = datetime.fromisoformat(prospect['created_at'])
+        if isinstance(prospect.get('updated_at'), str):
+            prospect['updated_at'] = datetime.fromisoformat(prospect['updated_at'])
+    
+    return prospects
+
+@api_router.post("/prospects", response_model=Prospect, status_code=201)
+async def create_prospect(prospect_data: ProspectCreate, current_user: dict = Depends(verify_admin)):
+    prospect_dict = {k: v for k, v in prospect_data.model_dump().items() if v is not None}
+    prospect = Prospect(**prospect_dict)
+    doc = prospect.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    await db.prospects.insert_one(doc)
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="prospect_create",
+        details=f"Created prospect: {prospect.name} ({prospect.handle})"
+    )
+    
+    return prospect
+
+@api_router.put("/prospects/{prospect_id}", response_model=Prospect)
+async def update_prospect(prospect_id: str, prospect_data: ProspectUpdate, current_user: dict = Depends(verify_admin)):
+    prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+    if not prospect:
+        raise HTTPException(status_code=404, detail="Prospect not found")
+    
+    update_data = {k: v for k, v in prospect_data.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.prospects.update_one({"id": prospect_id}, {"$set": update_data})
+    
+    updated_prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+    if isinstance(updated_prospect.get('created_at'), str):
+        updated_prospect['created_at'] = datetime.fromisoformat(updated_prospect['created_at'])
+    if isinstance(updated_prospect.get('updated_at'), str):
+        updated_prospect['updated_at'] = datetime.fromisoformat(updated_prospect['updated_at'])
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="prospect_update",
+        details=f"Updated prospect: {updated_prospect.get('name', 'Unknown')} ({updated_prospect.get('handle', 'Unknown')})"
+    )
+    
+    return updated_prospect
+
+@api_router.delete("/prospects/{prospect_id}")
+async def delete_prospect(prospect_id: str, current_user: dict = Depends(verify_admin)):
+    prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+    
+    result = await db.prospects.delete_one({"id": prospect_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Prospect not found")
+    
+    # Log activity
+    if prospect:
+        await log_activity(
+            username=current_user["username"],
+            action="prospect_delete",
+            details=f"Deleted prospect: {prospect.get('name', 'Unknown')} ({prospect.get('handle', 'Unknown')})"
+        )
+    
+    return {"message": "Prospect deleted successfully"}
+
+@api_router.get("/prospects/export/csv")
+async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
+    prospects = await db.prospects.find({}, {"_id": 0}).to_list(1000)
+    
+    # Create CSV content
+    csv_content = "Handle,Name,Email,Phone,Address,Meeting Attendance Year"
+    
+    # Add meeting columns
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    for month in months:
+        csv_content += f",{month}-1st,{month}-1st Note,{month}-3rd,{month}-3rd Note"
+    csv_content += "\n"
+    
+    # Add data rows
+    for prospect in prospects:
+        attendance = prospect.get('meeting_attendance', {})
+        meetings = attendance.get('meetings', [{"status": 0, "note": ""} for _ in range(24)])
+        
+        row = [
+            prospect.get('handle', ''),
+            prospect.get('name', ''),
+            prospect.get('email', ''),
+            prospect.get('phone', ''),
+            prospect.get('address', ''),
+            str(attendance.get('year', ''))
+        ]
+        
+        # Add meeting attendance
+        for meeting in meetings:
+            if isinstance(meeting, dict):
+                status = meeting.get('status', 0)
+                note = meeting.get('note', '')
+            else:
+                status = meeting
+                note = ''
+            
+            status_text = 'Present' if status == 1 else ('Excused' if status == 2 else 'Absent')
+            row.append(status_text)
+            row.append(note)
+        
+        csv_content += ','.join(f'"{str(item)}"' for item in row) + "\n"
+    
+    return Response(content=csv_content, media_type="text/csv", headers={
+        "Content-Disposition": "attachment; filename=prospects.csv"
+    })
+
 # User management endpoints (admin only)
 @api_router.get("/users", response_model=List[UserResponse])
 async def get_users(current_user: dict = Depends(verify_admin)):
