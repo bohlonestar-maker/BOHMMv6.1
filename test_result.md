@@ -129,6 +129,21 @@ backend:
         agent: "testing"
         comment: "FIX VERIFIED ✅ All 51 comprehensive backend tests passed. PUT /api/members/{member_id} now correctly accepts and saves meeting_attendance field. Tested with specific data: Jan-1st Present, Jan-3rd Excused with 'doctor appointment' note, Feb-1st Unexcused with 'missed without notice' note. All status values (0/1/2) and notes properly stored and retrieved. Attendance data persists correctly after updates."
 
+  - task: "Email invite functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reports emailed invite link not working - invite links received via email are not functioning properly"
+      - working: true
+        agent: "testing"
+        comment: "EMAIL INVITE FUNCTIONALITY FULLY TESTED AND FIXED ✅ ISSUE IDENTIFIED AND RESOLVED: Backend was using incorrect frontend URL (localhost:3000) instead of production URL. FIXED: Added REACT_APP_BACKEND_URL=https://road-roster.preview.emergentagent.com to backend/.env ✅ COMPREHENSIVE TESTING COMPLETED (22/22 tests passed): 1) Create Invite: POST /api/invites successfully creates invites with proper email, role, and permissions 2) Retrieve Invite: GET /api/invites/{token} correctly returns invite details for unused invites 3) Accept Invite: POST /api/invites/accept successfully creates user accounts and marks invites as used 4) Invite Link Format: Links now correctly use https://road-roster.preview.emergentagent.com/accept-invite?token={uuid} 5) Token Validation: All tokens are valid UUIDs 6) Edge Cases Tested: ✅ Using same token twice (properly fails with 404) ✅ Accessing used invites (properly fails with 404) ✅ Invalid/malformed tokens (properly fail with 404) ✅ New user login verification after invite acceptance ✅ Proper cleanup of test data. Root cause of user's issue was incorrect frontend URL configuration - now resolved."
+
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
     implemented: true
