@@ -123,15 +123,18 @@ backend:
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Dashboard.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added utility functions getNthWeekdayOfMonth, getMeetingDates, and formatMeetingDate to calculate 1st and 3rd Wednesday of each month. Updated attendance buttons to display dates in format 'Jan-1st (01/03)'. Added state for meetingDates and useEffect to recalculate when year changes."
+      - working: true
+        agent: "main"
+        comment: "Verified via screenshot - dates are correctly calculated and displayed. Jan-1st (01/01), Jan-3rd (01/15), Feb-1st (02/05), etc. all showing correct Wednesday dates for 2025."
   
   - task: "Meeting attendance notes for Excused/Unexcused absences"
     implemented: true
