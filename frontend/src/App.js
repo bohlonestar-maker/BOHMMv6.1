@@ -64,6 +64,10 @@ function App() {
             }
           />
           <Route
+            path="/accept-invite"
+            element={<AcceptInvite />}
+          />
+          <Route
             path="/"
             element={
               isAuthenticated ? (
