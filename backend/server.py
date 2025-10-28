@@ -308,6 +308,14 @@ async def login(login_data: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
     token = create_access_token({"sub": user["username"], "role": user["role"]})
+    
+    # Log login activity
+    await log_activity(
+        username=user["username"],
+        action="login",
+        details=f"User logged in successfully"
+    )
+    
     return LoginResponse(token=token, username=user["username"], role=user["role"])
 
 @api_router.get("/auth/verify")
