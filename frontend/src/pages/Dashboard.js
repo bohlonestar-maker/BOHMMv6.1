@@ -404,7 +404,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                     variant="outline"
                     size="sm"
                     data-testid="user-management-button"
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
                   >
                     <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="hidden sm:inline">Manage Users</span>
@@ -417,7 +417,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 variant="outline"
                 size="sm"
                 data-testid="logout-button"
-                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
               >
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 Logout
@@ -428,7 +428,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+        <div className="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
             <div className="relative max-w-2xl">
               <svg
