@@ -35,6 +35,44 @@ const API = `${BACKEND_URL}/api`;
 const CHAPTERS = ["National", "AD", "HA", "HS"];
 const TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM"];
 
+// Helper function to get the Nth occurrence of a weekday in a month
+const getNthWeekdayOfMonth = (year, month, weekday, n) => {
+  const date = new Date(year, month, 1);
+  let count = 0;
+  
+  while (date.getMonth() === month) {
+    if (date.getDay() === weekday) {
+      count++;
+      if (count === n) {
+        return new Date(date);
+      }
+    }
+    date.setDate(date.getDate() + 1);
+  }
+  return null;
+};
+
+// Helper function to get 1st and 3rd Wednesday of each month
+const getMeetingDates = (year) => {
+  const dates = [];
+  for (let month = 0; month < 12; month++) {
+    // Get 1st Wednesday (weekday 3 = Wednesday)
+    const firstWed = getNthWeekdayOfMonth(year, month, 3, 1);
+    // Get 3rd Wednesday
+    const thirdWed = getNthWeekdayOfMonth(year, month, 3, 3);
+    dates.push(firstWed, thirdWed);
+  }
+  return dates;
+};
+
+// Helper function to format date as MM/DD
+const formatMeetingDate = (date) => {
+  if (!date) return '';
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}/${day}`;
+};
+
 // Helper function to sort members by chapter and title
 const sortMembers = (members) => {
   return members.sort((a, b) => {
