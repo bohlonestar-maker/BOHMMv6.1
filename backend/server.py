@@ -82,7 +82,9 @@ class User(BaseModel):
     role: str = "user"  # admin or user or custom
     permissions: dict = Field(default_factory=lambda: {
         "basic_info": True,        # Chapter, Title, Handle, Name
-        "contact_info": False,     # Email, Phone, Address
+        "email": False,            # Email access
+        "phone": False,            # Phone access
+        "address": False,          # Address access
         "dues_tracking": False,    # View dues
         "admin_actions": False     # Add/Edit/Delete, Export CSV, User Management
     })
