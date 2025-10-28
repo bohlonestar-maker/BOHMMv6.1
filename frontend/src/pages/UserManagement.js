@@ -1064,7 +1064,7 @@ export default function UserManagement({ onLogout }) {
       {/* Manage Invites Dialog */}
       <Dialog open={invitesDialogOpen} onOpenChange={setInvitesDialogOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogHeader>
             <DialogTitle>Manage Invitation Links</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
