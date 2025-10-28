@@ -391,14 +391,18 @@ async def create_user(user_data: UserCreate, current_user: dict = Depends(verify
         if user_data.role == "admin":
             permissions = {
                 "basic_info": True,
-                "contact_info": True,
+                "email": True,
+                "phone": True,
+                "address": True,
                 "dues_tracking": True,
                 "admin_actions": True
             }
         else:
             permissions = {
                 "basic_info": True,
-                "contact_info": False,
+                "email": False,
+                "phone": False,
+                "address": False,
                 "dues_tracking": False,
                 "admin_actions": False
             }
