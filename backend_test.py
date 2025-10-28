@@ -78,6 +78,7 @@ class BOHDirectoryAPITester:
         
         # Try multiple credential combinations
         credentials_to_try = [
+            ("testadmin", "testpass123"),  # Our test admin
             ("admin", "admin123"),
             ("Admin", "admin123"),
             ("admin", "password"),
