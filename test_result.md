@@ -102,9 +102,21 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Brothers of the Highway Member Directory - Add meeting dates (1st and 3rd Wednesday of each month) to the attendance tracking feature. Meeting attendance notes should work for both Excused and Unexcused absences."
+user_problem_statement: "Brothers of the Highway Member Directory - Create admin chat feature with notifications for administrative discussions."
 
 backend:
+  - task: "Admin chat API endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "ADMIN CHAT BACKEND COMPLETE ✅ Implemented ChatMessage model and 4 REST endpoints: 1) POST /api/chat/messages - Create new chat messages with username, message, timestamp, and read_by tracking 2) GET /api/chat/messages - Retrieve last 100 messages sorted by timestamp 3) GET /api/chat/unread_count - Get count of unread messages for current admin 4) POST /api/chat/mark_read - Mark all messages as read for current user. All endpoints require admin role. Activity logging integrated for chat message creation."
+
   - task: "Meeting attendance with notes for Excused/Unexcused"
     implemented: true
     working: true
