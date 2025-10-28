@@ -415,9 +415,18 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     permissions = user.get("permissions", {})
     is_admin = user.get("role") == "admin"
     
-    # Check if user has admin_actions permission (required to export)
-    if not is_admin and not permissions.get("admin_actions"):
-        raise HTTPException(status_code=403, detail="Admin actions permission required to export CSV")
+    # Check if user has admin_actions permission or any data permission (required to export)
+    has_data_permission = any([
+        permissions.get("basic_info"),
+        permissions.get("email"),
+        permissions.get("phone"),
+        permissions.get("address"),
+        permissions.get("dues_tracking"),
+        permissions.get("meeting_attendance")
+    ])
+    
+    if not is_admin and not permissions.get("admin_actions") and not has_data_permission:
+        raise HTTPException(status_code=403, detail="Data access permission required to export CSV")
     
     members = await db.members.find({}, {"_id": 0}).to_list(10000)
     
