@@ -696,6 +696,237 @@ class BOHDirectoryAPITester:
                 200
             )
 
+    def test_invite_functionality(self):
+        """Test email invite functionality - PRIORITY TEST"""
+        print(f"\n📧 Testing Email Invite Functionality...")
+        
+        # Test 1: Create Invite
+        invite_data = {
+            "email": f"invitetest_{datetime.now().strftime('%H%M%S')}@example.com",
+            "role": "user",
+            "permissions": {
+                "basic_info": True,
+                "email": False,
+                "phone": False,
+                "address": False,
+                "dues_tracking": False,
+                "meeting_attendance": False,
+                "admin_actions": False
+            }
+        }
+        
+        success, invite_response = self.run_test(
+            "Create Invite",
+            "POST",
+            "invites",
+            200,
+            data=invite_data
+        )
+        
+        invite_token = None
+        invite_link = None
+        
+        if success:
+            # Verify response contains invite_link and token
+            if 'invite_link' in invite_response:
+                invite_link = invite_response['invite_link']
+                # Extract token from invite link
+                if '?token=' in invite_link:
+                    invite_token = invite_link.split('?token=')[1]
+                    self.log_test("Create Invite - Token Extracted", True, f"Token: {invite_token[:20]}...")
+                    
+                    # Verify invite link format
+                    expected_base = "https://road-roster.preview.emergentagent.com/accept-invite?token="
+                    if invite_link.startswith(expected_base):
+                        self.log_test("Verify Invite Link Format", True, f"Link format correct: {invite_link[:60]}...")
+                    else:
+                        self.log_test("Verify Invite Link Format", False, f"Expected format: {expected_base}..., got: {invite_link}")
+                    
+                    # Verify token is valid UUID format
+                    try:
+                        import uuid
+                        uuid.UUID(invite_token)
+                        self.log_test("Verify Token is Valid UUID", True, f"Token is valid UUID: {invite_token}")
+                    except ValueError:
+                        self.log_test("Verify Token is Valid UUID", False, f"Token is not valid UUID: {invite_token}")
+                else:
+                    self.log_test("Create Invite - Token Extracted", False, "No token found in invite_link")
+            else:
+                self.log_test("Create Invite - Response Format", False, "No invite_link in response")
+        
+        if not invite_token:
+            print("❌ Cannot continue invite tests without valid token")
+            return
+        
+        # Test 2: Retrieve Invite by Token
+        success, invite_details = self.run_test(
+            "Retrieve Invite by Token",
+            "GET",
+            f"invites/{invite_token}",
+            200
+        )
+        
+        if success:
+            # Verify invite details
+            expected_fields = ['email', 'role', 'permissions']
+            missing_fields = [field for field in expected_fields if field not in invite_details]
+            
+            if not missing_fields:
+                self.log_test("Invite Details - Required Fields", True, f"All required fields present: {expected_fields}")
+                
+                # Verify email matches
+                if invite_details.get('email') == invite_data['email']:
+                    self.log_test("Invite Details - Email Match", True, f"Email matches: {invite_details['email']}")
+                else:
+                    self.log_test("Invite Details - Email Match", False, f"Expected: {invite_data['email']}, got: {invite_details.get('email')}")
+                
+                # Verify role matches
+                if invite_details.get('role') == invite_data['role']:
+                    self.log_test("Invite Details - Role Match", True, f"Role matches: {invite_details['role']}")
+                else:
+                    self.log_test("Invite Details - Role Match", False, f"Expected: {invite_data['role']}, got: {invite_details.get('role')}")
+            else:
+                self.log_test("Invite Details - Required Fields", False, f"Missing fields: {missing_fields}")
+        
+        # Test 3: Accept Invite
+        accept_data = {
+            "token": invite_token,
+            "username": "invitetest",
+            "password": "testpass123"
+        }
+        
+        success, accept_response = self.run_test(
+            "Accept Invite",
+            "POST",
+            "invites/accept",
+            200,
+            data=accept_data
+        )
+        
+        new_user_token = None
+        if success:
+            # Verify user creation response
+            expected_fields = ['message', 'token', 'username', 'role']
+            missing_fields = [field for field in expected_fields if field not in accept_response]
+            
+            if not missing_fields:
+                self.log_test("Accept Invite - Response Fields", True, f"All required fields present: {expected_fields}")
+                new_user_token = accept_response.get('token')
+                
+                # Verify username matches
+                if accept_response.get('username') == accept_data['username']:
+                    self.log_test("Accept Invite - Username Match", True, f"Username: {accept_response['username']}")
+                else:
+                    self.log_test("Accept Invite - Username Match", False, f"Expected: {accept_data['username']}, got: {accept_response.get('username')}")
+            else:
+                self.log_test("Accept Invite - Response Fields", False, f"Missing fields: {missing_fields}")
+        
+        # Test 4: Verify User Can Login with New Credentials
+        if new_user_token:
+            # Save original admin token
+            original_token = self.token
+            
+            # Try to login with new user credentials
+            success, login_response = self.run_test(
+                "Login with New User Credentials",
+                "POST",
+                "auth/login",
+                200,
+                data={"username": accept_data['username'], "password": accept_data['password']}
+            )
+            
+            if success and 'token' in login_response:
+                self.log_test("New User Login Verification", True, f"New user can login successfully")
+                
+                # Test token verification for new user
+                self.token = login_response['token']
+                success, verify_response = self.run_test(
+                    "New User Token Verification",
+                    "GET",
+                    "auth/verify",
+                    200
+                )
+                
+                if success:
+                    if verify_response.get('username') == accept_data['username']:
+                        self.log_test("New User Token Verify - Username", True, f"Username verified: {verify_response['username']}")
+                    else:
+                        self.log_test("New User Token Verify - Username", False, f"Username mismatch in verification")
+            else:
+                self.log_test("New User Login Verification", False, "New user cannot login")
+            
+            # Restore admin token
+            self.token = original_token
+        
+        # Test 5: Edge Case - Try to Use Same Token Twice (Should Fail)
+        duplicate_accept_data = {
+            "token": invite_token,
+            "username": "duplicateuser",
+            "password": "testpass123"
+        }
+        
+        success, duplicate_response = self.run_test(
+            "Use Same Token Twice (Should Fail)",
+            "POST",
+            "invites/accept",
+            404,  # Should fail because invite is already used
+            data=duplicate_accept_data
+        )
+        
+        # Test 6: Edge Case - Try to Get Used Invite (Should Fail)
+        success, used_invite_response = self.run_test(
+            "Get Used Invite (Should Fail)",
+            "GET",
+            f"invites/{invite_token}",
+            404  # Should fail because invite is used
+        )
+        
+        # Test 7: Edge Case - Try Invalid Token (Should Return 404)
+        invalid_token = "00000000-0000-0000-0000-000000000000"
+        success, invalid_response = self.run_test(
+            "Get Invalid Token (Should Fail)",
+            "GET",
+            f"invites/{invalid_token}",
+            404
+        )
+        
+        # Test 8: Edge Case - Try Malformed Token
+        malformed_token = "not-a-valid-uuid"
+        success, malformed_response = self.run_test(
+            "Get Malformed Token (Should Fail)",
+            "GET",
+            f"invites/{malformed_token}",
+            404
+        )
+        
+        # Clean up: Delete the created user
+        if new_user_token:
+            # Get all users to find the created user ID
+            success, users = self.run_test(
+                "Get Users for Cleanup",
+                "GET",
+                "users",
+                200
+            )
+            
+            if success:
+                created_user = None
+                for user in users:
+                    if user.get('username') == accept_data['username']:
+                        created_user = user
+                        break
+                
+                if created_user and 'id' in created_user:
+                    success, delete_response = self.run_test(
+                        "Delete Created User (Cleanup)",
+                        "DELETE",
+                        f"users/{created_user['id']}",
+                        200
+                    )
+        
+        print(f"   📧 Invite functionality testing completed")
+        return invite_token
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
