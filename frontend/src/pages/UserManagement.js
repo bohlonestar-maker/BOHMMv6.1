@@ -436,6 +436,21 @@ export default function UserManagement({ onLogout }) {
                         </div>
                         <div className="flex items-center space-x-2">
                           <Checkbox
+                            id="invite_meeting_attendance"
+                            checked={inviteFormData.permissions.meeting_attendance}
+                            onCheckedChange={(checked) =>
+                              setInviteFormData({
+                                ...inviteFormData,
+                                permissions: { ...inviteFormData.permissions, meeting_attendance: checked }
+                              })
+                            }
+                          />
+                          <label htmlFor="invite_meeting_attendance" className="text-sm font-medium cursor-pointer">
+                            Meeting Attendance
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
                             id="invite_admin_actions"
                             checked={inviteFormData.permissions.admin_actions}
                             onCheckedChange={(checked) =>
