@@ -586,6 +586,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                     {hasPermission('phone') && <TableHead>Phone</TableHead>}
                     {hasPermission('address') && <TableHead>Address</TableHead>}
                     {hasPermission('dues_tracking') && <TableHead>Dues</TableHead>}
+                    {hasPermission('meeting_attendance') && <TableHead>Attendance</TableHead>}
                     {hasPermission('admin_actions') && <TableHead className="text-right">Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
