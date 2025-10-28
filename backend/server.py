@@ -328,7 +328,9 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
 
 @api_router.post("/members", response_model=Member, status_code=201)
 async def create_member(member_data: MemberCreate, current_user: dict = Depends(verify_admin)):
-    member = Member(**member_data.model_dump())
+    # Filter out None values to allow default factories to work
+    member_dict = {k: v for k, v in member_data.model_dump().items() if v is not None}
+    member = Member(**member_dict)
     doc = member.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
