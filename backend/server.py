@@ -274,6 +274,38 @@ class MemberUpdate(BaseModel):
     dues: Optional[dict] = None
     meeting_attendance: Optional[dict] = None
 
+# Prospect models (Hangarounds/Prospects)
+class Prospect(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    handle: str
+    name: str
+    email: EmailStr
+    phone: str
+    address: str
+    meeting_attendance: dict = Field(default_factory=lambda: {
+        "year": datetime.now(timezone.utc).year,
+        "meetings": [{"status": 0, "note": ""} for _ in range(24)]  # status: 0=Absent, 1=Present, 2=Excused
+    })
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProspectCreate(BaseModel):
+    handle: str
+    name: str
+    email: EmailStr
+    phone: str
+    address: str
+    meeting_attendance: Optional[dict] = None
+
+class ProspectUpdate(BaseModel):
+    handle: Optional[str] = None
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    meeting_attendance: Optional[dict] = None
+
 # Initialize default admin user
 @app.on_event("startup")
 async def create_default_admin():
