@@ -741,7 +741,26 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
     # Add data rows
     for prospect in prospects:
         attendance = prospect.get('meeting_attendance', {})
-        meetings = attendance.get('meetings', [{"status": 0, "note": ""} for _ in range(24)])
+        
+        # Handle new format (dict with years as keys) and old format (single year dict)
+        if attendance and isinstance(attendance, dict):
+            if 'year' in attendance:
+                # Old format - convert
+                old_year = str(attendance.get('year', ''))
+                old_meetings = attendance.get('meetings', [])
+                attendance = {old_year: old_meetings}
+            
+            # Get most recent year
+            years = sorted(attendance.keys(), reverse=True)
+            if years:
+                current_year = years[0]
+                meetings = attendance.get(current_year, [{"status": 0, "note": ""} for _ in range(24)])
+            else:
+                current_year = str(datetime.now(timezone.utc).year)
+                meetings = [{"status": 0, "note": ""} for _ in range(24)]
+        else:
+            current_year = str(datetime.now(timezone.utc).year)
+            meetings = [{"status": 0, "note": ""} for _ in range(24)]
         
         row = [
             prospect.get('handle', ''),
@@ -749,7 +768,7 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
             prospect.get('email', ''),
             prospect.get('phone', ''),
             prospect.get('address', ''),
-            str(attendance.get('year', ''))
+            current_year
         ]
         
         # Add meeting attendance
