@@ -111,6 +111,27 @@ class UserResponse(BaseModel):
     permissions: dict
     created_at: datetime
 
+class Invite(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: EmailStr
+    role: str
+    permissions: dict
+    token: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    expires_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    used: bool = False
+
+class InviteCreate(BaseModel):
+    email: EmailStr
+    role: str
+    permissions: dict
+
+class InviteAccept(BaseModel):
+    token: str
+    username: str
+    password: str
+
 class LoginRequest(BaseModel):
     username: str
     password: str
