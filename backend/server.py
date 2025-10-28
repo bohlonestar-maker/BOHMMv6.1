@@ -339,10 +339,38 @@ async def export_members_csv(current_user: dict = Depends(verify_admin)):
 @api_router.get("/users", response_model=List[UserResponse])
 async def get_users(current_user: dict = Depends(verify_admin)):
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    
+    # Convert and add default permissions if missing
+    result = []
     for user in users:
         if isinstance(user.get('created_at'), str):
             user['created_at'] = datetime.fromisoformat(user['created_at'])
-    return users
+        
+        # Add default permissions if not present
+        if 'permissions' not in user:
+            if user.get('role') == 'admin':
+                user['permissions'] = {
+                    "basic_info": True,
+                    "contact_info": True,
+                    "dues_tracking": True,
+                    "admin_actions": True
+                }
+            else:
+                user['permissions'] = {
+                    "basic_info": True,
+                    "contact_info": False,
+                    "dues_tracking": False,
+                    "admin_actions": False
+                }
+            # Update the user in database
+            await db.users.update_one(
+                {"id": user['id']},
+                {"$set": {"permissions": user['permissions']}}
+            )
+        
+        result.append(user)
+    
+    return result
 
 @api_router.post("/users", response_model=UserResponse, status_code=201)
 async def create_user(user_data: UserCreate, current_user: dict = Depends(verify_admin)):
