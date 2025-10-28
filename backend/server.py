@@ -34,6 +34,71 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'brothers-highway-secret-key-change-in
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
+# Email configuration
+SMTP_HOST = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
+SMTP_EMAIL = os.environ.get('SMTP_EMAIL', '')
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+FRONTEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '')
+
+# Email sending function
+async def send_invite_email(email: str, token: str, role: str):
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        logger.warning("SMTP credentials not configured")
+        return False
+    
+    invite_link = f"{FRONTEND_URL}/accept-invite?token={token}"
+    
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Invitation to Brothers of the Highway Directory"
+    message["From"] = SMTP_EMAIL
+    message["To"] = email
+    
+    text = f"""
+    You've been invited to join the Brothers of the Highway Member Directory!
+    
+    Role: {role}
+    
+    Click the link below to set up your account:
+    {invite_link}
+    
+    This invitation will expire in 7 days.
+    """
+    
+    html = f"""
+    <html>
+      <body>
+        <h2>You've been invited!</h2>
+        <p>You've been invited to join the <strong>Brothers of the Highway Member Directory</strong></p>
+        <p><strong>Role:</strong> {role}</p>
+        <p>Click the button below to set up your account:</p>
+        <p><a href="{invite_link}" style="background-color: #1e293b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Accept Invitation</a></p>
+        <p>Or copy this link: {invite_link}</p>
+        <p><em>This invitation will expire in 7 days.</em></p>
+      </body>
+    </html>
+    """
+    
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+    message.attach(part1)
+    message.attach(part2)
+    
+    try:
+        await aiosmtplib.send(
+            message,
+            hostname=SMTP_HOST,
+            port=SMTP_PORT,
+            username=SMTP_EMAIL,
+            password=SMTP_PASSWORD,
+            use_tls=True
+        )
+        logger.info(f"Invite email sent to {email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email: {str(e)}")
+        return False
+
 # Create the main app without a prefix
 app = FastAPI()
 
