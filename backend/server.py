@@ -283,9 +283,8 @@ class Prospect(BaseModel):
     phone: str
     address: str
     meeting_attendance: dict = Field(default_factory=lambda: {
-        "year": datetime.now(timezone.utc).year,
-        "meetings": [{"status": 0, "note": ""} for _ in range(24)]  # status: 0=Absent, 1=Present, 2=Excused
-    })
+        str(datetime.now(timezone.utc).year): [{"status": 0, "note": ""} for _ in range(24)]
+    })  # Format: {"2025": [meetings], "2024": [meetings], ...}
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
