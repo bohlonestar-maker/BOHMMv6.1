@@ -18,6 +18,7 @@ from fastapi.responses import StreamingResponse, Response
 import aiosmtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import httpx
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -33,6 +34,10 @@ security = HTTPBearer()
 SECRET_KEY = os.environ.get('SECRET_KEY', 'brothers-highway-secret-key-change-in-production')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
+
+# Daily.co configuration
+DAILY_API_KEY = os.environ.get('DAILY_API_KEY', '')
+DAILY_API_URL = "https://api.daily.co/v1"
 
 # Email configuration
 SMTP_HOST = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
