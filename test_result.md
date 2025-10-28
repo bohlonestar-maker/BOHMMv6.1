@@ -138,15 +138,30 @@ frontend:
   
   - task: "Meeting attendance notes for Excused/Unexcused absences"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Dashboard.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Notes input field shows for both Excused (status=2) and Unexcused (status=0) absences. Previous session confirmed this was implemented and compiling successfully."
+      - working: true
+        agent: "main"
+        comment: "Verified via screenshot and testing - note fields appear correctly for both Excused (yellow button) and Unexcused (gray button) states. Placeholder text changes appropriately: 'excused absence' vs 'unexcused absence'."
+  
+  - task: "Add Brothers of the Highway logo to login screen"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Login.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Replaced lock icon with Brothers of the Highway logo (red truck with wings and chains). Added 'Property of Brothers of the Highway TC' text at bottom of login screen. Logo saved to /app/frontend/public/brothers-logo.png and verified displaying correctly."
 
 metadata:
   created_by: "main_agent"
