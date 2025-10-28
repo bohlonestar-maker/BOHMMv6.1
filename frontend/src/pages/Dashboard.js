@@ -129,6 +129,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     fetchMembers();
   }, []);
 
+  // Update meeting dates whenever the attendance year changes
+  useEffect(() => {
+    const dates = getMeetingDates(formData.meeting_attendance.year);
+    setMeetingDates(dates);
+  }, [formData.meeting_attendance.year]);
+
   const fetchMembers = async () => {
     try {
       const token = localStorage.getItem("token");
