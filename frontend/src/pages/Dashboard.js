@@ -624,7 +624,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             >
                               {month}
                             </button>
-                          ))}
+                          )})}
                         </div>
                         <p className="text-xs text-slate-600">
                           Click months to mark as paid (green) or unpaid (gray)
