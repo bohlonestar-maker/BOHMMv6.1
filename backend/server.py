@@ -160,7 +160,13 @@ async def create_default_admin():
         admin_user = User(
             username="admin",
             password_hash=hash_password("admin123"),
-            role="admin"
+            role="admin",
+            permissions={
+                "basic_info": True,
+                "contact_info": True,
+                "dues_tracking": True,
+                "admin_actions": True
+            }
         )
         doc = admin_user.model_dump()
         doc['created_at'] = doc['created_at'].isoformat()
