@@ -846,6 +846,7 @@ export default function UserManagement({ onLogout }) {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
 
           {loading ? (
             <div className="text-center py-12 text-slate-600">Loading users...</div>
