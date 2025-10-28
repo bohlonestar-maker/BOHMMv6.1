@@ -47,9 +47,9 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 relative px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-slate-200">
+        <div className="bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-700">
           <div className="flex justify-center mb-6">
             <img 
               src="/brothers-logo.png" 
@@ -58,14 +58,14 @@ export default function Login({ onLogin }) {
             />
           </div>
           
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-white">
             Brothers of the Highway
           </h1>
-          <p className="text-center text-slate-600 mb-6 sm:mb-8 text-sm sm:text-base">Member Directory</p>
+          <p className="text-center text-slate-300 mb-6 sm:mb-8 text-sm sm:text-base">Member Directory</p>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div>
-              <Label htmlFor="username" className="text-slate-700">Username</Label>
+              <Label htmlFor="username" className="text-slate-200">Username</Label>
               <Input
                 id="username"
                 data-testid="login-username-input"
@@ -74,12 +74,12 @@ export default function Login({ onLogin }) {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 required
-                className="mt-1.5"
+                className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
               />
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-slate-700">Password</Label>
+              <Label htmlFor="password" className="text-slate-200">Password</Label>
               <Input
                 id="password"
                 data-testid="login-password-input"
@@ -88,7 +88,7 @@ export default function Login({ onLogin }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                className="mt-1.5"
+                className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
               />
             </div>
 
@@ -96,7 +96,7 @@ export default function Login({ onLogin }) {
               type="submit"
               data-testid="login-submit-button"
               disabled={loading}
-              className="w-full bg-slate-800 hover:bg-slate-900 text-white py-5 sm:py-6 rounded-lg font-medium text-sm sm:text-base"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 sm:py-6 rounded-lg font-medium text-sm sm:text-base"
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
@@ -105,10 +105,10 @@ export default function Login({ onLogin }) {
       </div>
       
       <div className="absolute bottom-4 left-0 right-0 text-center space-y-2 px-4">
-        <p className="text-slate-600 text-xs sm:text-sm">Property of Brothers of the Highway TC</p>
+        <p className="text-slate-400 text-xs sm:text-sm">Property of Brothers of the Highway TC</p>
         <a 
           href="mailto:bohlonestar@gmail.com?subject=Support Request - Brothers of the Highway Directory"
-          className="text-slate-600 text-xs sm:text-sm hover:text-slate-800 underline inline-block"
+          className="text-slate-400 text-xs sm:text-sm hover:text-slate-200 underline inline-block"
         >
           Support
         </a>
