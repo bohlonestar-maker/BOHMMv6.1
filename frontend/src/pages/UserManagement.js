@@ -159,6 +159,23 @@ export default function UserManagement({ onLogout }) {
     fetchInvites();
   };
 
+  const fetchLogs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/logs?limit=50`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setLogs(response.data);
+    } catch (error) {
+      toast.error("Failed to load activity logs");
+    }
+  };
+
+  const handleViewLogs = () => {
+    setLogsDialogOpen(true);
+    fetchLogs();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
