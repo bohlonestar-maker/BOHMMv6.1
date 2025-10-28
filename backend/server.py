@@ -357,14 +357,18 @@ async def get_users(current_user: dict = Depends(verify_admin)):
             if user.get('role') == 'admin':
                 user['permissions'] = {
                     "basic_info": True,
-                    "contact_info": True,
+                    "email": True,
+                    "phone": True,
+                    "address": True,
                     "dues_tracking": True,
                     "admin_actions": True
                 }
             else:
                 user['permissions'] = {
                     "basic_info": True,
-                    "contact_info": False,
+                    "email": False,
+                    "phone": False,
+                    "address": False,
                     "dues_tracking": False,
                     "admin_actions": False
                 }
