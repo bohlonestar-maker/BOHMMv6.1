@@ -101,3 +101,61 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Brothers of the Highway Member Directory - Add meeting dates (1st and 3rd Wednesday of each month) to the attendance tracking feature. Meeting attendance notes should work for both Excused and Unexcused absences."
+
+backend:
+  - task: "Meeting attendance with notes for Excused/Unexcused"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Meeting attendance model supports status (0=Absent, 1=Present, 2=Excused) and optional note field. Backend confirmed compiling successfully in previous session."
+
+frontend:
+  - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added utility functions getNthWeekdayOfMonth, getMeetingDates, and formatMeetingDate to calculate 1st and 3rd Wednesday of each month. Updated attendance buttons to display dates in format 'Jan-1st (01/03)'. Added state for meetingDates and useEffect to recalculate when year changes."
+  
+  - task: "Meeting attendance notes for Excused/Unexcused absences"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Notes input field shows for both Excused (status=2) and Unexcused (status=0) absences. Previous session confirmed this was implemented and compiling successfully."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
+    - "Meeting attendance notes for Excused/Unexcused absences"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implemented meeting date display feature. Added calculation functions for 1st and 3rd Wednesday of each month. Dates now appear in attendance buttons as 'Month-1st (MM/DD)' and 'Month-3rd (MM/DD)'. Ready for testing to verify dates are correctly calculated and displayed, and that notes functionality works for both Excused and Unexcused absences."
