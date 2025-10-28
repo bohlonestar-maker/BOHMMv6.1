@@ -221,6 +221,24 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       attendanceData[currentYear] = Array(24).fill(null).map(() => ({ status: 0, note: "" }));
     }
     
+    // Handle dues - support both old and new format
+    let duesData = {};
+    if (member.dues) {
+      if (member.dues.year) {
+        // Old format - convert
+        const yearStr = member.dues.year.toString();
+        duesData[yearStr] = member.dues.months || Array(12).fill(false);
+      } else {
+        // New format - use as is
+        duesData = { ...member.dues };
+        if (!duesData[currentYear]) {
+          duesData[currentYear] = Array(12).fill(false);
+        }
+      }
+    } else {
+      duesData[currentYear] = Array(12).fill(false);
+    }
+    
     setFormData({
       chapter: member.chapter,
       title: member.title,
@@ -229,10 +247,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       email: member.email,
       phone: member.phone,
       address: member.address,
-      dues: member.dues || {
-        year: new Date().getFullYear(),
-        months: Array(12).fill(false)
-      },
+      dues: duesData,
       meeting_attendance: attendanceData
     });
     setDialogOpen(true);
