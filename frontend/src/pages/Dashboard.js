@@ -516,7 +516,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       <TableCell>{member.title}</TableCell>
                       <TableCell>{member.handle}</TableCell>
                       <TableCell>{member.name}</TableCell>
-                      {hasPermission('contact_info') && (
+                      {hasPermission('email') && (
                         <TableCell>
                           <a
                             href={`mailto:${member.email}`}
@@ -528,7 +528,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                           </a>
                         </TableCell>
                       )}
-                      {hasPermission('contact_info') && (
+                      {hasPermission('phone') && (
                         <TableCell>
                           <a
                             href={`tel:${member.phone}`}
@@ -540,7 +540,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                           </a>
                         </TableCell>
                       )}
-                      {hasPermission('contact_info') && (
+                      {hasPermission('address') && (
                         <TableCell>
                           <a
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
