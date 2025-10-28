@@ -2,6 +2,10 @@ import requests
 import sys
 import json
 from datetime import datetime
+import urllib3
+
+# Suppress SSL warnings for testing
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class BOHDirectoryAPITester:
     def __init__(self, base_url="https://road-roster.preview.emergentagent.com/api"):
