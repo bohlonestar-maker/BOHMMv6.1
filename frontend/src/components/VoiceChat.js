@@ -8,6 +8,9 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Singleton call object to prevent duplicate instances
+let sharedCallObject = null;
+
 export default function VoiceChat() {
   const [callObject, setCallObject] = useState(null);
   const [callState, setCallState] = useState('idle'); // idle, joining, joined, leaving, left
@@ -17,18 +20,18 @@ export default function VoiceChat() {
   const [roomUrl, setRoomUrl] = useState(null);
   const [meetingToken, setMeetingToken] = useState(null);
 
-  // Initialize call object
+  // Initialize call object (singleton)
   useEffect(() => {
-    const daily = DailyIframe.createCallObject({
-      audioSource: true,
-      videoSource: false,
-    });
-    setCallObject(daily);
+    if (!sharedCallObject) {
+      sharedCallObject = DailyIframe.createCallObject({
+        audioSource: true,
+        videoSource: false,
+      });
+    }
+    setCallObject(sharedCallObject);
 
     return () => {
-      if (daily) {
-        daily.destroy();
-      }
+      // Don't destroy the call object on unmount to preserve state
     };
   }, []);
 
