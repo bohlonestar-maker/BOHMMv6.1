@@ -70,6 +70,10 @@ export default function Dashboard({ onLogout, userRole }) {
     email: "",
     phone: "",
     address: "",
+    dues: {
+      year: new Date().getFullYear(),
+      months: Array(12).fill(false)
+    }
   });
 
   useEffect(() => {
