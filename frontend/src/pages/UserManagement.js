@@ -290,6 +290,122 @@ export default function UserManagement({ onLogout }) {
             </Dialog>
           </div>
 
+          {/* Edit User Dialog */}
+          <Dialog open={editDialogOpen} onOpenChange={(open) => {
+            setEditDialogOpen(open);
+            if (!open) setEditingUser(null);
+          }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit User: {editingUser?.username}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
+                <div>
+                  <Label>Role</Label>
+                  <Select
+                    value={editFormData.role}
+                    onValueChange={(value) =>
+                      setEditFormData({ ...editFormData, role: value })
+                    }
+                  >
+                    <SelectTrigger data-testid="edit-role-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditDialogOpen(false);
+                      setEditingUser(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    data-testid="submit-edit-user-button"
+                    className="bg-slate-800 hover:bg-slate-900"
+                  >
+                    Update User
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          {/* Change Password Dialog */}
+          <Dialog open={passwordDialogOpen} onOpenChange={(open) => {
+            setPasswordDialogOpen(open);
+            if (!open) {
+              setEditingUser(null);
+              setPasswordFormData({ newPassword: "", confirmPassword: "" });
+            }
+          }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change Password: {editingUser?.username}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-4">
+                <div>
+                  <Label>New Password</Label>
+                  <Input
+                    data-testid="new-password-input"
+                    type="password"
+                    value={passwordFormData.newPassword}
+                    onChange={(e) =>
+                      setPasswordFormData({ ...passwordFormData, newPassword: e.target.value })
+                    }
+                    required
+                    minLength={6}
+                  />
+                </div>
+
+                <div>
+                  <Label>Confirm New Password</Label>
+                  <Input
+                    data-testid="confirm-password-input"
+                    type="password"
+                    value={passwordFormData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordFormData({ ...passwordFormData, confirmPassword: e.target.value })
+                    }
+                    required
+                    minLength={6}
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setPasswordDialogOpen(false);
+                      setEditingUser(null);
+                      setPasswordFormData({ newPassword: "", confirmPassword: "" });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    data-testid="submit-password-button"
+                    className="bg-slate-800 hover:bg-slate-900"
+                  >
+                    Change Password
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+
           {loading ? (
             <div className="text-center py-12 text-slate-600">Loading users...</div>
           ) : (
