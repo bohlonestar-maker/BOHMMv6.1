@@ -122,6 +122,22 @@ export default function UserManagement({ onLogout }) {
     }
   };
 
+  const handleInviteSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.post(`${API}/invites`, inviteFormData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success(response.data.message);
+      setInviteDialogOpen(false);
+      resetInviteForm();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to send invitation");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
