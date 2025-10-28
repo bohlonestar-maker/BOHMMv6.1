@@ -381,6 +381,27 @@ async def update_member_dues(member_id: str, dues_data: dict, current_user: dict
         updated_member['updated_at'] = datetime.fromisoformat(updated_member['updated_at'])
     return updated_member
 
+# Meeting attendance tracking endpoint
+@api_router.put("/members/{member_id}/attendance")
+async def update_member_attendance(member_id: str, attendance_data: dict, current_user: dict = Depends(verify_admin)):
+    member = await db.members.find_one({"id": member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    
+    update_data = {
+        'meeting_attendance': attendance_data,
+        'updated_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.members.update_one({"id": member_id}, {"$set": update_data})
+    
+    updated_member = await db.members.find_one({"id": member_id}, {"_id": 0})
+    if isinstance(updated_member.get('created_at'), str):
+        updated_member['created_at'] = datetime.fromisoformat(updated_member['created_at'])
+    if isinstance(updated_member.get('updated_at'), str):
+        updated_member['updated_at'] = datetime.fromisoformat(updated_member['updated_at'])
+    return updated_member
+
 # CSV Export endpoint
 @api_router.get("/members/export/csv")
 async def export_members_csv(current_user: dict = Depends(verify_token)):
