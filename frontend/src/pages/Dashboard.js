@@ -529,6 +529,28 @@ export default function Dashboard({ onLogout, userRole }) {
                           {member.address}
                         </a>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {member.dues && member.dues.months ? (
+                            <>
+                              <span className="text-xs font-medium text-slate-600">{member.dues.year}:</span>
+                              {member.dues.months.map((paid, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`inline-flex items-center justify-center w-6 h-6 text-xs rounded ${
+                                    paid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'
+                                  }`}
+                                  title={`${monthNames[idx]} ${paid ? 'Paid' : 'Unpaid'}`}
+                                >
+                                  {monthNames[idx][0]}
+                                </span>
+                              ))}
+                            </>
+                          ) : (
+                            <span className="text-xs text-slate-400">No dues data</span>
+                          )}
+                        </div>
+                      </TableCell>
                       {userRole === "admin" && (
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
