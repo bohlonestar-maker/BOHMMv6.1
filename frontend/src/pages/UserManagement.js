@@ -110,6 +110,53 @@ export default function UserManagement({ onLogout }) {
     }
   };
 
+  const fetchInvites = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/invites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setInvites(response.data);
+    } catch (error) {
+      toast.error("Failed to load invites");
+    }
+  };
+
+  const handleDeleteInvite = async (inviteToken) => {
+    if (!window.confirm("Are you sure you want to delete this invite?")) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/invites/${inviteToken}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Invite deleted successfully");
+      fetchInvites();
+    } catch (error) {
+      toast.error("Failed to delete invite");
+    }
+  };
+
+  const handleClearUnusedInvites = async () => {
+    if (!window.confirm("Are you sure you want to clear all unused invites?")) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.delete(`${API}/invites/clear/unused`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success(response.data.message);
+      fetchInvites();
+    } catch (error) {
+      toast.error("Failed to clear unused invites");
+    }
+  };
+
+  const handleViewInvites = () => {
+    setInvitesDialogOpen(true);
+    fetchInvites();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
