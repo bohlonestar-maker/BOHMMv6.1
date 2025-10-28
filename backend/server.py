@@ -230,6 +230,18 @@ async def delete_member(member_id: str, current_user: dict = Depends(verify_admi
 async def export_members_csv(current_user: dict = Depends(verify_token)):
     members = await db.members.find({}, {"_id": 0}).to_list(10000)
     
+    # Define sort order
+    CHAPTERS = ["National", "AD", "HA", "HS"]
+    TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM"]
+    
+    # Sort members by chapter and title
+    def sort_key(member):
+        chapter_index = CHAPTERS.index(member.get('chapter', '')) if member.get('chapter', '') in CHAPTERS else 999
+        title_index = TITLES.index(member.get('title', '')) if member.get('title', '') in TITLES else 999
+        return (chapter_index, title_index)
+    
+    sorted_members = sorted(members, key=sort_key)
+    
     output = StringIO()
     writer = csv.writer(output)
     
@@ -237,7 +249,7 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     writer.writerow(['Chapter', 'Title', 'Member Handle', 'Name', 'Email', 'Phone', 'Address'])
     
     # Write data
-    for member in members:
+    for member in sorted_members:
         writer.writerow([
             member.get('chapter', ''),
             member.get('title', ''),
