@@ -131,6 +131,7 @@ class MemberCreate(BaseModel):
     email: EmailStr
     phone: str
     address: str
+    dues: Optional[dict] = None
 
 class MemberUpdate(BaseModel):
     chapter: Optional[str] = None
