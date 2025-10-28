@@ -82,7 +82,8 @@ export default function Dashboard({ onLogout, userRole }) {
       const response = await axios.get(`${API}/members`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMembers(response.data);
+      const sortedMembers = sortMembers(response.data);
+      setMembers(sortedMembers);
     } catch (error) {
       toast.error("Failed to load members");
     } finally {
