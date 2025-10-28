@@ -35,6 +35,25 @@ const API = `${BACKEND_URL}/api`;
 const CHAPTERS = ["National", "AD", "HA", "HS"];
 const TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM"];
 
+// Helper function to sort members by chapter and title
+const sortMembers = (members) => {
+  return members.sort((a, b) => {
+    // First sort by chapter
+    const chapterA = CHAPTERS.indexOf(a.chapter);
+    const chapterB = CHAPTERS.indexOf(b.chapter);
+    
+    if (chapterA !== chapterB) {
+      return chapterA - chapterB;
+    }
+    
+    // Then sort by title
+    const titleA = TITLES.indexOf(a.title);
+    const titleB = TITLES.indexOf(b.title);
+    
+    return titleA - titleB;
+  });
+};
+
 export default function Dashboard({ onLogout, userRole }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
