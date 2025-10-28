@@ -53,6 +53,7 @@ export default function UserManagement({ onLogout }) {
       phone: false,
       address: false,
       dues_tracking: false,
+      meeting_attendance: false,
       admin_actions: false
     }
   });
@@ -66,6 +67,7 @@ export default function UserManagement({ onLogout }) {
       phone: false,
       address: false,
       dues_tracking: false,
+      meeting_attendance: false,
       admin_actions: false
     }
   });
@@ -78,6 +80,7 @@ export default function UserManagement({ onLogout }) {
       phone: false,
       address: false,
       dues_tracking: false,
+      meeting_attendance: false,
       admin_actions: false
     }
   });
