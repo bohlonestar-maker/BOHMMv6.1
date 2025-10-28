@@ -201,7 +201,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
   const handleAttendanceToggle = (meetingIndex) => {
     const newMeetings = [...formData.meeting_attendance.meetings];
-    newMeetings[meetingIndex] = !newMeetings[meetingIndex];
+    // Cycle through states: 0 (Absent) -> 1 (Present) -> 2 (Excused) -> 0
+    newMeetings[meetingIndex] = (newMeetings[meetingIndex] + 1) % 3;
     setFormData({
       ...formData,
       meeting_attendance: {
