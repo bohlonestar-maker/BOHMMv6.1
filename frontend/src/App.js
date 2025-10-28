@@ -9,32 +9,39 @@ import { Toaster } from "@/components/ui/sonner";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userPermissions, setUserPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
+    const permissions = localStorage.getItem('permissions');
     if (token && role) {
       setIsAuthenticated(true);
       setUserRole(role);
+      setUserPermissions(permissions ? JSON.parse(permissions) : null);
     }
     setLoading(false);
   }, []);
 
-  const handleLogin = (token, username, role) => {
+  const handleLogin = (token, username, role, permissions) => {
     localStorage.setItem('token', token);
     localStorage.setItem('username', username);
     localStorage.setItem('role', role);
+    localStorage.setItem('permissions', JSON.stringify(permissions));
     setIsAuthenticated(true);
     setUserRole(role);
+    setUserPermissions(permissions);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('role');
+    localStorage.removeItem('permissions');
     setIsAuthenticated(false);
     setUserRole(null);
+    setUserPermissions(null);
   };
 
   if (loading) {
