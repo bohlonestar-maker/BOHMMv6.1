@@ -532,10 +532,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
               <Button
                 onClick={handleExportCSV}
-                variant="outline"
                 size="sm"
                 data-testid="export-csv-button"
-                className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
