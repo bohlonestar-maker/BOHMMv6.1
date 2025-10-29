@@ -879,9 +879,35 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                           <div className="flex flex-col gap-1">
                             {(() => {
                               const dues = member.dues || {};
-                              const years = Object.keys(dues).sort((a, b) => b - a);
+                              
+                              // Handle old format where dues has 'year' and 'months' keys
+                              if (dues.year && dues.months && Array.isArray(dues.months)) {
+                                const paidCount = dues.months.filter(m => m === true).length;
+                                return (
+                                  <>
+                                    <span className="text-xs text-slate-400">{dues.year}</span>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className="text-green-400 font-medium">
+                                        Paid: {paidCount}
+                                      </span>
+                                    </div>
+                                  </>
+                                );
+                              }
+                              
+                              // Handle new format where dues is object with years as keys
+                              const years = Object.keys(dues).filter(k => k !== 'year' && k !== 'months').sort((a, b) => b - a);
                               const latestYear = years[0] || new Date().getFullYear();
                               const months = dues[latestYear] || [];
+                              
+                              if (!Array.isArray(months) || months.length === 0) {
+                                return (
+                                  <>
+                                    <span className="text-xs text-slate-400">{latestYear}</span>
+                                    <span className="text-xs text-slate-400">No data</span>
+                                  </>
+                                );
+                              }
                               
                               // Handle both old boolean format and new object format
                               const paidCount = months.filter(m => 
