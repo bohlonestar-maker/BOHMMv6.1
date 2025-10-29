@@ -458,74 +458,76 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
             <h1 className="text-xl sm:text-2xl font-bold text-white">Brothers of the Highway</h1>
-            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-              <span className="text-xs sm:text-sm text-slate-300">
-                {localStorage.getItem("username")} ({userRole})
-              </span>
-              {userRole === 'admin' && (
-                <>
+            <div className="flex items-center justify-between gap-2 flex-wrap w-full sm:w-auto">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm text-slate-300">
+                  {localStorage.getItem("username")} ({userRole})
+                </span>
+                {userRole === 'admin' && (
+                  <>
+                    <Button
+                      onClick={() => navigate("/prospects")}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+                    >
+                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Prospects</span>
+                      <span className="sm:hidden">Prospects</span>
+                    </Button>
+                    <Button
+                      onClick={() => navigate("/users")}
+                      variant="outline"
+                      size="sm"
+                      data-testid="user-management-button"
+                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+                    >
+                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Admin</span>
+                      <span className="sm:hidden">Admin</span>
+                    </Button>
+                    <Button
+                      onClick={() => navigate("/update-log")}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+                    >
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Updates</span>
+                    </Button>
+                  </>
+                )}
+                {localStorage.getItem("username") === "Lonestar" && (
                   <Button
-                    onClick={() => navigate("/prospects")}
+                    onClick={() => navigate("/support-center")}
                     variant="outline"
                     size="sm"
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600 relative"
                   >
-                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Prospects</span>
-                    <span className="sm:hidden">Prospects</span>
+                    <LifeBuoy className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Support</span>
+                    {openSupportCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {openSupportCount > 9 ? '9+' : openSupportCount}
+                      </span>
+                    )}
                   </Button>
-                  <Button
-                    onClick={() => navigate("/users")}
-                    variant="outline"
-                    size="sm"
-                    data-testid="user-management-button"
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                  >
-                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Admin</span>
-                    <span className="sm:hidden">Admin</span>
-                  </Button>
-                  <Button
-                    onClick={() => navigate("/update-log")}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                  >
-                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Updates</span>
-                  </Button>
-                </>
-              )}
-              {localStorage.getItem("username") === "Lonestar" && (
+                )}
                 <Button
-                  onClick={() => navigate("/support-center")}
+                  onClick={() => navigate("/messages")}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600 relative"
+                  className="relative flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
                 >
-                  <LifeBuoy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Support</span>
-                  {openSupportCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {openSupportCount > 9 ? '9+' : openSupportCount}
+                  <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Messages</span>
+                  {unreadPrivateCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadPrivateCount > 99 ? '99+' : unreadPrivateCount}
                     </span>
                   )}
                 </Button>
-              )}
-              <Button
-                onClick={() => navigate("/messages")}
-                variant="outline"
-                size="sm"
-                className="relative flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-              >
-                <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Messages</span>
-                {unreadPrivateCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {unreadPrivateCount > 99 ? '99+' : unreadPrivateCount}
-                  </span>
-                )}
-              </Button>
+              </div>
               <Button
                 onClick={onLogout}
                 variant="outline"
