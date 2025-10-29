@@ -1227,12 +1227,14 @@ async def get_conversations(current_user: dict = Depends(verify_token)):
     username = current_user['username']
     
     # Get all messages where user is sender or recipient, sorted by timestamp
+    # Exclude archived conversations
     messages = await db.private_messages.find(
         {
             "$or": [
                 {"sender": username},
                 {"recipient": username}
-            ]
+            ],
+            "archived_by": {"$ne": username}  # Exclude archived
         },
         {"_id": 0}  # Exclude MongoDB ObjectId
     ).sort("timestamp", -1).to_list(None)
