@@ -110,6 +110,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/messages"
+            element={
+              isAuthenticated ? (
+                <Messages onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
       </BrowserRouter>
       <Toaster />
