@@ -265,32 +265,46 @@ export default function Messages() {
                 </div>
               ) : (
                 conversations.map((conv) => (
-                  <button
+                  <div
                     key={conv.username}
-                    onClick={() => setSelectedUser(conv.username)}
-                    className={`w-full text-left p-4 border-b border-slate-700 hover:bg-slate-700 transition-colors ${
+                    className={`relative p-4 border-b border-slate-700 hover:bg-slate-700 transition-colors ${
                       selectedUser === conv.username ? 'bg-slate-700' : ''
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-100">{conv.username}</span>
-                          {conv.unreadCount > 0 && (
-                            <span className="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                              {conv.unreadCount}
-                            </span>
-                          )}
+                    <button
+                      onClick={() => setSelectedUser(conv.username)}
+                      className="w-full text-left"
+                    >
+                      <div className="flex justify-between items-start pr-8">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-slate-100">{conv.username}</span>
+                            {conv.unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                                {conv.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-400 truncate mt-1">
+                            {conv.lastMessage.message}
+                          </p>
                         </div>
-                        <p className="text-sm text-slate-400 truncate mt-1">
-                          {conv.lastMessage.message}
-                        </p>
+                        <span className="text-xs text-slate-500 ml-2">
+                          {formatTimestamp(conv.lastMessage.timestamp)}
+                        </span>
                       </div>
-                      <span className="text-xs text-slate-500 ml-2">
-                        {formatTimestamp(conv.lastMessage.timestamp)}
-                      </span>
-                    </div>
-                  </button>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        confirmDeleteConversation(conv.username);
+                      }}
+                      className="absolute top-4 right-4 p-1 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                      title="Delete conversation"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 ))
               )}
             </div>
