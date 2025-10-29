@@ -497,7 +497,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   </Button>
                 </>
               )}
-              {(localStorage.getItem("username") === "Lonestar" || localStorage.getItem("username") === "testadmin") && (
+              {localStorage.getItem("username") === "Lonestar" && (
                 <Button
                   onClick={() => navigate("/support-center")}
                   variant="outline"
