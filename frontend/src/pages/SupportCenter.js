@@ -72,6 +72,77 @@ export default function SupportCenter({ onLogout }) {
     }
   };
 
+
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm("Are you sure you want to delete this message?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API}/support/messages/${messageId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success("Message deleted successfully");
+      fetchMessages();
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
+    }
+  };
+
+  const handleClearClosedMessages = async () => {
+    const closedCount = messages.filter(m => m.status === "closed").length;
+    
+    if (closedCount === 0) {
+      toast.error("No closed messages to clear");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ${closedCount} closed message(s)?`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.delete(`${API}/support/messages/closed/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success(response.data.message);
+      fetchMessages();
+    } catch (error) {
+      console.error("Failed to clear closed messages:", error);
+      toast.error("Failed to clear closed messages");
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/support/messages/export`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'support_messages.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success("Messages exported successfully");
+    } catch (error) {
+      console.error("Failed to export messages:", error);
+      toast.error("Failed to export messages");
+    }
+  };
+
+
   const formatDate = (timestamp) => {
     return new Date(timestamp).toLocaleString('en-US', {
       month: 'short',
