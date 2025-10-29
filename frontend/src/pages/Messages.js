@@ -28,6 +28,8 @@ export default function Messages() {
   const [sending, setSending] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [showNewChat, setShowNewChat] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
