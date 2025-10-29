@@ -803,7 +803,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         <Button
                           type="submit"
                           data-testid="submit-member-button"
-                          className="bg-slate-800 hover:bg-slate-900"
+                          className="bg-slate-800 hover:bg-slate-900 text-white"
                         >
                           {editingMember ? "Update" : "Add"} Member
                         </Button>
