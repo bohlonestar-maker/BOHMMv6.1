@@ -876,11 +876,37 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       )}
                       {hasPermission('dues_tracking') && (
                         <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-slate-600">{member.dues?.year || new Date().getFullYear()}</span>
-                            <span className="text-xs font-medium text-slate-700">
-                              {member.dues?.months?.filter(p => p).length || 0}/12
-                            </span>
+                          <div className="flex flex-col gap-1">
+                            {(() => {
+                              const dues = member.dues || {};
+                              const years = Object.keys(dues).sort((a, b) => b - a);
+                              const latestYear = years[0] || new Date().getFullYear();
+                              const months = dues[latestYear] || [];
+                              
+                              // Handle both old boolean format and new object format
+                              const paidCount = months.filter(m => 
+                                typeof m === 'object' ? m.status === 'paid' : m === true
+                              ).length;
+                              const lateCount = months.filter(m => 
+                                typeof m === 'object' && m.status === 'late'
+                              ).length;
+                              
+                              return (
+                                <>
+                                  <span className="text-xs text-slate-400">{latestYear}</span>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-green-400 font-medium">
+                                      Paid: {paidCount}
+                                    </span>
+                                    {lateCount > 0 && (
+                                      <span className="text-yellow-400 font-medium">
+                                        Late: {lateCount}
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
                         </TableCell>
                       )}
