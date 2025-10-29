@@ -1304,6 +1304,24 @@ async def get_unread_private_messages_count(current_user: dict = Depends(verify_
     
     return {"unread_count": count}
 
+@api_router.delete("/messages/conversation/{other_user}")
+async def delete_conversation(other_user: str, current_user: dict = Depends(verify_token)):
+    """Delete entire conversation with a specific user"""
+    username = current_user['username']
+    
+    # Delete all messages between current user and the other user
+    result = await db.private_messages.delete_many({
+        "$or": [
+            {"sender": username, "recipient": other_user},
+            {"sender": other_user, "recipient": username}
+        ]
+    })
+    
+    return {
+        "message": f"Conversation with {other_user} deleted",
+        "deleted_count": result.deleted_count
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
