@@ -1604,6 +1604,19 @@ async def delete_support_message(message_id: str, current_user: dict = Depends(v
     
     return {"message": "Support message deleted successfully"}
 
+
+@api_router.get("/support/messages/count")
+async def get_open_support_count(current_user: dict = Depends(verify_token)):
+    """Get count of open support messages (Lonestar only)"""
+    # Check if user is Lonestar
+    if current_user['username'] != "Lonestar":
+        raise HTTPException(status_code=403, detail="Access denied. This feature is only available to Lonestar.")
+    
+    count = await db.support_messages.count_documents({"status": "open"})
+    
+    return {"count": count}
+
+
 @api_router.delete("/support/messages/closed/all")
 async def delete_closed_messages(current_user: dict = Depends(verify_token)):
     """Delete all closed/replied support messages (Lonestar only)"""
