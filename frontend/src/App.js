@@ -8,6 +8,7 @@ import AcceptInvite from "@/pages/AcceptInvite";
 import Prospects from "@/pages/Prospects";
 import Messages from "@/pages/Messages";
 import UpdateLog from "@/pages/UpdateLog";
+import SupportCenter from "@/pages/SupportCenter";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
