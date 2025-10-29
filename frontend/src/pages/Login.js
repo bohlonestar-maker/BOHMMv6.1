@@ -152,12 +152,69 @@ export default function Login({ onLogin }) {
       
       <div className="absolute bottom-4 left-0 right-0 text-center space-y-2 px-4">
         <p className="text-slate-400 text-xs sm:text-sm">Property of Brothers of the Highway TC</p>
-        <a 
-          href="mailto:bohlonestar@gmail.com?subject=Support Request - Brothers of the Highway Directory"
-          className="text-slate-400 text-xs sm:text-sm hover:text-slate-200 underline inline-block"
-        >
-          Support
-        </a>
+        <Dialog open={supportDialogOpen} onOpenChange={setSupportDialogOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="link" 
+              className="text-slate-400 text-xs sm:text-sm hover:text-slate-200 underline"
+            >
+              Support
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Contact Support</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSupportSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="support-name">Name</Label>
+                <Input
+                  id="support-name"
+                  type="text"
+                  placeholder="Your name"
+                  value={supportForm.name}
+                  onChange={(e) => setSupportForm({...supportForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="support-email">Email</Label>
+                <Input
+                  id="support-email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={supportForm.email}
+                  onChange={(e) => setSupportForm({...supportForm, email: e.target.value})}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="support-message">Message</Label>
+                <Textarea
+                  id="support-message"
+                  placeholder="Describe your issue or question..."
+                  rows={5}
+                  value={supportForm.message}
+                  onChange={(e) => setSupportForm({...supportForm, message: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="flex gap-3 justify-end">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="text-white"
+                  onClick={() => setSupportDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-slate-800 hover:bg-slate-900 text-white">
+                  Send Message
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
