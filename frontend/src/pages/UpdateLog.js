@@ -8,6 +8,22 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.5d",
+      date: "October 29, 2025",
+      changes: [
+        "Support Message Center: Interactive support button on login page for user inquiries (no login required)",
+        "Lonestar Support Dashboard: Dedicated support center accessible only to user 'Lonestar' for managing messages",
+        "Email Reply System: Support messages can be replied to via email with automatic status tracking",
+        "Export Support Messages: CSV export functionality for all support message history",
+        "Bulk Message Management: Clear all closed/replied messages at once with confirmation",
+        "Individual Message Deletion: Delete specific support messages with confirmation dialog",
+        "Support Counter Badge: Real-time badge on Support button showing count of open messages",
+        "Button Text Consistency: All buttons now use white text for better readability",
+        "About Text Update: Changed 'motorcycle club organizations' to 'Brothers of the Highway TC'",
+        "Export Button Enhancement: Made Export CSV buttons more visually prominent with green styling"
+      ]
+    },
+    {
       version: "v.1.5c",
       date: "October 29, 2025",
       changes: [
