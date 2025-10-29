@@ -179,11 +179,61 @@ export default function Messages() {
       
       // Refresh conversations list
       await fetchConversations();
+      if (showArchived) {
+        await fetchArchivedConversations();
+      }
       
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to delete conversation");
+    }
+  };
+
+  const handleArchiveConversation = async () => {
+    if (!userToDelete) return;
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.post(`${API}/messages/conversation/${userToDelete}/archive`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      toast.success(`Conversation with ${userToDelete} archived`);
+      
+      // Clear selection if we archived the currently selected conversation
+      if (selectedUser === userToDelete) {
+        setSelectedUser(null);
+        setMessages([]);
+      }
+      
+      // Refresh conversations list
+      await fetchConversations();
+      await fetchArchivedConversations();
+      
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to archive conversation");
+    }
+  };
+
+  const handleUnarchiveConversation = async (username) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.post(`${API}/messages/conversation/${username}/unarchive`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      toast.success(`Conversation with ${username} unarchived`);
+      
+      // Refresh both lists
+      await fetchConversations();
+      await fetchArchivedConversations();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to unarchive conversation");
     }
   };
 
