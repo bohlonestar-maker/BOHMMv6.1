@@ -297,9 +297,38 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
   const handleDuesToggle = (monthIndex) => {
     const currentYear = selectedDuesYear.toString();
-    const yearMonths = formData.dues[currentYear] || Array(12).fill(false);
+    const yearMonths = formData.dues[currentYear] || Array(12).fill(null).map(() => ({ status: "unpaid", note: "" }));
+    const currentStatus = yearMonths[monthIndex]?.status || "unpaid";
+    
+    // Cycle through: unpaid -> paid -> late -> unpaid
+    let newStatus = "unpaid";
+    if (currentStatus === "unpaid") newStatus = "paid";
+    else if (currentStatus === "paid") newStatus = "late";
+    else newStatus = "unpaid";
+    
     const newMonths = [...yearMonths];
-    newMonths[monthIndex] = !newMonths[monthIndex];
+    newMonths[monthIndex] = {
+      status: newStatus,
+      note: yearMonths[monthIndex]?.note || ""
+    };
+    
+    setFormData({
+      ...formData,
+      dues: {
+        ...formData.dues,
+        [currentYear]: newMonths
+      }
+    });
+  };
+
+  const handleDuesNoteChange = (monthIndex, note) => {
+    const currentYear = selectedDuesYear.toString();
+    const yearMonths = formData.dues[currentYear] || Array(12).fill(null).map(() => ({ status: "unpaid", note: "" }));
+    const newMonths = [...yearMonths];
+    newMonths[monthIndex] = {
+      ...newMonths[monthIndex],
+      note: note
+    };
     
     setFormData({
       ...formData,
