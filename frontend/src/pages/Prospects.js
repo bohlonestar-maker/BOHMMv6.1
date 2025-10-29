@@ -503,7 +503,7 @@ export default function Prospects({ onLogout, userRole }) {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-slate-800 hover:bg-slate-900">
+                    <Button type="submit" className="bg-slate-800 hover:bg-slate-900 text-white">
                       {editingProspect ? "Update" : "Save"}
                     </Button>
                   </div>
