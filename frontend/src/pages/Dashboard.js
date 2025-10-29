@@ -149,6 +149,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     }
   };
 
+  const fetchUnreadPrivateCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/messages/unread/count`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUnreadPrivateCount(response.data.unread_count);
+    } catch (error) {
+      console.error("Failed to fetch unread private messages count:", error);
+    }
+  };
+
   // Update meeting dates whenever the year changes
   useEffect(() => {
     const currentYear = new Date().getFullYear();
