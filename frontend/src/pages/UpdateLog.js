@@ -8,6 +8,16 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.5c",
+      date: "October 29, 2025",
+      changes: [
+        "UI Consistency: Standardized all button styling across the application for uniform appearance",
+        "Navigation Rename: Changed 'Manage Users' button to 'Admin' for clearer identification",
+        "Menu Standardization: All navigation buttons now use consistent outline styling",
+        "Action Button Uniformity: Export CSV, Invite User, and other action buttons now have matching styles"
+      ]
+    },
+    {
       version: "v.1.5b",
       date: "October 29, 2025",
       changes: [
