@@ -152,9 +152,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
 
   const fetchOpenSupportCount = async () => {
-    // Only fetch if user is Lonestar or testadmin (for testing)
-    const username = localStorage.getItem("username");
-    if (username !== "Lonestar" && username !== "testadmin") {
+    // Only fetch if user is Lonestar
+    if (localStorage.getItem("username") !== "Lonestar") {
       return;
     }
 
