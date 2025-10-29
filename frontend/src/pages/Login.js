@@ -18,17 +18,25 @@ export default function Login({ onLogin }) {
     setLoading(true);
 
     try {
+      console.log("Attempting login for user:", username);
+      console.log("Backend URL:", API);
+      
       const response = await axios.post(`${API}/auth/login`, {
         username,
         password,
       });
 
+      console.log("Login response:", response.data);
       const { token, username: user, role } = response.data;
+      console.log("Token received:", token ? token.substring(0, 20) + "..." : "NO TOKEN");
+      console.log("User role:", role);
       
       // Fetch user permissions
       const userResponse = await axios.get(`${API}/auth/verify`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log("User verification response:", userResponse.data);
       
       const permissions = userResponse.data.permissions || {
         basic_info: true,
@@ -40,6 +48,9 @@ export default function Login({ onLogin }) {
       onLogin(token, user, role, permissions);
       toast.success("Login successful!");
     } catch (error) {
+      console.error("Login error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Status code:", error.response?.status);
       toast.error(error.response?.data?.detail || "Login failed. Please try again.");
     } finally {
       setLoading(false);
