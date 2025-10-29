@@ -128,19 +128,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   useEffect(() => {
     fetchMembers();
     fetchUnreadPrivateCount();
-    if (userRole === 'admin') {
-      fetchUnreadCount();
-      // Auto-refresh unread count every 30 seconds
-      const interval = setInterval(() => {
-        fetchUnreadCount();
-        fetchUnreadPrivateCount();
-      }, 30000);
-      return () => clearInterval(interval);
-    } else {
-      // For non-admin users, only refresh private messages
-      const interval = setInterval(fetchUnreadPrivateCount, 30000);
-      return () => clearInterval(interval);
-    }
+    // Auto-refresh unread count every 30 seconds
+    const interval = setInterval(fetchUnreadPrivateCount, 30000);
+    return () => clearInterval(interval);
   }, [userRole]);
 
   const fetchUnreadCount = async () => {
