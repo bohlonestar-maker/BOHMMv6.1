@@ -53,6 +53,18 @@ export default function Messages() {
     }
   };
 
+  const fetchArchivedConversations = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/messages/conversations/archived`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setArchivedConversations(response.data);
+    } catch (error) {
+      console.error("Failed to load archived conversations:", error);
+    }
+  };
+
   const fetchAllUsers = async () => {
     try {
       const token = localStorage.getItem("token");
