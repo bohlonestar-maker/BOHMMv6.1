@@ -672,28 +672,46 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             />
                           </div>
                         </div>
-                        <div className="grid grid-cols-6 gap-2">
+                        <div className="grid grid-cols-3 gap-3">
                           {monthNames.map((month, index) => {
-                            const yearMonths = formData.dues[selectedDuesYear.toString()] || Array(12).fill(false);
+                            const yearMonths = formData.dues[selectedDuesYear.toString()] || Array(12).fill(null).map(() => ({ status: "unpaid", note: "" }));
+                            const monthDue = yearMonths[index] || { status: "unpaid", note: "" };
+                            const status = typeof monthDue === 'object' ? monthDue.status : (monthDue ? 'paid' : 'unpaid');
+                            const note = typeof monthDue === 'object' ? monthDue.note : '';
+                            
                             return (
-                            <button
-                              key={index}
-                              type="button"
-                              onClick={() => handleDuesToggle(index)}
-                              className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                yearMonths[index]
-                                  ? 'bg-green-600 text-white hover:bg-green-700'
-                                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                              }`}
-                              data-testid={`dues-month-${index}`}
-                            >
-                              {month}
-                            </button>
+                            <div key={index} className="space-y-1">
+                              <button
+                                type="button"
+                                onClick={() => handleDuesToggle(index)}
+                                className={`w-full px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                  status === 'paid'
+                                    ? 'bg-green-600 text-white hover:bg-green-700'
+                                    : status === 'late'
+                                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                    : 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                                }`}
+                                data-testid={`dues-month-${index}`}
+                              >
+                                {month}
+                              </button>
+                              {status === 'late' && (
+                                <Input
+                                  type="text"
+                                  placeholder="Late reason..."
+                                  value={note}
+                                  onChange={(e) => handleDuesNoteChange(index, e.target.value)}
+                                  className="text-xs bg-slate-900 border-slate-700 text-slate-100"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                            </div>
                           )})}
                         </div>
-                        <p className="text-xs text-slate-600">
-                          Click months to mark as paid (green) or unpaid (gray)
-                        </p>
+                        <div className="text-xs text-slate-400 space-y-1">
+                          <p>Click to cycle: <span className="text-slate-200">Unpaid</span> → <span className="text-green-400">Paid</span> → <span className="text-yellow-400">Late</span></p>
+                          <p>Add note when marked as Late</p>
+                        </div>
                       </div>
 
                       <div className="space-y-3">
