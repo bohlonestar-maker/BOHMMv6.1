@@ -72,7 +72,9 @@ export default function Login({ onLogin }) {
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-white">
             Brothers of the Highway
           </h1>
-          <p className="text-center text-slate-300 mb-6 sm:mb-8 text-sm sm:text-base">Member Directory</p>
+          <p className="text-center text-slate-300 mb-6 sm:mb-8 text-sm sm:text-base">
+            Member Directory <span className="text-slate-500 text-xs sm:text-sm ml-2">v.1.5b</span>
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div>
