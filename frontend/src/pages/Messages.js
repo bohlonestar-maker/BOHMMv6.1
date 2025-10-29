@@ -346,6 +346,52 @@ export default function Messages() {
             <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="text-center py-8 text-slate-400">Loading conversations...</div>
+              ) : showArchived ? (
+                archivedConversations.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No archived conversations</p>
+                  </div>
+                ) : (
+                  archivedConversations.map((conv) => (
+                    <div
+                      key={conv.username}
+                      className={`relative p-4 border-b border-slate-700 hover:bg-slate-700 transition-colors ${
+                        selectedUser === conv.username ? 'bg-slate-700' : ''
+                      }`}
+                    >
+                      <button
+                        onClick={() => setSelectedUser(conv.username)}
+                        className="w-full text-left"
+                      >
+                        <div className="flex justify-between items-start pr-8">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-slate-100">{conv.username}</span>
+                              <span className="text-xs text-slate-500 italic">(Archived)</span>
+                            </div>
+                            <p className="text-sm text-slate-400 truncate mt-1">
+                              {conv.lastMessage.message}
+                            </p>
+                          </div>
+                          <span className="text-xs text-slate-500 ml-2">
+                            {formatTimestamp(conv.lastMessage.timestamp)}
+                          </span>
+                        </div>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnarchiveConversation(conv.username);
+                        }}
+                        className="absolute top-4 right-4 p-1 rounded hover:bg-green-500/20 text-green-400 hover:text-green-300 transition-colors text-xs"
+                        title="Unarchive conversation"
+                      >
+                        Unarchive
+                      </button>
+                    </div>
+                  ))
+                )
               ) : conversations.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
