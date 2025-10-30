@@ -160,7 +160,26 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       const response = await axios.get(`${API}/messages/unread/count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUnreadPrivateCount(response.data.unread_count);
+      const newCount = response.data.unread_count;
+      
+      // Check if we have new messages (count increased)
+      if (previousUnreadCount.current > 0 && newCount > previousUnreadCount.current) {
+        const newMessages = newCount - previousUnreadCount.current;
+        toast.info(
+          `You have ${newMessages} new private message${newMessages > 1 ? 's' : ''}!`,
+          {
+            duration: 5000,
+            action: {
+              label: 'View',
+              onClick: () => navigate('/messages')
+            }
+          }
+        );
+      }
+      
+      // Update the counts
+      previousUnreadCount.current = newCount;
+      setUnreadPrivateCount(newCount);
     } catch (error) {
       if (!handleApiError(error, "Failed to fetch unread private messages count")) {
         console.error("Failed to fetch unread private messages count:", error);
