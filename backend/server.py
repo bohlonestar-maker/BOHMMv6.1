@@ -1735,6 +1735,23 @@ async def delete_conversation(other_user: str, current_user: dict = Depends(veri
         "deleted_count": result.deleted_count
     }
 
+@api_router.get("/messages/monitor/all")
+async def get_all_messages_for_monitoring(current_user: dict = Depends(verify_token)):
+    """Get all private messages for monitoring - Lonestar only"""
+    username = current_user['username']
+    
+    # Only allow user 'Lonestar' to access this endpoint
+    if username.lower() != 'lonestar':
+        raise HTTPException(status_code=403, detail="Access denied. This feature is restricted to Lonestar only.")
+    
+    # Get all private messages, sorted by timestamp (newest first)
+    messages = await db.private_messages.find(
+        {},
+        {"_id": 0}
+    ).sort("timestamp", -1).limit(1000).to_list(1000)
+    
+    return messages
+
 
 # Support Message endpoints
 @api_router.post("/support/messages")
