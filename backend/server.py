@@ -1970,7 +1970,7 @@ National Officers:
 - National Enforcer (NENF): Gear Jammer - Prospect management oversight
 - National Treasurer (NT): California Kid* - Budget Committee member, handles finances
 - National Secretary (NSEC): Lonestar* - Budget Committee member, administrative duties
-- National Counselor & Director (NCD): Shooter - Administrative position (not in Chain of Command)
+- National Chapter Director (NCD): Shooter - Administrative position (not in Chain of Command)
 (*Non-reporting positions in Chain of Command)
 
 Chapter Officers: 
