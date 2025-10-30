@@ -1930,6 +1930,107 @@ async def export_support_messages(current_user: dict = Depends(verify_token)):
     )
 
 
+# AI Chatbot endpoint
+class ChatMessage(BaseModel):
+    message: str
+
+@api_router.post("/chat")
+async def chat_with_bot(chat_msg: ChatMessage, current_user: dict = Depends(verify_token)):
+    """AI chatbot for BOH knowledge - authenticated users only"""
+    try:
+        from emergentintegrations import OpenAI
+        
+        # Get Emergent LLM key
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="LLM key not configured")
+        
+        # Initialize OpenAI with Emergent key
+        client = OpenAI(api_key=api_key)
+        
+        # BOH Knowledge context (summarized from extracted PDFs)
+        system_context = """You are an AI assistant for Brothers of the Highway Trucker Club (BOH TC), a 501(c)(3) organization for professional truck drivers. Your role is to answer questions about the organization using ONLY the information provided below.
+
+ORGANIZATION OVERVIEW:
+- Brothers of the Highway TC is a men-only trucking organization
+- Mission: Support and unite professional truck drivers
+- Requirements: Must have Class A CDL, cannot be in 1% MC clubs
+- Structure: National Board oversees Chapters (National, AD, HA, HS)
+
+CHAIN OF COMMAND:
+National Officers: National President → National Vice President → National Sergeant at Arms → National Enforcer → National Treasurer* → National Secretary*
+Chapter Officers: President → Vice President → Sergeant at Arms → Enforcer → Secretary*
+(*Non-reporting positions)
+
+MEMBERSHIP PROCESS:
+1. Open Enrollment - Public recruiting phase
+2. Vetting - Initial interview with Training Chapter
+3. Hangaround Phase - Test commitment, chat activity
+4. Prospect Phase - 4-6 weeks with assignments
+5. Brother - Full member after vote
+
+PROSPECT REQUIREMENTS:
+- Attend weekly meetings (Thursdays 4pm CST)
+- Complete weekly assignments (essays, trash pickup, meet-ups)
+- Purchase 2 supporter gear items before membering
+- Learn: Mission Statement, Logo Elements, Chain of Command
+- 100% meeting attendance required
+- Active chat participation
+
+KEY BYLAWS:
+- No criminal activity, discrimination, or harassment
+- No fraternization with AOH members or member spouses
+- Respect all officers, members, prospects
+- Follow Chain of Command always
+- No 1% MC affiliation while in BOH
+- Class A CDL required
+
+MEETINGS:
+- National Officer: Wednesdays 3pm EST
+- Chapter Officer: Wednesdays 5pm EST  
+- Prospect: Thursdays 4pm CST (mandatory)
+- Member meetings vary by chapter
+
+SANCTIONS:
+1. Verbal Warning - Least severe
+2. Written Warning - Progressive step
+3. Strike - Most severe (3 strikes = removal)
+Officers have 2 strikes max vs 3 for members
+
+FINANCIAL:
+- Monthly member dues (National + Chapter)
+- Financial Assistance Program available
+- Financial Hardship applications reviewed by Budget Committee
+
+MEET-UPS:
+- 3 annual sanctioned meet-ups
+- Driver appreciation events
+- Family days
+- Community service (trash pickups)
+
+If asked about something not covered in this knowledge base, politely say you don't have that information and suggest they contact their Chain of Command or check Discord channels.
+
+Be helpful, respectful, and direct. Use BOH terminology (handles, Chain of Command, COC, prospects, etc.)."""
+
+        # Call OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_context},
+                {"role": "user", "content": chat_msg.message}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        
+        bot_response = response.choices[0].message.content
+        
+        return {"response": bot_response}
+        
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
+
 
 # Include the router in the main app
 app.include_router(api_router)
