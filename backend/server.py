@@ -1619,6 +1619,8 @@ async def create_support_message(support_msg: SupportMessageCreate):
     )
     
     doc = message.model_dump()
+    # Encrypt sensitive data
+    doc = encrypt_support_message(doc)
     await db.support_messages.insert_one(doc)
     
     return {"message": "Support message submitted successfully", "id": message.id}
@@ -1634,6 +1636,8 @@ async def get_support_messages(current_user: dict = Depends(verify_token)):
     
     for msg in messages:
         msg.pop('_id', None)
+        # Decrypt sensitive data
+        msg = decrypt_support_message(msg)
     
     return messages
 
