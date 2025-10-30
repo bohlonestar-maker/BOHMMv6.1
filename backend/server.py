@@ -568,7 +568,7 @@ async def get_members(current_user: dict = Depends(verify_token)):
         
         # Redact contact info for National chapter members if user is not admin
         if user_role != 'admin' and members[i].get('chapter') == 'National':
-            members[i]['email'] = 'restricted@admin-only.local'
+            members[i]['email'] = 'restricted@admin-only.com'
             members[i]['phone'] = 'Admin Only'
             members[i]['address'] = 'Admin Only'
         
