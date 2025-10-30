@@ -164,7 +164,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       const newCount = response.data.unread_count;
       
       // Check if we have new messages (count increased)
-      if (previousUnreadCount.current > 0 && newCount > previousUnreadCount.current) {
+      // Don't show notification on first load
+      if (!isFirstLoad.current && newCount > previousUnreadCount.current) {
         const newMessages = newCount - previousUnreadCount.current;
         toast.info(
           `You have ${newMessages} new private message${newMessages > 1 ? 's' : ''}!`,
@@ -181,6 +182,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       // Update the counts
       previousUnreadCount.current = newCount;
       setUnreadPrivateCount(newCount);
+      
+      // Mark first load as complete
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false;
+      }
     } catch (error) {
       if (!handleApiError(error, "Failed to fetch unread private messages count")) {
         console.error("Failed to fetch unread private messages count:", error);
