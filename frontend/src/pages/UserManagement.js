@@ -1138,14 +1138,27 @@ export default function UserManagement({ onLogout }) {
                         {new Date(invite.expires_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          onClick={() => handleDeleteInvite(invite.token)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          {/* Resend button - only show for unused and non-expired invites */}
+                          {!invite.used && new Date(invite.expires_at) >= new Date() && (
+                            <Button
+                              onClick={() => handleResendInvite(invite.token)}
+                              variant="ghost"
+                              size="sm"
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              <Mail className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => handleDeleteInvite(invite.token)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
