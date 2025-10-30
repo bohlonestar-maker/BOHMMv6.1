@@ -2875,6 +2875,9 @@ class BOHDirectoryAPITester:
         # NEW HIGH PRIORITY FEATURE: Message Monitoring for Lonestar
         self.test_message_monitoring_for_lonestar()
         
+        # NEW HIGH PRIORITY FEATURE: User-to-User Messaging Fix
+        self.test_user_to_user_messaging_fix()
+        
         self.test_resend_invite_functionality()
         self.test_member_loading_regression()
         
