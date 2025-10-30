@@ -646,25 +646,18 @@ async def update_member(member_id: str, member_data: MemberUpdate, current_user:
                 detail=f"A member with handle '{member_data.handle}' already exists"
             )
     
-    # Check for duplicate email if being updated
+    # Check for duplicate email using hash comparison if being updated
     if member_data.email:
-        # Decrypt current member's email for comparison
-        current_email = decrypt_data(member.get('email', ''))
+        current_email_hash = member.get('email_hash', '')
+        new_email_hash = hash_for_duplicate_detection(member_data.email)
         
-        if member_data.email != current_email:
-            # Check both encrypted and unencrypted versions
-            existing_by_email = await db.members.find_one({
-                "email": member_data.email,
+        if new_email_hash != current_email_hash:
+            existing_by_email_hash = await db.members.find_one({
+                "email_hash": new_email_hash,
                 "id": {"$ne": member_id}
             })
             
-            encrypted_email = encrypt_data(member_data.email)
-            existing_by_encrypted_email = await db.members.find_one({
-                "email": encrypted_email,
-                "id": {"$ne": member_id}
-            })
-            
-            if existing_by_email or existing_by_encrypted_email:
+            if existing_by_email_hash:
                 raise HTTPException(
                     status_code=400,
                     detail=f"A member with email '{member_data.email}' already exists"
@@ -672,6 +665,10 @@ async def update_member(member_id: str, member_data: MemberUpdate, current_user:
     
     update_data = {k: v for k, v in member_data.model_dump().items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    # Add email hash if email is being updated
+    if update_data.get('email'):
+        update_data['email_hash'] = hash_for_duplicate_detection(update_data['email'])
     
     # Encrypt sensitive fields in update data
     update_data = encrypt_member_sensitive_data(update_data)
