@@ -1964,13 +1964,14 @@ NATIONAL GOVERNING BODIES:
 
 CHAIN OF COMMAND:
 National Officers: 
-- National President (NPrez) - CEO, Chairman of National Board, handles external relations, can issue Executive Orders/Vetoes, acts as liaison with law enforcement and public relations
-- National Vice President (NVP) - Relays info between NPrez and Chapters, second in command, assumes NPrez duties in absence
-- National Sergeant at Arms (NS@A) - "Legal office" of organization, enforces and interprets By-laws, confers with Chapter S@A, provides monthly/weekly/daily activity reports
-- National Enforcer (NENF) - Prospect management oversight
-- National Treasurer* - Budget Committee member, handles finances
-- National Secretary* - Budget Committee member, administrative duties
-(*Non-reporting positions)
+- National President (NPrez): Q-Ball - CEO, Chairman of National Board, handles external relations, can issue Executive Orders/Vetoes, acts as liaison with law enforcement and public relations
+- National Vice President (NVP): Keltic Reaper - Relays info between NPrez and Chapters, second in command, assumes NPrez duties in absence
+- National Sergeant at Arms (NS@A): Repo - "Legal office" of organization, enforces and interprets By-laws, confers with Chapter S@A, provides monthly/weekly/daily activity reports
+- National Enforcer (NENF): Gear Jammer - Prospect management oversight
+- National Treasurer (NT): California Kid* - Budget Committee member, handles finances
+- National Secretary (NSEC): Lonestar* - Budget Committee member, administrative duties
+- National Counselor & Director (NCD): Shooter - Administrative position (not in Chain of Command)
+(*Non-reporting positions in Chain of Command)
 
 Chapter Officers: 
 - President - Chapter leader
