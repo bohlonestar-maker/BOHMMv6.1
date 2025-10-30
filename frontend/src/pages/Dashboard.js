@@ -109,6 +109,24 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     return userPermissions?.[permission] === true;
   };
 
+
+  // Generic error handler for API calls
+  const handleApiError = (error, context) => {
+    console.error(`${context}:`, error);
+    
+    // Handle token expiration
+    if (error.response?.status === 401) {
+      toast.error("Session expired. Please log in again.");
+      setTimeout(() => {
+        onLogout();
+      }, 1500);
+      return true; // Handled
+    }
+    
+    return false; // Not handled
+  };
+
+
   const [selectedDuesYear, setSelectedDuesYear] = useState(new Date().getFullYear());
   const [formData, setFormData] = useState({
     chapter: "",
