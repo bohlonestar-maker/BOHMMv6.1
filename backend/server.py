@@ -2004,6 +2004,14 @@ Chapter Officers:
 - Prospect Manager (PM) - Manages prospects for specific chapter (e.g., Highway Asylum Prospect Manager - HAPM: Phantom)
 (*Non-reporting positions)
 
+HIGHWAY ASYLUM (HA) CHAPTER OFFICERS:
+- HA President (HAPrez): Chap
+- HA Vice President (HAVP): Sancho
+- HA Sergeant at Arms (HAS@A): Tapeworm
+- HA Enforcer (HAENF): *Vacant*
+- HA Secretary (HASEC): Hee Haw
+- HA Prospect Manager (HAPM): Phantom
+
 MEMBERSHIP PROCESS:
 1. Open Enrollment - Public recruiting phase
 2. Vetting - Initial interview with Training Chapter
