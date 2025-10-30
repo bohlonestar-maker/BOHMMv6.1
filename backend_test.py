@@ -2464,6 +2464,10 @@ class BOHDirectoryAPITester:
         
         # PRIORITY TESTS - Run these first
         print("\n🔥 RUNNING PRIORITY TESTS...")
+        
+        # NEW HIGH PRIORITY FEATURE: Message Monitoring for Lonestar
+        self.test_message_monitoring_for_lonestar()
+        
         self.test_resend_invite_functionality()
         self.test_member_loading_regression()
         
