@@ -192,6 +192,7 @@ function App() {
             }
           />
         </Routes>
+        {isAuthenticated && <MessageNotifier />}
       </BrowserRouter>
       <Toaster />
     </div>
