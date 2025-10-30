@@ -2116,6 +2116,11 @@ class BOHDirectoryAPITester:
         # Test token verification
         self.test_auth_verify()
         
+        # PRIORITY TESTS - Run these first
+        print("\n🔥 RUNNING PRIORITY TESTS...")
+        self.test_resend_invite_functionality()
+        self.test_member_loading_regression()
+        
         # PRIORITY TEST: Email Invite Functionality
         self.test_invite_functionality()
         
