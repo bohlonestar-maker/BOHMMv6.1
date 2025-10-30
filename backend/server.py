@@ -2019,6 +2019,13 @@ HIGHWAY SOULS (HS) CHAPTER OFFICERS:
 - HS Enforcer (HSENF): Rainwater
 - HS Secretary (HSSEC): Sodbuster
 
+ASPHALT DEMONS (AD) CHAPTER OFFICERS:
+- AD President (ADPrez): Hotshot
+- AD Vice President (ADVP): Clutch
+- AD Sergeant at Arms (ADS@A): *Vacant*
+- AD Enforcer (ADENF): Rookie
+- AD Secretary (ADSEC): Two Stacks
+
 MEMBERSHIP PROCESS:
 1. Open Enrollment - Public recruiting phase
 2. Vetting - Initial interview with Training Chapter
