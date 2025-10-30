@@ -568,9 +568,9 @@ async def get_members(current_user: dict = Depends(verify_token)):
         
         # Redact contact info for National chapter members if user is not admin
         if user_role != 'admin' and members[i].get('chapter') == 'National':
-            members[i]['email'] = '[ADMIN ONLY]'
-            members[i]['phone'] = '[ADMIN ONLY]'
-            members[i]['address'] = '[ADMIN ONLY]'
+            members[i]['email'] = 'restricted@admin-only.local'
+            members[i]['phone'] = 'Admin Only'
+            members[i]['address'] = 'Admin Only'
         
         if isinstance(members[i].get('created_at'), str):
             members[i]['created_at'] = datetime.fromisoformat(members[i]['created_at'])
@@ -590,9 +590,9 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     # Redact contact info for National chapter members if user is not admin
     user_role = current_user.get('role')
     if user_role != 'admin' and member.get('chapter') == 'National':
-        member['email'] = '[ADMIN ONLY]'
-        member['phone'] = '[ADMIN ONLY]'
-        member['address'] = '[ADMIN ONLY]'
+        member['email'] = 'restricted@admin-only.local'
+        member['phone'] = 'Admin Only'
+        member['address'] = 'Admin Only'
     
     if isinstance(member.get('created_at'), str):
         member['created_at'] = datetime.fromisoformat(member['created_at'])
