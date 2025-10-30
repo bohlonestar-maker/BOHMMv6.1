@@ -8,7 +8,7 @@ export default function UpdateLog() {
 
   const updates = [
     {
-      version: "v.1.5e",
+      version: "v.1.6",
       date: "October 30, 2025",
       changes: [
         "Session Management: Added automatic logout on token expiration with clear user notification",
