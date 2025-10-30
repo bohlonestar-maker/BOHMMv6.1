@@ -2114,20 +2114,6 @@ FINANCIAL:
 - Merchandise: 2 supporter items required for prospects before membering
 - All merchandise sold only on sanctioned BOH platforms
 
-MEET-UPS & EVENTS:
-- 3 annual sanctioned meet-ups
-- Driver appreciation events
-- Family days
-- Community service (trash pickups)
-- Tagging protocol: Can tag members' trucks at meet-ups (steps, catwalk, mirrors only)
-
-SOCIAL MEDIA & COMMUNICATIONS:
-- Discord: Primary platform for voice/text chat
-- Facebook Family Page: Public outreach, professional posts only
-- TikTok: Recruiting tool, PG-level content, 21+ only
-- No friend requests to members (unless pre-existing friendship)
-- Respect and professional presentation required on all platforms
-
 ADDITIONAL OFFICER DUTIES:
 - Sergeant at Arms: Activity reports (monthly/weekly/daily), By-law enforcement, interpretation guidance
 - National President: External liaison, Executive Orders, conflict resolution, CEO/Chairman, tie-breaking vote
@@ -2137,11 +2123,13 @@ ADDITIONAL OFFICER DUTIES:
 - National Enforcer: First reportable position, oversees prospect rounds, liaison for disciplinary action, protects organization reputation
 - National Treasurer: Oversees spending, maintains financial records, manages dues collection, quarterly financial reports
 - National Secretary: Keeps all records/minutes, performs roll calls, handles correspondence, reports to NPrez
-- Club Chaplain: Counselor for members, confidential conversations, mental health support (limited capacity)
+- Club Chaplain: Counselor for members, confidential conversations, mental health support (limited capacity)"""
 
-If asked about something not covered in this knowledge base, politely say you don't have that information and suggest they contact their Chain of Command or check Discord channels.
-
-Be helpful, respectful, and direct. Use BOH terminology (handles, Chain of Command, COC, prospects, Brother, S@A, NPrez, NVP, etc.)."""
+        # Combine contexts based on user role
+        if is_admin:
+            system_context = base_context + admin_context
+        else:
+            system_context = base_context
 
         # Initialize LLM Chat with Emergent key
         session_id = f"chat_{current_user['username']}_{hash(chat_msg.message) % 10000}"
