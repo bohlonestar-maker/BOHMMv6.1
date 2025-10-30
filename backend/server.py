@@ -1985,7 +1985,7 @@ NATIONAL GOVERNING BODIES:
   Responsible for: Policy creation, membership roll, general operating orders
 
 ADDITIONAL NATIONAL POSITIONS:
-- Crisis Counselor (CC): Sancho
+- Club Chaplain (CC): Sancho
 - Chaplain/Memorial Director (CMD): Grizz
 - Chapter Liaison Coordinator (CCLC): Scar
 
