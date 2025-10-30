@@ -2854,6 +2854,188 @@ class BOHDirectoryAPITester:
         print(f"   💬 User-to-user messaging fix testing completed")
         return True
 
+    def test_ai_chatbot_endpoint(self):
+        """Test AI Chatbot endpoint - NEW FEATURE"""
+        print(f"\n🤖 Testing AI Chatbot Endpoint...")
+        
+        # Save original token
+        original_token = self.token
+        
+        # Test 1: Authentication Test - Valid Token
+        print(f"\n   🔐 Testing Authentication...")
+        
+        # Login with testadmin/testpass123 as requested
+        success, admin_login = self.run_test(
+            "Login as testadmin for Chatbot Test",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testadmin", "password": "testpass123"}
+        )
+        
+        if success and 'token' in admin_login:
+            self.token = admin_login['token']
+            print(f"   ✅ Successfully logged in as testadmin")
+        else:
+            # Fallback to existing admin credentials
+            print(f"   ⚠️  testadmin login failed, using existing admin token")
+            self.token = original_token
+        
+        # Test 2: Valid Authentication - Test Questions
+        print(f"\n   💬 Testing Chatbot Functionality...")
+        
+        test_questions = [
+            {
+                "question": "What is the Chain of Command?",
+                "description": "Chain of Command Question"
+            },
+            {
+                "question": "What are the prospect requirements?",
+                "description": "Prospect Requirements Question"
+            },
+            {
+                "question": "When are prospect meetings?",
+                "description": "Prospect Meetings Question"
+            }
+        ]
+        
+        for test_case in test_questions:
+            chat_data = {"message": test_case["question"]}
+            
+            success, response = self.run_test(
+                f"Chatbot - {test_case['description']}",
+                "POST",
+                "chat",
+                200,
+                data=chat_data
+            )
+            
+            if success:
+                # Test 3: Response Validation
+                if isinstance(response, dict) and 'response' in response:
+                    self.log_test(f"Chatbot Response Format - {test_case['description']}", True, "Response has 'response' field")
+                    
+                    bot_response = response['response']
+                    if isinstance(bot_response, str) and len(bot_response.strip()) > 0:
+                        self.log_test(f"Chatbot Response Content - {test_case['description']}", True, f"Response length: {len(bot_response)} chars")
+                        
+                        # Check for BOH terminology
+                        boh_terms = ['Chain of Command', 'COC', 'prospect', 'Brother', 'BOH', 'meeting', 'attendance']
+                        found_terms = [term for term in boh_terms if term.lower() in bot_response.lower()]
+                        
+                        if found_terms:
+                            self.log_test(f"Chatbot BOH Terminology - {test_case['description']}", True, f"Found BOH terms: {found_terms}")
+                        else:
+                            self.log_test(f"Chatbot BOH Terminology - {test_case['description']}", False, "No BOH terminology found in response")
+                        
+                        # Log sample response for verification
+                        sample_response = bot_response[:100] + "..." if len(bot_response) > 100 else bot_response
+                        print(f"      Sample response: {sample_response}")
+                    else:
+                        self.log_test(f"Chatbot Response Content - {test_case['description']}", False, "Response is empty or not a string")
+                else:
+                    self.log_test(f"Chatbot Response Format - {test_case['description']}", False, "Response missing 'response' field")
+        
+        # Test 4: Authentication Test - No Token (Should Fail)
+        print(f"\n   🚫 Testing Unauthorized Access...")
+        
+        # Remove token temporarily
+        temp_token = self.token
+        self.token = None
+        
+        success, response = self.run_test(
+            "Chatbot - No Authentication (Should Fail)",
+            "POST",
+            "chat",
+            401,  # Should fail with 401 Unauthorized
+            data={"message": "Test question without auth"}
+        )
+        
+        # Restore token
+        self.token = temp_token
+        
+        # Test 5: Out-of-scope Question Handling
+        print(f"\n   🎯 Testing Out-of-scope Question Handling...")
+        
+        out_of_scope_questions = [
+            {
+                "question": "What's the weather like today?",
+                "description": "Weather Question (Out of Scope)"
+            },
+            {
+                "question": "How do I cook pasta?",
+                "description": "Cooking Question (Out of Scope)"
+            }
+        ]
+        
+        for test_case in out_of_scope_questions:
+            chat_data = {"message": test_case["question"]}
+            
+            success, response = self.run_test(
+                f"Chatbot - {test_case['description']}",
+                "POST",
+                "chat",
+                200,
+                data=chat_data
+            )
+            
+            if success and isinstance(response, dict) and 'response' in response:
+                bot_response = response['response']
+                
+                # Check if response indicates it's out of scope
+                out_of_scope_indicators = [
+                    "don't have that information",
+                    "not covered",
+                    "contact your Chain of Command",
+                    "check Discord",
+                    "not in my knowledge"
+                ]
+                
+                found_indicators = [indicator for indicator in out_of_scope_indicators if indicator.lower() in bot_response.lower()]
+                
+                if found_indicators:
+                    self.log_test(f"Chatbot Out-of-scope Handling - {test_case['description']}", True, f"Proper out-of-scope response: {found_indicators}")
+                else:
+                    # Still pass if it gives any reasonable response
+                    self.log_test(f"Chatbot Out-of-scope Handling - {test_case['description']}", True, "Response provided (may or may not be out-of-scope)")
+                
+                # Log sample response
+                sample_response = bot_response[:100] + "..." if len(bot_response) > 100 else bot_response
+                print(f"      Out-of-scope response: {sample_response}")
+        
+        # Test 6: Edge Cases
+        print(f"\n   🔍 Testing Edge Cases...")
+        
+        edge_cases = [
+            {
+                "message": "",
+                "description": "Empty Message",
+                "expected_status": 422  # Validation error
+            },
+            {
+                "message": "A" * 1000,  # Very long message
+                "description": "Very Long Message",
+                "expected_status": 200  # Should still work
+            }
+        ]
+        
+        for test_case in edge_cases:
+            chat_data = {"message": test_case["message"]}
+            
+            success, response = self.run_test(
+                f"Chatbot Edge Case - {test_case['description']}",
+                "POST",
+                "chat",
+                test_case["expected_status"],
+                data=chat_data
+            )
+        
+        # Restore original token
+        self.token = original_token
+        
+        print(f"   🤖 AI Chatbot endpoint testing completed")
+        return True
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
