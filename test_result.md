@@ -321,7 +321,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Member encryption testing completed"
+    - "Hash-based duplicate prevention testing completed"
   stuck_tasks: []
   test_all: false
   test_priority: "completed"
