@@ -546,6 +546,8 @@ async def verify(current_user: dict = Depends(verify_token)):
 async def get_members(current_user: dict = Depends(verify_token)):
     members = await db.members.find({}, {"_id": 0}).to_list(10000)
     for member in members:
+        # Decrypt sensitive data
+        member = decrypt_member_sensitive_data(member)
         if isinstance(member.get('created_at'), str):
             member['created_at'] = datetime.fromisoformat(member['created_at'])
         if isinstance(member.get('updated_at'), str):
@@ -557,6 +559,8 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     member = await db.members.find_one({"id": member_id}, {"_id": 0})
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
+    # Decrypt sensitive data
+    member = decrypt_member_sensitive_data(member)
     if isinstance(member.get('created_at'), str):
         member['created_at'] = datetime.fromisoformat(member['created_at'])
     if isinstance(member.get('updated_at'), str):
