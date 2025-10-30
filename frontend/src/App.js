@@ -9,6 +9,7 @@ import Prospects from "@/pages/Prospects";
 import Messages from "@/pages/Messages";
 import UpdateLog from "@/pages/UpdateLog";
 import SupportCenter from "@/pages/SupportCenter";
+import MessageMonitor from "@/pages/MessageMonitor";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
