@@ -321,12 +321,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Hash-based duplicate prevention testing completed"
+    - "Resend invite functionality"
+    - "Member loading for regular users (regression check)"
   stuck_tasks: []
   test_all: false
-  test_priority: "completed"
+  test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: "RESEND INVITE FEATURE IMPLEMENTED ✅ Backend: POST /api/invites/{token}/resend endpoint checks invite exists, not used, not expired, sends email, logs activity. Frontend: Added handleResendInvite function and Resend button (Mail icon) in Manage Invites dialog. Button only shows for unused and non-expired invites. Verified via screenshot - resend button appears for pending invites, hidden for used invites. NEEDS TESTING: 1) Resend email functionality end-to-end 2) Member loading for regular users (reported regression after admin-only contact restriction implementation). Members load successfully for admin users, need to verify for regular users."
   - agent: "main"
     message: "Implemented Bluetooth device support for admin voice chat. Added device enumeration, real-time device change detection, and hot-swapping capabilities. Admins can now select any connected audio device (including Bluetooth headsets) before joining or during active voice calls. UI includes toggle-able settings panel with microphone and speaker dropdowns. All changes verified working via screenshots."
   - agent: "testing"
