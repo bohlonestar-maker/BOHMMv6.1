@@ -571,6 +571,10 @@ async def create_member(member_data: MemberCreate, current_user: dict = Depends(
     doc = member.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    # Encrypt sensitive data before storing
+    doc = encrypt_member_sensitive_data(doc)
+    
     await db.members.insert_one(doc)
     
     # Log activity
