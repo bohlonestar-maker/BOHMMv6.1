@@ -185,15 +185,18 @@ backend:
 
   - task: "Member loading regression check (admin-only restriction)"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "REGRESSION INVESTIGATION ✅ Checked GET /api/members endpoint after admin-only contact restriction implementation. Code review shows: 1) Decrypt sensitive data for all members 2) For non-admin users viewing National chapter members, replace email with 'restricted@admin-only.local', phone and address with 'Admin Only' 3) Email format passes Pydantic EmailStr validation. ADMIN TESTING: Members load successfully for admin users (10 members loaded, verified via screenshot). NEEDS TESTING: Member loading for regular (non-admin) users to verify no Pydantic validation errors or other issues with restricted contact info."
+      - working: true
+        agent: "testing"
+        comment: "MEMBER LOADING REGRESSION FIXED ✅ CRITICAL ISSUE IDENTIFIED AND RESOLVED: Backend was using 'restricted@admin-only.local' which failed Pydantic EmailStr validation causing 500 Internal Server Error for regular users. FIXED: Changed restricted email to 'restricted@admin-only.com' (valid email format). ✅ COMPREHENSIVE TESTING COMPLETED (21/21 tests passed): 1) Admin Access: testadmin/testpass123 can load all members with full contact info visible for all chapters including National 2) Regular User Access: Created test regular user successfully loads members (no Pydantic validation errors) 3) Contact Restriction Working: National chapter members show 'restricted@admin-only.com', 'Admin Only', 'Admin Only' for email/phone/address when accessed by regular users 4) Non-National Access: Regular users see full contact info for AD, HA, HS chapter members 5) Data Decryption: All basic member info (chapter, title, handle, name) properly decrypted and visible 6) No 500 Errors: Member loading endpoint now returns 200 status for all user types. The regression has been completely resolved."
 
   - task: "Prospects (Hangarounds) management functionality"
     implemented: true
