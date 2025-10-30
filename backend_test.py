@@ -955,9 +955,9 @@ class BOHDirectoryAPITester:
                 )
                 
                 if success:
-                    if (regular_national_detail.get('email') == '[ADMIN ONLY]' and 
-                        regular_national_detail.get('phone') == '[ADMIN ONLY]' and 
-                        regular_national_detail.get('address') == '[ADMIN ONLY]'):
+                    if (regular_national_detail.get('email') == 'restricted@admin-only.com' and 
+                        regular_national_detail.get('phone') == 'Admin Only' and 
+                        regular_national_detail.get('address') == 'Admin Only'):
                         self.log_test("Regular User - National Member Detail Contact Redacted", True, "National member contact info properly redacted in detail view for regular user")
                     else:
                         self.log_test("Regular User - National Member Detail Contact Redacted", False, f"Contact info not redacted in detail: email={regular_national_detail.get('email')}, phone={regular_national_detail.get('phone')}, address={regular_national_detail.get('address')}")
