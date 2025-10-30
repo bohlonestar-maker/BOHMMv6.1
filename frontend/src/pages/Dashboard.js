@@ -184,7 +184,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       });
       setOpenSupportCount(response.data.count);
     } catch (error) {
-      console.error("Failed to fetch support messages count:", error);
+      if (!handleApiError(error, "Failed to fetch support messages count")) {
+        console.error("Failed to fetch support messages count:", error);
+      }
     }
   };
 
