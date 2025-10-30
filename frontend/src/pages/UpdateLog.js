@@ -8,6 +8,18 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.7",
+      date: "October 30, 2025",
+      changes: [
+        "AI Chatbot Assistant: Floating chat icon on all pages for BOH knowledge assistance",
+        "Comprehensive Knowledge Base: Answers questions about bylaws, officers, prospects, meetings, Chain of Command, and more",
+        "BOH Expertise: Trained on officers bylaws, SOPs, prospect bylaws, mission statement, and logo meanings",
+        "Real-time Notifications: Pop-up alerts when new private messages are received while logged in",
+        "Message Alerts: Non-intrusive notifications with direct navigation to Messages page",
+        "Auto-refresh: Message count updates every 30 seconds across all pages"
+      ]
+    },
+    {
       version: "v.1.6b",
       date: "October 30, 2025",
       changes: [
