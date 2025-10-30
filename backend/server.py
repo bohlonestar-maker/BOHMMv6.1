@@ -1955,6 +1955,28 @@ ORGANIZATION OVERVIEW:
 - Structure: National Board oversees Chapters (National, AD, HA, HS)
 - Legal Status: 501(c)(3) non-profit organization
 
+MISSION STATEMENT:
+"We are a Trucker Club that is family oriented, community minded and dedicated to shaping the future while honoring the past. We are a Trucker Club working on bringing back the old school ways of trucking. We are committed to doing what it takes to bring back the respect to the industry by bringing a brotherhood to the industry again."
+
+CORE VALUES & ACTIVITIES:
+- Respect To Others While Driving
+- Help Other Drivers In Need
+- Doing Trash Pick Ups To Keep Lots Clean
+- Creating The Family Away From Family
+- Donating To Various Charities
+- Create A Brotherhood
+- Showing All Around Respect
+- Doing What It Takes To Make A Change
+- Most Of All Bring The Respect Back To Drivers
+
+LOGO ELEMENTS & MEANINGS:
+- Phoenix Wings: Represents "Rise of The Old School Brotherhood from the Ashes"
+- Old School Truck: Represents Old School Trucking Ways
+- Chains: Represents Unity among members
+- Tombstones: Represents Our Fallen Brothers
+- Truck Number (2156): Alphanumeric identifier for BOH
+- TC: Truckers Club designation
+
 NATIONAL GOVERNING BODIES:
 - National Budget Committee: Oversees quarterly/annual budget, maintains IRS compliance
   Members: National President (Q-Ball), National Treasurer (California Kid), National Secretary (Lonestar)
