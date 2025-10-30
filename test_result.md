@@ -318,7 +318,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Voice chat with Bluetooth support completed"
+    - "Member encryption testing completed"
   stuck_tasks: []
   test_all: false
   test_priority: "completed"
