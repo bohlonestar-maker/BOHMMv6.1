@@ -62,6 +62,63 @@ SMTP_HOST = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
 SMTP_EMAIL = os.environ.get('SMTP_EMAIL', '')
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+
+
+# Helper functions for encrypting/decrypting member data
+def encrypt_member_sensitive_data(member_data: dict) -> dict:
+    """Encrypt sensitive member fields"""
+    encrypted = member_data.copy()
+    
+    # Encrypt sensitive fields
+    if 'email' in encrypted and encrypted['email']:
+        encrypted['email'] = encrypt_data(encrypted['email'])
+    if 'phone' in encrypted and encrypted['phone']:
+        encrypted['phone'] = encrypt_data(encrypted['phone'])
+    if 'address' in encrypted and encrypted['address']:
+        encrypted['address'] = encrypt_data(encrypted['address'])
+    
+    return encrypted
+
+def decrypt_member_sensitive_data(member_data: dict) -> dict:
+    """Decrypt sensitive member fields"""
+    decrypted = member_data.copy()
+    
+    # Decrypt sensitive fields
+    if 'email' in decrypted and decrypted['email']:
+        decrypted['email'] = decrypt_data(decrypted['email'])
+    if 'phone' in decrypted and decrypted['phone']:
+        decrypted['phone'] = decrypt_data(decrypted['phone'])
+    if 'address' in decrypted and decrypted['address']:
+        decrypted['address'] = decrypt_data(decrypted['address'])
+    
+    return decrypted
+
+def encrypt_support_message(message_data: dict) -> dict:
+    """Encrypt support message content"""
+    encrypted = message_data.copy()
+    
+    if 'email' in encrypted and encrypted['email']:
+        encrypted['email'] = encrypt_data(encrypted['email'])
+    if 'message' in encrypted and encrypted['message']:
+        encrypted['message'] = encrypt_data(encrypted['message'])
+    if 'reply_text' in encrypted and encrypted['reply_text']:
+        encrypted['reply_text'] = encrypt_data(encrypted['reply_text'])
+    
+    return encrypted
+
+def decrypt_support_message(message_data: dict) -> dict:
+    """Decrypt support message content"""
+    decrypted = message_data.copy()
+    
+    if 'email' in decrypted and decrypted['email']:
+        decrypted['email'] = decrypt_data(decrypted['email'])
+    if 'message' in decrypted and decrypted['message']:
+        decrypted['message'] = decrypt_data(decrypted['message'])
+    if 'reply_text' in decrypted and decrypted['reply_text']:
+        decrypted['reply_text'] = decrypt_data(decrypted['reply_text'])
+    
+    return decrypted
+
 FRONTEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '')
 
 # Email sending function
