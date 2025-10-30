@@ -619,14 +619,14 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 </DialogTrigger>
                   <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle className="text-lg sm:text-xl">
+                      <DialogTitle className="text-lg sm:text-xl text-white">
                         {editingMember ? "Edit Member" : "Add New Member"}
                       </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <Label>Chapter</Label>
+                          <Label className="text-white">Chapter</Label>
                           <Select
                             value={formData.chapter}
                             onValueChange={(value) =>
@@ -634,12 +634,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             }
                             required
                           >
-                            <SelectTrigger data-testid="chapter-select">
+                            <SelectTrigger data-testid="chapter-select" className="text-white">
                               <SelectValue placeholder="Select chapter" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-slate-800 text-white border-slate-700">
                               {CHAPTERS.map((ch) => (
-                                <SelectItem key={ch} value={ch}>
+                                <SelectItem key={ch} value={ch} className="text-white hover:bg-slate-700">
                                   {ch}
                                 </SelectItem>
                               ))}
@@ -647,7 +647,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                           </Select>
                         </div>
                         <div>
-                          <Label>Title</Label>
+                          <Label className="text-white">Title</Label>
                           <Select
                             value={formData.title}
                             onValueChange={(value) =>
@@ -655,12 +655,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             }
                             required
                           >
-                            <SelectTrigger data-testid="title-select">
+                            <SelectTrigger data-testid="title-select" className="text-white">
                               <SelectValue placeholder="Select title" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-slate-800 text-white border-slate-700">
                               {TITLES.map((t) => (
-                                <SelectItem key={t} value={t}>
+                                <SelectItem key={t} value={t} className="text-white hover:bg-slate-700">
                                   {t}
                                 </SelectItem>
                               ))}
@@ -670,7 +670,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       </div>
 
                       <div>
-                        <Label>Member Handle</Label>
+                        <Label className="text-white">Member Handle</Label>
                         <Input
                           data-testid="handle-input"
                           value={formData.handle}
@@ -678,11 +678,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             setFormData({ ...formData, handle: e.target.value })
                           }
                           required
+                          className="text-white"
                         />
                       </div>
 
                       <div>
-                        <Label>Name</Label>
+                        <Label className="text-white">Name</Label>
                         <Input
                           data-testid="name-input"
                           value={formData.name}
@@ -690,11 +691,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             setFormData({ ...formData, name: e.target.value })
                           }
                           required
+                          className="text-white"
                         />
                       </div>
 
                       <div>
-                        <Label>Email</Label>
+                        <Label className="text-white">Email</Label>
                         <Input
                           data-testid="email-input"
                           type="email"
