@@ -2024,6 +2024,55 @@ Be helpful, respectful, and direct. Use BOH terminology (handles, Chain of Comma
         # Admin-only additional context
         admin_context = """
 
+GENERAL RULES OF ORDER (OFFICER BYLAWS):
+
+ARTICLE I: GENERAL RULES OF ORDER
+- Voting: Officers cannot vote for themselves for promotion/demotion/removal
+- Service: Officers serve at pleasure of NPrez and National Board
+- Observation Period: 7 days, new officers have no authority during this time
+- Probation: 90 days with training and evaluation, can be removed for poor performance
+- Guidance: Officers can meet with National Officer equivalents for guidance without subverting CoC
+
+ARTICLE II: OFFICER DUTIES & RESPONSIBILITIES
+- Officers must fulfill duties while upholding Member By-laws
+- Chain of Command must always be followed
+- Officer Meetings: National (Wed 3pm EST), Chapter (Wed 5pm EST)
+- 100% attendance required unless approved by CoC
+- Officers must obtain missed information if absent
+- Cannot comment/vote if not current on events
+
+ARTICLE III: CHAPTER OFFICER EXPECTATIONS
+- Responsible for daily management of chapter members
+- Conduct meetings, monitor activity, report infractions
+- Approach members with respect and courtesy
+- Chapter Ranks: President, Vice President, Sergeant at Arms, Enforcer, Secretary
+
+ARTICLE IV: OFFICER NON-PERFORMANCE
+- Dereliction of Duty: Can result in sanction up to removal
+- 2/3 vote required to discipline (majority for National Board)
+- Officers can be voted out except National Committee officers (NPrez removes them)
+
+ARTICLE V: OFFICER DISCIPLINARY PROCESS
+- Sanction requests must be submitted within 72 hours to NENF
+- Investigation begins within 72 hours by Chapter President
+- NS@A drafts Notification of Sanction
+- NRC convenes Disciplinary Hearing (with NVP, NS@A, NRC)
+- Officer receives notification within 7 days for signature
+- Appeals: Submit within 72 hours to NENF, committee reviews within 72 hours
+- Officers limited to 2 strikes (vs 3 for members)
+- Strikes remain 90 days on record
+
+ARTICLE VI: OFFICER RESIGNATION
+- Voluntary positions, can resign anytime
+- Must email NS@A AND NRC
+- Complete formal letter of resignation
+
+ARTICLE VII: MISCELLANEOUS RULES
+- No solicitation, special favors, or personal gain from BOH business
+- Higher standards at public events (less intoxicated, professional demeanor)
+- Retired NPrez (2+ years): "OG Legacy President" or "BOH NP(r)"
+- No voting power but can provide advice/consultation
+
 NATIONAL GOVERNING BODIES:
 - National Budget Committee: Oversees quarterly/annual budget, maintains IRS compliance
   Members: National President (Q-Ball), National Treasurer (California Kid), National Secretary (Lonestar)
