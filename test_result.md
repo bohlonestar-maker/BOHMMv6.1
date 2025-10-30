@@ -429,7 +429,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User-to-user messaging (regular users can message all users)"
+    - "AI Chatbot endpoint for BOH knowledge base (COMPLETED)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
