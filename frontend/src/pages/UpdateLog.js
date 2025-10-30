@@ -12,13 +12,13 @@ export default function UpdateLog() {
       date: "October 30, 2025",
       changes: [
         "User-to-User Messaging: All users can now send private messages to any other user in the system",
-        "Message Monitor for Lonestar: Dedicated message monitoring dashboard accessible only to user 'Lonestar'",
+        "Message Monitoring Dashboard: Dedicated administrative dashboard for monitoring all user conversations",
         "Conversation Grouping: Messages grouped by conversation pairs with message count and last message preview",
         "Message Search: Filter messages by sender, recipient, or message content in real-time",
         "Conversation Detail View: Click to view full conversation threads with all messages between users",
-        "Read-Only Access: Lonestar can view all conversations without ability to modify or delete messages",
-        "Access Control: Message monitoring strictly restricted to username 'Lonestar' (403 for all other users)",
-        "Navigation Enhancement: Added 'Monitor' button to Dashboard for Lonestar to access message monitoring"
+        "Read-Only Access: Administrative monitoring with view-only permissions (no message modification)",
+        "Enhanced Security: Message monitoring strictly restricted to authorized administrators only",
+        "Navigation Enhancement: Added monitoring access button to Dashboard for authorized administrators"
       ]
     },
     {
