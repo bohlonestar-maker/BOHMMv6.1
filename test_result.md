@@ -382,6 +382,18 @@ frontend:
         agent: "main"
         comment: "MESSAGE MONITOR UI IMPLEMENTED ✅ Created dedicated Message Monitor page for Lonestar only. Features: 1) Route Protection: /message-monitor accessible only by username 'Lonestar' (redirects others to dashboard) 2) All Messages View: Displays all private messages between all users in the system 3) Conversation Grouping: Groups messages by conversation pairs with message count and last message preview 4) Search Functionality: Filter messages by sender, recipient, or message content 5) Conversation Detail View: Click 'View' button to see full conversation thread with all messages 6) Message Details: Shows sender → recipient, message content, timestamp, and unread status 7) Navigation Button: Added 'Monitor' button to Dashboard navigation (Lonestar only, next to Support button) 8) Read-only Access: View-only interface, no message modification or deletion. NEEDS TESTING: Verify access restriction, message display, search filtering, conversation view, and Lonestar-only navigation button visibility."
 
+  - task: "User-to-user messaging UI fix"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Messages.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "USER-TO-USER MESSAGING UI FIX ✅ ISSUE: Regular users could only see admin users in their messaging interface (fetchAllUsers was using role-based endpoint selection). FIXED: Updated fetchAllUsers() function to use /api/users/all endpoint for ALL users (removed role check, removed fallback logic). Now all authenticated users fetch the complete user list and can message anyone. Added toast error notification if user list fails to load. NEEDS TESTING: Verify regular users can see all users (not just admins) when starting new conversation, and can successfully send/receive messages with other regular users."
+
   - task: "Activity Log dialog close button positioning"
     implemented: true
     working: true
