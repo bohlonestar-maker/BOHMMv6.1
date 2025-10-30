@@ -245,15 +245,18 @@ backend:
 
   - task: "User-to-user messaging for all users"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "USER-TO-USER MESSAGING FIX ✅ ISSUE: Regular users could only see admin users in messaging interface. SOLUTION: Created GET /api/users/all endpoint accessible to all authenticated users (uses verify_token, not verify_admin). Endpoint returns list of all users with id, username, and role fields (excludes password_hash and permissions for security). Limit 1000 users. NEEDS TESTING: Verify all authenticated users can access /api/users/all endpoint and receive list of all users for messaging purposes."
+      - working: true
+        agent: "testing"
+        comment: "USER-TO-USER MESSAGING FIX FULLY TESTED ✅ COMPREHENSIVE TESTING COMPLETED: All critical functionality verified working correctly. ✅ ACCESS CONTROL TESTING: Admin users (testadmin/testpass123) can access GET /api/users/all and receive complete user list with proper data structure (id, username, role fields present, password_hash/permissions excluded). Regular users can also access GET /api/users/all and see ALL users (both admins and regular users), solving the original issue. Unauthenticated access properly blocked (returns 403, functionally correct). ✅ DATA VALIDATION: Response includes all user types, respects 1000 user limit, excludes sensitive data correctly. ✅ ENDPOINT COMPARISON: /api/users/all returns more users than /api/users/admins as expected (all users vs admin-only). ✅ MESSAGING INTEGRATION: Regular users can successfully send messages to other regular users AND to admin users. Message structure valid with all required fields (sender, recipient, message, timestamp). Conversations properly created and retrievable. ✅ CROSS-ROLE MESSAGING: Verified regular user → regular user messaging and regular user → admin messaging both work correctly. The user-to-user messaging fix is production-ready and resolves the reported issue completely."
 
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
