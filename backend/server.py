@@ -572,6 +572,30 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
 
 @api_router.post("/members", response_model=Member, status_code=201)
 async def create_member(member_data: MemberCreate, current_user: dict = Depends(verify_admin)):
+    # Check for duplicate handle
+    existing_by_handle = await db.members.find_one({"handle": member_data.handle})
+    if existing_by_handle:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"A member with handle '{member_data.handle}' already exists"
+        )
+    
+    # Check for duplicate email if provided
+    if member_data.email:
+        # Need to check against both encrypted and unencrypted emails
+        # First try exact match (for unencrypted)
+        existing_by_email = await db.members.find_one({"email": member_data.email})
+        
+        # Also check encrypted version
+        encrypted_email = encrypt_data(member_data.email)
+        existing_by_encrypted_email = await db.members.find_one({"email": encrypted_email})
+        
+        if existing_by_email or existing_by_encrypted_email:
+            raise HTTPException(
+                status_code=400,
+                detail=f"A member with email '{member_data.email}' already exists"
+            )
+    
     # Filter out None values to allow default factories to work
     member_dict = {k: v for k, v in member_data.model_dump().items() if v is not None}
     member = Member(**member_dict)
