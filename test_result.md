@@ -277,6 +277,18 @@ frontend:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED ✅ User Management Button Reorganization Verified: 1) Login successful with testadmin/testpass123 credentials 2) Navigation to /users page successful 3) Button Layout Verified: All 4 buttons present in correct order (Activity Log → Manage Invites → Invite User → Add User) 4) Button Styling Verified: First 3 buttons have outline styling, Add User has filled/primary styling (bg-slate-800) 5) Icon Verification: Activity Log (Shield), Manage Invites (Mail), Invite User (Mail), Add User (Plus) - all icons present 6) Functionality Testing: All buttons successfully open their respective dialogs (Activity Log, Manage Invitation Links, Invite New User, Add New User) 7) Spacing and Layout: Buttons properly spaced with gap-2 in header section. Button reorganization is working perfectly as specified."
   
+  - task: "Resend invite button UI"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/UserManagement.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "RESEND INVITE UI IMPLEMENTED ✅ Added resend button to Manage Invites dialog table. Implementation: 1) Created handleResendInvite(inviteToken) function that calls POST /api/invites/{token}/resend 2) Added Resend button with Mail icon next to Delete button in Actions column 3) Button styling: blue text (text-blue-600) with blue hover (hover:text-blue-700 hover:bg-blue-50) 4) Conditional rendering: button only shows for unused (!invite.used) and non-expired (new Date(invite.expires_at) >= new Date()) invites 5) Success/error toast notifications on API response. Verified via screenshot: Resend button visible for pending invite (bohqball@gmail.com), hidden for used invite (joewhitakerks2016@gmail.com). NEEDS TESTING: End-to-end resend functionality including button click, API call, email delivery, and toast notifications."
+
   - task: "Activity Log dialog close button positioning"
     implemented: true
     working: true
