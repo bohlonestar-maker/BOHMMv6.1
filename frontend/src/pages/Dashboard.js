@@ -168,26 +168,6 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   };
 
 
-  const fetchOpenSupportCount = async () => {
-    // Only fetch if user is Lonestar
-    if (localStorage.getItem("username") !== "Lonestar") {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API}/support/messages/count`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOpenSupportCount(response.data.count);
-    } catch (error) {
-      if (!handleApiError(error, "Failed to fetch support messages count")) {
-        console.error("Failed to fetch support messages count:", error);
-      }
-    }
-  };
-
-
   // Update meeting dates whenever the year changes
   useEffect(() => {
     const currentYear = new Date().getFullYear();
