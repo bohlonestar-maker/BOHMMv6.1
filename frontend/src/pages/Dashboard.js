@@ -164,7 +164,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       });
       setUnreadPrivateCount(response.data.unread_count);
     } catch (error) {
-      console.error("Failed to fetch unread private messages count:", error);
+      if (!handleApiError(error, "Failed to fetch unread private messages count")) {
+        console.error("Failed to fetch unread private messages count:", error);
+      }
     }
   };
 
