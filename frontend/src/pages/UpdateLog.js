@@ -8,20 +8,6 @@ export default function UpdateLog() {
 
   const updates = [
     {
-      version: "v.1.6b",
-      date: "October 30, 2025",
-      changes: [
-        "User-to-User Messaging: All users can now send private messages to any other user in the system",
-        "Message Monitoring Dashboard: Dedicated administrative dashboard for monitoring all user conversations",
-        "Conversation Grouping: Messages grouped by conversation pairs with message count and last message preview",
-        "Message Search: Filter messages by sender, recipient, or message content in real-time",
-        "Conversation Detail View: Click to view full conversation threads with all messages between users",
-        "Read-Only Access: Administrative monitoring with view-only permissions (no message modification)",
-        "Enhanced Security: Message monitoring strictly restricted to authorized administrators only",
-        "Navigation Enhancement: Added monitoring access button to Dashboard for authorized administrators"
-      ]
-    },
-    {
       version: "v.1.6a",
       date: "October 30, 2025",
       changes: [
