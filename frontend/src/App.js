@@ -194,6 +194,7 @@ function App() {
           />
         </Routes>
         {isAuthenticated && <MessageNotifier />}
+        {isAuthenticated && <ChatBot />}
       </BrowserRouter>
       <Toaster />
     </div>
