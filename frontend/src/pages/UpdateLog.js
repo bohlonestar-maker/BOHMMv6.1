@@ -8,6 +8,18 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.6a",
+      date: "October 30, 2025",
+      changes: [
+        "Resend Invite Feature: Admins can resend invitation emails for pending invites directly from the Manage Invites dialog",
+        "Resend Button UI: Blue mail icon button appears next to delete button for unused, non-expired invites only",
+        "Email Validation Fix: Resolved Pydantic validation error that prevented regular users from loading members",
+        "Contact Restriction Enhancement: Fixed email format for restricted National chapter contact info (admin-only access)",
+        "Invite Management: Improved invite workflow with visual indicators for pending, used, and expired invites",
+        "Activity Logging: Resend invite actions are now logged in the activity log for audit purposes"
+      ]
+    },
+    {
       version: "v.1.6",
       date: "October 30, 2025",
       changes: [
