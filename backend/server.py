@@ -1984,6 +1984,11 @@ NATIONAL GOVERNING BODIES:
   Includes: National Vice President (Keltic Reaper), National Sergeant at Arms (Repo), National Enforcer (Gear Jammer), National Treasurer (California Kid), National Secretary (Lonestar)
   Responsible for: Policy creation, membership roll, general operating orders
 
+ADDITIONAL NATIONAL POSITIONS:
+- Crisis Counselor (CC): Sancho
+- Chaplain/Memorial Director (CMD): Grizz
+- Chapter Liaison Coordinator (CCLC): Scar
+
 CHAIN OF COMMAND:
 National Officers: 
 - National President (NPrez): Q-Ball - CEO, Chairman of National Board, handles external relations, can issue Executive Orders/Vetoes, acts as liaison with law enforcement and public relations
