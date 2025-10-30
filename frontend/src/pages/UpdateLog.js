@@ -8,6 +8,16 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.5e",
+      date: "October 30, 2025",
+      changes: [
+        "Session Management: Added automatic logout on token expiration with clear user notification",
+        "Error Handling: Improved API error handling with user-friendly messages",
+        "Navigation Layout: Moved Logout button to far right for better visual hierarchy",
+        "UI Text Update: Changed 'Update Log' to 'Change Log' throughout the application"
+      ]
+    },
+    {
       version: "v.1.5d",
       date: "October 29, 2025",
       changes: [
