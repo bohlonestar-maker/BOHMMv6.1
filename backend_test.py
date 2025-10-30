@@ -696,6 +696,313 @@ class BOHDirectoryAPITester:
                 200
             )
 
+    def test_national_chapter_access_control(self):
+        """Test National chapter contact info access control - PRIORITY TEST"""
+        print(f"\n🏛️  Testing National Chapter Contact Info Access Control...")
+        
+        # Step 1: Create test admin user if doesn't exist
+        admin_user = {
+            "username": "testadmin",
+            "password": "testpass123",
+            "role": "admin"
+        }
+        
+        success, created_admin = self.run_test(
+            "Create Test Admin User",
+            "POST",
+            "users",
+            201,
+            data=admin_user
+        )
+        
+        admin_user_id = None
+        if success and 'id' in created_admin:
+            admin_user_id = created_admin['id']
+            print(f"   Created admin user ID: {admin_user_id}")
+        elif not success:
+            # Admin might already exist, try to login
+            print("   Admin user might already exist, continuing...")
+        
+        # Step 2: Create regular user
+        regular_user = {
+            "username": "regularuser",
+            "password": "testpass123",
+            "role": "user"
+        }
+        
+        success, created_regular = self.run_test(
+            "Create Regular User",
+            "POST",
+            "users",
+            201,
+            data=regular_user
+        )
+        
+        regular_user_id = None
+        if success and 'id' in created_regular:
+            regular_user_id = created_regular['id']
+            print(f"   Created regular user ID: {regular_user_id}")
+        elif not success:
+            # Regular user might already exist, continuing
+            print("   Regular user might already exist, continuing...")
+        
+        # Step 3: Create test members
+        # Member 1: National chapter
+        national_member = {
+            "chapter": "National",
+            "title": "Prez",
+            "handle": "NationalTestRider",
+            "name": "National Test Member",
+            "email": "national@test.com",
+            "phone": "555-0001",
+            "address": "123 National Street, National City, NC 12345"
+        }
+        
+        success, created_national = self.run_test(
+            "Create National Chapter Member",
+            "POST",
+            "members",
+            201,
+            data=national_member
+        )
+        
+        national_member_id = None
+        if success and 'id' in created_national:
+            national_member_id = created_national['id']
+            print(f"   Created National member ID: {national_member_id}")
+        else:
+            print("❌ Failed to create National member - cannot continue access control tests")
+            return
+        
+        # Member 2: Non-National chapter (AD)
+        ad_member = {
+            "chapter": "AD",
+            "title": "VP",
+            "handle": "ADTestRider",
+            "name": "AD Test Member",
+            "email": "ad@test.com",
+            "phone": "555-0002",
+            "address": "456 AD Street, AD City, AD 67890"
+        }
+        
+        success, created_ad = self.run_test(
+            "Create AD Chapter Member",
+            "POST",
+            "members",
+            201,
+            data=ad_member
+        )
+        
+        ad_member_id = None
+        if success and 'id' in created_ad:
+            ad_member_id = created_ad['id']
+            print(f"   Created AD member ID: {ad_member_id}")
+        else:
+            print("❌ Failed to create AD member - cannot continue access control tests")
+            return
+        
+        # Save original admin token
+        original_token = self.token
+        
+        # Test Case 1: Admin Access - GET /api/members
+        print(f"\n   🔑 Testing Admin Access to All Members...")
+        
+        # Login as admin (testadmin)
+        success, admin_login = self.run_test(
+            "Login as Test Admin",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testadmin", "password": "testpass123"}
+        )
+        
+        if success and 'token' in admin_login:
+            self.token = admin_login['token']
+            
+            # Fetch all members as admin
+            success, admin_members = self.run_test(
+                "Admin - Get All Members",
+                "GET",
+                "members",
+                200
+            )
+            
+            if success and isinstance(admin_members, list):
+                # Find our test members
+                national_found = None
+                ad_found = None
+                
+                for member in admin_members:
+                    if member.get('id') == national_member_id:
+                        national_found = member
+                    elif member.get('id') == ad_member_id:
+                        ad_found = member
+                
+                # Verify National member shows FULL contact info for admin
+                if national_found:
+                    if (national_found.get('email') == 'national@test.com' and 
+                        national_found.get('phone') == '555-0001' and 
+                        national_found.get('address') == '123 National Street, National City, NC 12345'):
+                        self.log_test("Admin Access - National Member Full Contact Info", True, "Admin can see full contact info for National member")
+                    else:
+                        self.log_test("Admin Access - National Member Full Contact Info", False, f"Contact info redacted: email={national_found.get('email')}, phone={national_found.get('phone')}, address={national_found.get('address')}")
+                else:
+                    self.log_test("Admin Access - National Member Found", False, "National member not found in admin member list")
+                
+                # Verify AD member shows FULL contact info for admin
+                if ad_found:
+                    if (ad_found.get('email') == 'ad@test.com' and 
+                        ad_found.get('phone') == '555-0002' and 
+                        ad_found.get('address') == '456 AD Street, AD City, AD 67890'):
+                        self.log_test("Admin Access - AD Member Full Contact Info", True, "Admin can see full contact info for AD member")
+                    else:
+                        self.log_test("Admin Access - AD Member Full Contact Info", False, f"Contact info redacted: email={ad_found.get('email')}, phone={ad_found.get('phone')}, address={ad_found.get('address')}")
+                else:
+                    self.log_test("Admin Access - AD Member Found", False, "AD member not found in admin member list")
+        
+        # Test Case 2: Regular User Access - GET /api/members
+        print(f"\n   👤 Testing Regular User Access to All Members...")
+        
+        # Login as regular user
+        success, regular_login = self.run_test(
+            "Login as Regular User",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "regularuser", "password": "testpass123"}
+        )
+        
+        if success and 'token' in regular_login:
+            self.token = regular_login['token']
+            
+            # Fetch all members as regular user
+            success, regular_members = self.run_test(
+                "Regular User - Get All Members",
+                "GET",
+                "members",
+                200
+            )
+            
+            if success and isinstance(regular_members, list):
+                # Find our test members
+                national_found = None
+                ad_found = None
+                
+                for member in regular_members:
+                    if member.get('id') == national_member_id:
+                        national_found = member
+                    elif member.get('id') == ad_member_id:
+                        ad_found = member
+                
+                # Verify National member shows "[ADMIN ONLY]" for contact info
+                if national_found:
+                    if (national_found.get('email') == '[ADMIN ONLY]' and 
+                        national_found.get('phone') == '[ADMIN ONLY]' and 
+                        national_found.get('address') == '[ADMIN ONLY]'):
+                        self.log_test("Regular User - National Member Contact Redacted", True, "National member contact info properly redacted for regular user")
+                    else:
+                        self.log_test("Regular User - National Member Contact Redacted", False, f"Contact info not redacted: email={national_found.get('email')}, phone={national_found.get('phone')}, address={national_found.get('address')}")
+                else:
+                    self.log_test("Regular User - National Member Found", False, "National member not found in regular user member list")
+                
+                # Verify AD member shows FULL contact info for regular user
+                if ad_found:
+                    if (ad_found.get('email') == 'ad@test.com' and 
+                        ad_found.get('phone') == '555-0002' and 
+                        ad_found.get('address') == '456 AD Street, AD City, AD 67890'):
+                        self.log_test("Regular User - AD Member Full Contact Info", True, "Regular user can see full contact info for non-National member")
+                    else:
+                        self.log_test("Regular User - AD Member Full Contact Info", False, f"Contact info unexpectedly redacted: email={ad_found.get('email')}, phone={ad_found.get('phone')}, address={ad_found.get('address')}")
+                else:
+                    self.log_test("Regular User - AD Member Found", False, "AD member not found in regular user member list")
+        
+        # Test Case 3: Admin Access - GET /api/members/{id}
+        print(f"\n   🔑 Testing Admin Access to Individual National Member...")
+        
+        # Login as admin again
+        if admin_login and 'token' in admin_login:
+            self.token = admin_login['token']
+            
+            if national_member_id:
+                success, admin_national_detail = self.run_test(
+                    "Admin - Get National Member by ID",
+                    "GET",
+                    f"members/{national_member_id}",
+                    200
+                )
+                
+                if success:
+                    if (admin_national_detail.get('email') == 'national@test.com' and 
+                        admin_national_detail.get('phone') == '555-0001' and 
+                        admin_national_detail.get('address') == '123 National Street, National City, NC 12345'):
+                        self.log_test("Admin Access - National Member Detail Full Contact", True, "Admin can see full contact info in member detail")
+                    else:
+                        self.log_test("Admin Access - National Member Detail Full Contact", False, f"Contact info redacted in detail: email={admin_national_detail.get('email')}, phone={admin_national_detail.get('phone')}, address={admin_national_detail.get('address')}")
+        
+        # Test Case 4: Regular User Access - GET /api/members/{id}
+        print(f"\n   👤 Testing Regular User Access to Individual National Member...")
+        
+        # Login as regular user again
+        if regular_login and 'token' in regular_login:
+            self.token = regular_login['token']
+            
+            if national_member_id:
+                success, regular_national_detail = self.run_test(
+                    "Regular User - Get National Member by ID",
+                    "GET",
+                    f"members/{national_member_id}",
+                    200
+                )
+                
+                if success:
+                    if (regular_national_detail.get('email') == '[ADMIN ONLY]' and 
+                        regular_national_detail.get('phone') == '[ADMIN ONLY]' and 
+                        regular_national_detail.get('address') == '[ADMIN ONLY]'):
+                        self.log_test("Regular User - National Member Detail Contact Redacted", True, "National member contact info properly redacted in detail view for regular user")
+                    else:
+                        self.log_test("Regular User - National Member Detail Contact Redacted", False, f"Contact info not redacted in detail: email={regular_national_detail.get('email')}, phone={regular_national_detail.get('phone')}, address={regular_national_detail.get('address')}")
+        
+        # Restore original admin token
+        self.token = original_token
+        
+        # Clean up test data
+        print(f"\n   🧹 Cleaning up test data...")
+        
+        if national_member_id:
+            success, response = self.run_test(
+                "Delete National Test Member",
+                "DELETE",
+                f"members/{national_member_id}",
+                200
+            )
+        
+        if ad_member_id:
+            success, response = self.run_test(
+                "Delete AD Test Member",
+                "DELETE",
+                f"members/{ad_member_id}",
+                200
+            )
+        
+        if regular_user_id:
+            success, response = self.run_test(
+                "Delete Regular Test User",
+                "DELETE",
+                f"users/{regular_user_id}",
+                200
+            )
+        
+        if admin_user_id:
+            success, response = self.run_test(
+                "Delete Admin Test User",
+                "DELETE",
+                f"users/{admin_user_id}",
+                200
+            )
+        
+        print(f"   🏛️  National chapter access control testing completed")
+        return national_member_id, ad_member_id
+
     def test_invite_functionality(self):
         """Test email invite functionality - PRIORITY TEST"""
         print(f"\n📧 Testing Email Invite Functionality...")
