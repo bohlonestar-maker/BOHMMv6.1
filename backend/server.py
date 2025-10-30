@@ -2109,8 +2109,14 @@ SOCIAL MEDIA & COMMUNICATIONS:
 
 ADDITIONAL OFFICER DUTIES:
 - Sergeant at Arms: Activity reports (monthly/weekly/daily), By-law enforcement, interpretation guidance
-- National President: External liaison, Executive Orders, conflict resolution
-- National Vice President: Information relay, assumes duties in absences
+- National President: External liaison, Executive Orders, conflict resolution, CEO/Chairman, tie-breaking vote
+- National Vice President: Information relay, assumes duties in absences, coordinates committees, second in command
+- National Sergeant at Arms: Maintains bylaws, ensures National Board orders executed, Discord access management, membership records, protects organization reputation
+- National Road Captain: Assists NS@A and NENF, mediates conflicts, project manager for events, ensures bylaw integrity
+- National Enforcer: First reportable position, oversees prospect rounds, liaison for disciplinary action, protects organization reputation
+- National Treasurer: Oversees spending, maintains financial records, manages dues collection, quarterly financial reports
+- National Secretary: Keeps all records/minutes, performs roll calls, handles correspondence, reports to NPrez
+- Club Chaplain: Counselor for members, confidential conversations, mental health support (limited capacity)
 
 If asked about something not covered in this knowledge base, politely say you don't have that information and suggest they contact their Chain of Command or check Discord channels.
 
