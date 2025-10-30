@@ -2025,7 +2025,7 @@ class BOHDirectoryAPITester:
                 
                 # Verify National member shows RESTRICTED contact info for regular user
                 if national_found:
-                    if (national_found.get('email') == 'restricted@admin-only.local' and 
+                    if (national_found.get('email') == 'restricted@admin-only.com' and 
                         national_found.get('phone') == 'Admin Only' and 
                         national_found.get('address') == 'Admin Only'):
                         self.log_test("Regular User - National Member Contact Restricted", True, "National member contact info properly restricted for regular user")
