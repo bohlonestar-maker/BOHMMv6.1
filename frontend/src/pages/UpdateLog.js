@@ -8,6 +8,18 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.6b",
+      date: "October 30, 2025",
+      changes: [
+        "User-to-User Messaging: All users can now send private messages to any other user in the system",
+        "Message Monitoring: Administrative dashboard for monitoring user conversations (authorized access only)",
+        "Support Simplified: Replaced in-app support form with direct email link on login page",
+        "Email Contact: Support link now opens default email client to supp.boh2158@gmail.com",
+        "Navigation Cleanup: Streamlined dashboard navigation by removing redundant support center access",
+        "User Experience: Simplified support contact method for easier accessibility"
+      ]
+    },
+    {
       version: "v.1.6a",
       date: "October 30, 2025",
       changes: [
