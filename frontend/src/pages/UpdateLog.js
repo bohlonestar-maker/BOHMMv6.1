@@ -8,6 +8,16 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.7b",
+      date: "October 31, 2025",
+      changes: [
+        "Chapter Officers Integration: Added Highway Souls (HS) and Asphalt Demons (AD) chapter leadership to chatbot",
+        "National Support Positions: Added Club Chaplain (CC), Club Media Director (CMD), and Club Counselor & Life Coach (CCLC)",
+        "Complete Leadership Coverage: Chatbot can now answer questions about all chapter officers and national support roles",
+        "Enhanced Knowledge Base: Comprehensive organizational structure information for all BOH chapters"
+      ]
+    },
+    {
       version: "v.1.7a",
       date: "October 30, 2025",
       changes: [
