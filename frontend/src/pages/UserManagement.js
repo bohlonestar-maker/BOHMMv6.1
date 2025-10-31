@@ -35,6 +35,7 @@ const API = `${BACKEND_URL}/api`;
 
 export default function UserManagement({ onLogout }) {
   const [users, setUsers] = useState([]);
+  const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
