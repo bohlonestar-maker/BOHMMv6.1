@@ -453,12 +453,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "AI Chatbot endpoint for BOH knowledge base (COMPLETED)"
+    - "Contact privacy options (phone and address)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: "CONTACT PRIVACY FEATURE IMPLEMENTED ✅ Backend: Added is_phone_private and is_address_private boolean fields to Member model (default: false). Updated GET /api/members endpoint to show 'Private' text to non-admin users when privacy flags are set. Admins always see actual contact info. Frontend: Added privacy checkboxes to Add/Edit Member form in Dashboard.js below Phone and Address fields. Updated formData state initialization, resetForm(), and handleEdit() to handle privacy fields. Added Checkbox import. Updated app version to v.1.8a and documented in UpdateLog.js. Verified via screenshots - checkboxes visible and functional. NEEDS TESTING: 1) Create member with privacy checkboxes checked 2) Verify privacy flags sent to backend 3) Test admin can see actual values 4) Test non-admin sees 'Private' text 5) Edit member privacy settings 6) Verify persistence in database."
   - agent: "main"
     message: "USER-TO-USER MESSAGING FIX ✅ ISSUE IDENTIFIED: Regular users could only see admin users in their messaging interface, preventing them from messaging other regular users. ROOT CAUSE: Frontend Messages.js was using endpoint /users/admins for regular users instead of fetching all users. FIXED: 1) Backend: Created new GET /api/users/all endpoint accessible to all authenticated users (uses verify_token) 2) Frontend: Updated fetchAllUsers() in Messages.js to use /users/all for all users, removing the role-based endpoint selection. Now all users can see and message all other users in the system. NEEDS TESTING: Verify regular users can see all users in messaging interface and send messages to other regular users."
   - agent: "main"
