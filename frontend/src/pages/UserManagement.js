@@ -449,7 +449,8 @@ export default function UserManagement({ onLogout }) {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="prospect">Prospect</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                         </SelectContent>
                       </Select>
