@@ -1,105 +1,109 @@
 <analysis>
-The AI engineer continued development on the Brothers of the Highway Member Directory application, focusing on UI/UX enhancements, security, and administrative features. Key tasks included improving button visibility across various pages, standardizing menu styles, and renaming Manage Users to Admin. A significant effort was made to implement a comprehensive Support Message Center for Lonestar administrators, complete with email replies, message logging, clearing options, and an unread counter badge. Security was enhanced by integrating 256-bit encryption for sensitive user data, which required addressing backward compatibility for unencrypted data and implementing a hash-based solution for duplicate detection to overcome non-deterministic encryption challenges. Frontend error handling for token expiration was improved. The Made with Emergent badge was initially repositioned and then removed due to user feedback. Finally, granular access control was added, restricting non-admins from viewing National chapter contact info, which necessitated a fix for Pydantic validation of placeholder text. The work concluded amidst the implementation of a resend invite feature, encountering a regression with loading contacts for regular users.
+The previous AI engineer significantly enhanced the Brothers of the Highway Member Directory application. Initial work involved resolving a Pydantic validation regression ( TLD issue) for restricted admin contact info during a resend invite feature implementation, which was successfully fixed. Subsequently, the engineer developed a comprehensive AI chatbot, integrating extensive BOH organizational knowledge from PDFs, DOCX files, and images, and implemented role-based context for it (admin vs. general user). Messaging functionalities were refined, allowing all users to private message each other, and a global pop-up notification system for new messages was added. The dedicated Support Message Center was removed due to persistent SMTP email issues, replaced by a simple mailto link. Meeting attendance status indicators were updated to a red/orange/green scheme. Most recently, a 3-role system (Admin, Member, Prospect) was introduced, requiring backend role migrations, UI updates for user management, and fine-grained access controls for Prospects, including restricted contact viewing (no names), limited private messaging to specific HA officers, and the introduction of phone/address privacy options. The trajectory concluded during the implementation of these privacy options.
 </analysis>
 
 <product_requirements>
-The Brothers of the Highway Member Directory application aims to provide a secure and user-friendly platform for managing member and prospect data. It features secure login, role-based access control (admin/user), and granular permissions. Core data includes Chapter, Title, Handle, Name, Email, Phone, and Address, with clickable contact info and permission-aware CSV export. Implemented features include a 3-state (Paid, Unpaid, Late with note) annual dues tracking, detailed meeting attendance, and a search function. Admin functionalities encompass user management, invite handling, and an activity log. A separate Hangarounds/Prospects list exists. UI/UX standards demand a Professional Corporate look, responsive design, a custom logo, a global dark theme, and a visible version number (currently v.1.6). User-to-user private messaging, admin messaging, and an in-app Change Log for administrators are present. Recent additions include: visual consistency for buttons (e.g., green export buttons, white text on action/cancel buttons), Admin button rename, a dedicated Support Message Center (Lonestar-only) with email replies, logging, clearing, and an unread counter. Sensitive data is protected with 256-bit encryption, and duplicate contact prevention is active. National chapter contact info is restricted to admins, and token expiration is handled gracefully. A resend invite function is currently being developed.
+The Brothers of the Highway Member Directory application provides a secure platform for managing member and prospect data, featuring secure login, role-based access, and granular permissions for core data (Chapter, Title, Handle, Name, Email, Phone, Address). Key features include clickable contact info, permission-aware CSV export, 3-state annual dues tracking (Paid, Unpaid, Late with note), detailed meeting attendance, and search. Admin functionalities cover user/invite management and activity logs, alongside a Hangarounds/Prospects list. UI/UX standards demand a Professional Corporate look, responsive design, a custom logo, dark theme, and visible version number (currently v.1.8). User-to-user private messaging with global notifications and an in-app Change Log are present. Sensitive data uses 256-bit encryption, with hash-based duplicate prevention. National chapter contact info is restricted to admins, and token expiration is handled. Recent updates include a resend invite function, a globally accessible AI chatbot for BOH knowledge, and a 3-role system (Admin, Member, Prospect) with customized access.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack:** React (frontend), FastAPI (backend), MongoDB (database).
--   **Authentication/Authorization:** JWT, Role-Based Access Control (RBAC),  for password hashing.
+-   **Full-stack:** React, FastAPI, MongoDB.
+-   **Security:** JWT authentication, RBAC,  for password hashing, 256-bit Fernet encryption, SHA256 hashing for duplicate detection.
 -   **UI/UX:** Shadcn UI, Tailwind CSS, Responsive Design.
--   **Data Validation:** Pydantic (with UUIDs for MongoDB IDs).
--   **Email Services:**  for sending emails.
--   **Data Handling:** Multi-year data structures, MongoDB serialization, data migration, deterministic hashing (SHA256) for encrypted field duplicate detection.
--   **Security:** 256-bit Fernet encryption for sensitive data at rest.
--   **Error Handling:** Client-side API error handling with automatic logout for 401 (token expired).
+-   **Data Validation:** Pydantic models.
+-   **Email Services:**  (SMTP issues encountered).
+-   **AI Integration:** Emergentintegrations library, Emergent LLM Key, knowledge extraction from PDFs/DOCX/images, context management for chatbot.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a standard full-stack architecture with React for the frontend, FastAPI for the backend, and MongoDB as the database.
-
 
 
 -   
-    -   **Importance:** Contains all backend API logic, database interactions, authentication, and security features.
+    -   **Importance:** Core backend logic, API endpoints, database interactions, authentication, and security.
     -   **Changes:**
-        -   Added  model (with , , , ,  fields).
-        -   Implemented , , , ,  endpoints.
-        -   Added generic  function.
-        -   Integrated 256-bit Fernet encryption:  class, ,  functions.
-        -   Added , , ,  helper functions.
-        -   Modified  to encrypt JWT payload and  to decrypt it.
-        -   Updated  and  to encrypt sensitive fields (, , ) before saving, and to decrypt them upon retrieval.
-        -   Implemented hash-based duplicate detection for  and  using SHA256 ( function) to work with non-deterministic encryption.
-        -   Modified  to restrict  chapter contact info (, , ) for non-admin users to  or .
-        -   Added  endpoint for resending user invitations.
+        -   Fixed Pydantic validation issue for restricted national chapter contacts (changed  to ).
+        -   Added  endpoint.
+        -   Added  endpoint for Lonestar message monitoring.
+        -   Added  (accessible to all authenticated users) for general user listing.
+        -   Added  endpoint for changing user passwords.
+        -   Modified  and  to filter/hide names for prospect roles.
+        -   Updated  model with  and .
+        -   Modified  to filter users for prospect role (only HA chapter officers).
+        -   Added validation to  to prevent prospects from messaging non-HA officers.
+        -   Integrated AI chatbot endpoints ().
+        -   Implemented role-based context switching for the chatbot ().
+        -   Updated  for .
+        -   Reverted SMTP settings to original for .
 -   
-    -   **Importance:** Manages main application routing.
-    -   **Changes:** Added route for  to display the Support Message Center.
+    -   **Importance:** Manages main application routing and global components.
+    -   **Changes:**
+        -   Added route for .
+        -   Removed route for .
+        -   Integrated global message notification system ( component logic).
+        -   Integrated floating  component.
 -   
     -   **Importance:** User authentication and initial app access.
     -   **Changes:**
-        -   Version number updated to .
-        -   256-bit Encryption badge with lock icon added below the version number.
-        -   Support link changed to a button with a dialog to submit support messages.
+        -   Version updated to .
+        -   Removed 256-bit Encryption badge.
+        -   Replaced Support dialog/button with a simple  link.
 -   
     -   **Importance:** Main member directory and navigation hub.
     -   **Changes:**
         -   Manage Users button renamed to Admin.
-        -   Export CSV button (and others) styled consistently.
-        -   Add Member button text changed to white.
-        -   Cancel and Add Member buttons in dialog have white text.
-        -   Logout button moved to the far right of the navigation bar.
-        -   Implemented  for graceful 401 (token expired) handling, applied to all data fetching functions (, , ).
-        -   Added Support Center navigation button with an unread message counter badge (visible only to Lonestar, temporarily tested with testadmin).
-        -   All form labels, input text, and dropdown options in the Add Member dialog now display white text.
+        -   Added Message Monitor navigation button (Lonestar only).
+        -   Removed Support Center navigation button and related unread count logic.
+        -   Updated meeting attendance colors: Excused to Orange, Unexcused to Red.
+        -   Removed logic for private message notifications (moved to ).
 -   
     -   **Importance:** Admin interface for user and invite management.
     -   **Changes:**
-        -   Invite User button styling changed and later reverted to consistent outline.
-        -   Invite User button text changed to white.
-        -    function added. The UI for the resend button is in progress.
+        -   Added Resend button for invites.
+        -   Updated Add User dialog to support Admin, Member, and Prospect roles.
+        -   Implemented password change dialog and handler.
+        -   Updated invite and edit user role selection to include new roles.
 -   
     -   **Importance:** Management of prospect data.
-    -   **Changes:** Export CSV button styling changed and later reverted to consistent outline, then changed back to green with white text. Add Prospect button text changed to white. Cancel and Save buttons in dialog have white text. Manage Users button renamed to Admin.
+    -   **Changes:** Updated meeting attendance colors: Excused to Orange, Unexcused to Red.
 -   
     -   **Importance:** Displays application version history and changes.
-    -   **Changes:**
-        -   File name remains  but the displayed title was changed to Change Log.
-        -   Updated with new entries for , , , and , documenting UI consistency, Support Message Center features, logout button placement, token expiration handling, and encryption.
-        -   About This Application text updated to The Brothers of the Highway Member Directory is a comprehensive member management system designed specifically for Brothers of the Highway TC.
+    -   **Changes:** Updated with , , , , , , ,  entries, reflecting various feature additions and bug fixes.
 -   
     -   **Importance:** User-to-user private messaging.
-    -   **Changes:** Navigation buttons use consistent outline styling.
--    (NEW FILE)
+    -   **Changes:** Modified  to use  endpoint instead of restricting to admins.
+-    (NEW FILE - now unused)
     -   **Importance:** Lonestar-only interface for managing support messages.
-    -   **Changes:** Created a page to list, view, reply to, delete individual, export, and clear closed support messages. Features include a reply dialog with email sending capability.
+    -   **Changes:** Decryption logic fixed for displaying messages. Functionality removed/replaced.
+-    (NEW FILE)
+    -   **Importance:** Lonestar-only interface for monitoring all private messages.
+    -   **Changes:** Created to display all user private messages for admins.
 -   
     -   **Importance:** Backend environment variables.
-    -   **Changes:**  added.  was critical in debugging; it's  not .
--   
-    -   **Importance:** Main HTML file, global elements.
-    -   **Changes:** Made with Emergent badge was initially repositioned to bottom-left, then completely removed.
+    -   **Changes:**  added,  added,  and  were changed multiple times and then reverted to original values.
+-    (NEW FILE)
+    -   **Importance:** Frontend component for the AI chatbot.
+    -   **Changes:** Created to render a floating chat interface and interact with the  endpoint.
 </code_architecture>
 
 <pending_tasks>
-- Debug and resolve the Fails to load contacts for users issue, which appears to be a regression preventing further work.
-- Complete the frontend UI integration for the resend invite button in .
-- Thoroughly test the resend invite functionality end-to-end after the regression is fixed.
+-   Complete the frontend UI implementation for making phone numbers and addresses private when creating/editing contacts.
+-   Thoroughly test the new 3-role system (Admin, Member, Prospect) end-to-end, especially Prospect access restrictions.
+-   Test the new password change feature.
+-   Update the change log with the latest privacy feature.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was implementing a new feature to Add a resend function to invites already sent. This involved both backend and frontend modifications.
+Immediately prior to this summary, the AI engineer was implementing privacy options for contact information. The user requested the ability to make phone numbers and addresses private when creating/editing members.
 
-On the backend (), a new API endpoint  was successfully added. This endpoint is designed to re-trigger the invitation process for existing invites.
+On the backend ():
+1.  The  Pydantic model was updated to include two new optional boolean fields:
+    
+2.  The  endpoint was modified to respect these privacy settings, preventing non-admin users from viewing private phone numbers and addresses.
 
-On the frontend (), a new handler function  was created to manage the logic for resending an invite when triggered from the UI. The engineer was in the process of integrating a Resend button into the invites table within the  page, specifically aiming to place it next to the existing delete button for invites.
-
-However, during this implementation, a regression was encountered, and the application began to report Fails to load contacts for users. This issue occurred after the successful implementation and verification of the admin-only contact info restriction (which was fixed using placeholder emails like  for regular users to pass Pydantic validation). The current work is stalled by this regression, which needs immediate attention before the resend invite UI can be fully integrated and tested.
+The trajectory ended after these backend model and API changes were made, and before the corresponding frontend UI modifications or thorough testing could begin. The next step was indicated to be updating the change log, which is related to the completion of this feature.
 </current_work>
 
 <optional_next_step>
-Debug and resolve the Fails to load contacts for users issue to unblock the resend invite feature.
+Update the change log to reflect the new phone and address privacy features.
 </optional_next_step>
+
