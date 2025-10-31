@@ -9,12 +9,12 @@ export default function UpdateLog() {
   const updates = [
     {
       version: "v.1.8a",
-      date: "November 1, 2025",
+      date: "November 2, 2025",
       changes: [
-        "Contact Privacy: Added option to mark phone numbers as private when creating/editing contacts",
-        "Address Privacy: Added option to mark addresses as private when creating/editing contacts",
-        "Privacy Controls: Private phone/address only visible to admins, others see 'Private' placeholder",
-        "Enhanced Security: Member-level control over contact information visibility"
+        "Contact Privacy: Added checkboxes to make phone numbers and addresses private when creating/editing members",
+        "Privacy Controls: Private contact info hidden from non-admin users (replaced with 'Private' text)",
+        "Admin Access: Admins can always view all contact information regardless of privacy settings",
+        "Enhanced Security: Member-level granular control over phone and address visibility"
       ]
     },
     {
