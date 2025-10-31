@@ -3442,6 +3442,179 @@ class BOHDirectoryAPITester:
         print(f"   🔒 Contact privacy functionality testing completed")
         return privacy_member_id
 
+    def test_privacy_feature_fix(self):
+        """Test privacy feature with corrected field names (phone_private and address_private)"""
+        print(f"\n🔒 Testing Privacy Feature Fix (Corrected Field Names)...")
+        
+        # Test 1: Create Member with Privacy Enabled
+        privacy_member = {
+            "chapter": "HA",
+            "title": "Member",
+            "handle": "PrivacyFixTest",
+            "name": "Privacy Fix Test",
+            "email": "privacyfix@test.com",
+            "phone": "555-1234-5678",
+            "address": "789 Fix Street",
+            "phone_private": True,
+            "address_private": True
+        }
+        
+        success, created_member = self.run_test(
+            "Create Member with Privacy Enabled",
+            "POST",
+            "members",
+            201,
+            data=privacy_member
+        )
+        
+        privacy_member_id = None
+        if success and 'id' in created_member:
+            privacy_member_id = created_member['id']
+            print(f"   Created privacy test member ID: {privacy_member_id}")
+            
+            # Verify privacy flags were saved correctly
+            if (created_member.get('phone_private') == True and 
+                created_member.get('address_private') == True):
+                self.log_test("Privacy Flags Saved Correctly", True, "phone_private=true, address_private=true")
+            else:
+                self.log_test("Privacy Flags Saved Correctly", False, f"phone_private={created_member.get('phone_private')}, address_private={created_member.get('address_private')}")
+        else:
+            print("❌ Failed to create member with privacy settings - cannot continue privacy tests")
+            return
+        
+        # Save original admin token
+        original_token = self.token
+        
+        # Test 2: Admin Can See Actual Values
+        print(f"\n   🔑 Testing Admin Access to Private Contact Info...")
+        
+        # Login as admin (testadmin)
+        success, admin_login = self.run_test(
+            "Login as Admin (testadmin)",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testadmin", "password": "testpass123"}
+        )
+        
+        if success and 'token' in admin_login:
+            self.token = admin_login['token']
+            
+            # Get all members as admin
+            success, admin_members = self.run_test(
+                "Admin - Get All Members",
+                "GET",
+                "members",
+                200
+            )
+            
+            if success and isinstance(admin_members, list):
+                # Find our privacy test member
+                privacy_member_found = None
+                for member in admin_members:
+                    if member.get('handle') == 'PrivacyFixTest':
+                        privacy_member_found = member
+                        break
+                
+                if privacy_member_found:
+                    # Verify admin sees actual values (not "Private")
+                    if (privacy_member_found.get('phone') == '555-1234-5678' and 
+                        privacy_member_found.get('address') == '789 Fix Street'):
+                        self.log_test("Admin Sees Actual Contact Values", True, f"Phone: {privacy_member_found.get('phone')}, Address: {privacy_member_found.get('address')}")
+                    else:
+                        self.log_test("Admin Sees Actual Contact Values", False, f"Phone: {privacy_member_found.get('phone')}, Address: {privacy_member_found.get('address')}")
+                else:
+                    self.log_test("Admin - Find Privacy Test Member", False, "PrivacyFixTest member not found")
+        
+        # Test 3: Create Regular User and Test Privacy
+        print(f"\n   👤 Testing Regular User Access to Private Contact Info...")
+        
+        # Create a regular user for testing
+        regular_user = {
+            "username": "privacytest_user",
+            "password": "testpass123",
+            "role": "user"
+        }
+        
+        # Switch back to admin token to create user
+        self.token = original_token
+        success, created_regular = self.run_test(
+            "Create Regular User for Privacy Test",
+            "POST",
+            "users",
+            201,
+            data=regular_user
+        )
+        
+        regular_user_id = None
+        if success and 'id' in created_regular:
+            regular_user_id = created_regular['id']
+            
+            # Login as regular user
+            success, regular_login = self.run_test(
+                "Login as Regular User",
+                "POST",
+                "auth/login",
+                200,
+                data={"username": "privacytest_user", "password": "testpass123"}
+            )
+            
+            if success and 'token' in regular_login:
+                self.token = regular_login['token']
+                
+                # Get all members as regular user
+                success, regular_members = self.run_test(
+                    "Regular User - Get All Members",
+                    "GET",
+                    "members",
+                    200
+                )
+                
+                if success and isinstance(regular_members, list):
+                    # Find our privacy test member
+                    privacy_member_found = None
+                    for member in regular_members:
+                        if member.get('handle') == 'PrivacyFixTest':
+                            privacy_member_found = member
+                            break
+                    
+                    if privacy_member_found:
+                        # Verify non-admin sees "Private" text
+                        if (privacy_member_found.get('phone') == 'Private' and 
+                            privacy_member_found.get('address') == 'Private'):
+                            self.log_test("Non-Admin Sees 'Private' Text", True, f"Phone: {privacy_member_found.get('phone')}, Address: {privacy_member_found.get('address')}")
+                        else:
+                            self.log_test("Non-Admin Sees 'Private' Text", False, f"Phone: {privacy_member_found.get('phone')}, Address: {privacy_member_found.get('address')}")
+                    else:
+                        self.log_test("Regular User - Find Privacy Test Member", False, "PrivacyFixTest member not found")
+        
+        # Test 4: Cleanup
+        print(f"\n   🧹 Cleaning up privacy test data...")
+        
+        # Restore admin token for cleanup
+        self.token = original_token
+        
+        # Delete the test member
+        if privacy_member_id:
+            success, delete_response = self.run_test(
+                "Delete Privacy Test Member",
+                "DELETE",
+                f"members/{privacy_member_id}",
+                200
+            )
+        
+        # Delete the regular user
+        if regular_user_id:
+            success, delete_response = self.run_test(
+                "Delete Privacy Test User",
+                "DELETE",
+                f"users/{regular_user_id}",
+                200
+            )
+        
+        print(f"   🔒 Privacy feature fix testing completed")
+        return privacy_member_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
