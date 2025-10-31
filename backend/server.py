@@ -1987,6 +1987,51 @@ MEMBERSHIP PROCESS:
 4. Prospect Phase - 4-6 weeks with assignments, weekly meetings
 5. Brother - Full member after vote
 
+CHAIN OF COMMAND:
+National Officers: 
+- National President (NPrez): Q-Ball - CEO, Chairman of National Board, handles external relations
+- National Vice President (NVP): Keltic Reaper - Second in command, assumes NPrez duties in absence
+- National Sergeant at Arms (NS@A): Repo - "Legal office" of organization, enforces and interprets By-laws
+- National Enforcer (NENF): Gear Jammer - Prospect management oversight
+- National Treasurer (NT): California Kid - Budget Committee member, handles finances
+- National Secretary (NSEC): Lonestar - Budget Committee member, administrative duties
+- National Chapter Director (NCD): Shooter - Administrative position (not in Chain of Command)
+
+ADDITIONAL NATIONAL POSITIONS:
+- Club Chaplain (CC): Sancho
+- Club Media Director (CMD): Grizz
+- Club Counselor & Life Coach (CCLC): Scar
+
+HIGHWAY ASYLUM (HA) CHAPTER OFFICERS:
+- HA President (HAPrez): Chap
+- HA Vice President (HAVP): Sancho
+- HA Sergeant at Arms (HAS@A): Tapeworm
+- HA Enforcer (HAENF): *Vacant*
+- HA Secretary (HASEC): Hee Haw
+- HA Prospect Manager (HAPM): Phantom
+
+HIGHWAY SOULS (HS) CHAPTER OFFICERS:
+- HS President (HSPrez): Bobkat
+- HS Vice President (HSVP): Graveyard
+- HS Sergeant at Arms (HSS@A): Trucker Dave
+- HS Enforcer (HSENF): Rainwater
+- HS Secretary (HSSEC): Sodbuster
+
+ASPHALT DEMONS (AD) CHAPTER OFFICERS:
+- AD President (ADPrez): Hotshot
+- AD Vice President (ADVP): Clutch
+- AD Sergeant at Arms (ADS@A): *Vacant*
+- AD Enforcer (ADENF): Rookie
+- AD Secretary (ADSEC): Two Stacks
+
+CHAPTER OFFICER STRUCTURE:
+- President - Chapter leader
+- Vice President - Second in command
+- Sergeant at Arms (S@A) - "Legal office" of chapter, enforces By-laws
+- Enforcer - Prospect management
+- Secretary - Administrative duties
+- Prospect Manager (PM) - Manages prospects for specific chapter
+
 PROSPECT REQUIREMENTS:
 - Attend weekly meetings (Thursdays 4pm CST - MANDATORY)
 - Complete weekly assignments (essays, trash pickup, meet-ups)
