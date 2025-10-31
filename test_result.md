@@ -272,15 +272,18 @@ backend:
 
   - task: "Contact privacy options (phone and address)"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "CONTACT PRIVACY BACKEND IMPLEMENTED ✅ Added is_phone_private and is_address_private boolean fields to Member model with default value of False. Updated GET /api/members endpoint to respect privacy settings - non-admin users see 'Private' text for private phone/address fields instead of actual values. Admins can always view all contact information regardless of privacy settings. NEEDS TESTING: 1) Create member with private phone/address 2) Verify admins see actual values 3) Verify non-admins see 'Private' text 4) Update existing member privacy settings 5) Verify privacy flags persist correctly in database."
+      - working: true
+        agent: "testing"
+        comment: "CONTACT PRIVACY FUNCTIONALITY COMPREHENSIVE TESTING COMPLETE ✅ ALL CORE FEATURES WORKING: ✅ Create Member with Privacy Settings: Successfully created members with phone_private=true and address_private=true, privacy flags saved correctly in database ✅ Admin Access: Admins can see ACTUAL phone and address values even when privacy flags are set to true ✅ Non-Admin Access: Regular users see 'Private' text instead of actual values when privacy flags are true ✅ Update Privacy Settings: Successfully updated member privacy settings (phone_private: false, address_private: true) and changes persisted correctly ✅ Mixed Privacy Settings: Phone visible but address shows 'Private' when only address_private=true ✅ Individual Privacy Controls: Phone-only private (phone='Private', address visible) and address-only private (phone visible, address='Private') both working correctly ✅ Default Values: Privacy fields correctly default to false when not specified ✅ Backward Compatibility: Members without privacy fields work correctly. Minor: One test showed National chapter restriction working correctly (phone='Admin Only', address='Admin Only' for non-admin users) which is expected behavior, not a privacy feature issue. All 11 comprehensive test scenarios passed. Contact privacy feature is production-ready."
 
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
