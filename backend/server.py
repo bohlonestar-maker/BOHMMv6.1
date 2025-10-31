@@ -1233,20 +1233,41 @@ async def get_admin_users(current_user: dict = Depends(verify_token)):
 @api_router.get("/users/all")
 async def get_all_users_for_messaging(current_user: dict = Depends(verify_token)):
     """Get list of all users - accessible to all authenticated users for messaging"""
+    current_username = current_user['username']
+    user_role = current_user.get('role')
+    
+    # Define HA chapter officers (only these can be messaged by prospects)
+    ha_officers = ['Chap', 'Sancho', 'Tapeworm', 'Hee Haw', 'Phantom']
+    
     all_users = await db.users.find(
         {},
         {"_id": 0, "password_hash": 0, "permissions": 0}
     ).to_list(1000)
     
-    # Return simple user info for messaging
-    return [
-        {
-            "id": user.get("id", str(uuid.uuid4())),
-            "username": user["username"],
-            "role": user["role"]
-        }
-        for user in all_users
-    ]
+    # Filter based on role
+    filtered_users = []
+    for user in all_users:
+        # Don't include current user
+        if user["username"] == current_username:
+            continue
+            
+        # If user is prospect, only show HA chapter officers
+        if user_role == 'prospect':
+            if user["username"] in ha_officers:
+                filtered_users.append({
+                    "id": user.get("id", str(uuid.uuid4())),
+                    "username": user["username"],
+                    "role": user["role"]
+                })
+        else:
+            # Admin and member users can see all users
+            filtered_users.append({
+                "id": user.get("id", str(uuid.uuid4())),
+                "username": user["username"],
+                "role": user["role"]
+            })
+    
+    return filtered_users
 
 # Audit Logs endpoints
 @api_router.get("/logs")
