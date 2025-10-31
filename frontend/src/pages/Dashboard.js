@@ -312,6 +312,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       email: "",
       phone: "",
       address: "",
+      is_phone_private: false,
+      is_address_private: false,
       dues: {
         [currentYear]: Array(12).fill(false)
       },
