@@ -396,6 +396,8 @@ class Member(BaseModel):
     email: EmailStr
     phone: str
     address: str
+    phone_private: bool = False  # If True, only admins can see phone
+    address_private: bool = False  # If True, only admins can see address
     dues: dict = Field(default_factory=lambda: {
         str(datetime.now(timezone.utc).year): [{"status": "unpaid", "note": ""} for _ in range(12)]
         # Format: {"2025": [{"status": "paid|unpaid|late", "note": "reason if late"}, ...], "2024": [...]}
@@ -414,6 +416,8 @@ class MemberCreate(BaseModel):
     email: EmailStr
     phone: str
     address: str
+    phone_private: bool = False
+    address_private: bool = False
     dues: Optional[dict] = None
 
 class MemberUpdate(BaseModel):
@@ -424,6 +428,8 @@ class MemberUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    phone_private: Optional[bool] = None
+    address_private: Optional[bool] = None
     dues: Optional[dict] = None
     meeting_attendance: Optional[dict] = None
 
