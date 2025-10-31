@@ -365,6 +365,20 @@ export default function UserManagement({ onLogout }) {
     });
   };
 
+  // Calculate member statistics
+  const getMemberStats = () => {
+    const totalMembers = members.length;
+    const chapterCounts = members.reduce((acc, member) => {
+      const chapter = member.chapter || 'Unknown';
+      acc[chapter] = (acc[chapter] || 0) + 1;
+      return acc;
+    }, {});
+    
+    return { totalMembers, chapterCounts };
+  };
+
+  const { totalMembers, chapterCounts } = getMemberStats();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <nav className="bg-slate-800 border-b border-slate-700 shadow-sm">
