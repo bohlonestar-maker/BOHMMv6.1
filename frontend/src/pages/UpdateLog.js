@@ -8,6 +8,16 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.8a",
+      date: "November 1, 2025",
+      changes: [
+        "Contact Privacy: Added option to mark phone numbers as private when creating/editing contacts",
+        "Address Privacy: Added option to mark addresses as private when creating/editing contacts",
+        "Privacy Controls: Private phone/address only visible to admins, others see 'Private' placeholder",
+        "Enhanced Security: Member-level control over contact information visibility"
+      ]
+    },
+    {
       version: "v.1.8",
       date: "November 1, 2025",
       changes: [
