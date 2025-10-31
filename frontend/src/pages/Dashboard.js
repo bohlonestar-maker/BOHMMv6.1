@@ -135,6 +135,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     email: "",
     phone: "",
     address: "",
+    is_phone_private: false,
+    is_address_private: false,
     dues: {
       [new Date().getFullYear().toString()]: Array(12).fill(false)
     },
