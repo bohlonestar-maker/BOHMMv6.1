@@ -701,13 +701,13 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         />
                         <div className="flex items-center space-x-2 mt-2">
                           <Checkbox
-                            id="is_phone_private"
-                            checked={formData.is_phone_private}
+                            id="phone_private"
+                            checked={formData.phone_private}
                             onCheckedChange={(checked) =>
-                              setFormData({ ...formData, is_phone_private: checked })
+                              setFormData({ ...formData, phone_private: checked })
                             }
                           />
-                          <label htmlFor="is_phone_private" className="text-sm font-medium cursor-pointer text-slate-300">
+                          <label htmlFor="phone_private" className="text-sm font-medium cursor-pointer text-slate-300">
                             Make phone number private (hide from non-admin users)
                           </label>
                         </div>
@@ -726,13 +726,13 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         />
                         <div className="flex items-center space-x-2 mt-2">
                           <Checkbox
-                            id="is_address_private"
-                            checked={formData.is_address_private}
+                            id="address_private"
+                            checked={formData.address_private}
                             onCheckedChange={(checked) =>
-                              setFormData({ ...formData, is_address_private: checked })
+                              setFormData({ ...formData, address_private: checked })
                             }
                           />
-                          <label htmlFor="is_address_private" className="text-sm font-medium cursor-pointer text-slate-300">
+                          <label htmlFor="address_private" className="text-sm font-medium cursor-pointer text-slate-300">
                             Make address private (hide from non-admin users)
                           </label>
                         </div>
