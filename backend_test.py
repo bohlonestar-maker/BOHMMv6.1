@@ -3472,6 +3472,9 @@ class BOHDirectoryAPITester:
         # NEW HIGH PRIORITY FEATURE: Contact Privacy Options
         self.test_contact_privacy_functionality()
         
+        # PRIVACY FEATURE FIX: Test corrected field names
+        self.test_privacy_feature_fix()
+        
         self.test_resend_invite_functionality()
         self.test_member_loading_regression()
         
