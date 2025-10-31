@@ -361,6 +361,18 @@ frontend:
         agent: "main"
         comment: "CLOSE BUTTON POSITIONING FIX COMPLETE ✅ Issue: Close button on Activity Log dialog needed to be moved to far right corner. Fixed by removing custom flex classes from DialogHeader that were interfering with default shadcn Dialog close button positioning. Also fixed Manage Invites dialog for consistency. Verified via screenshot that close button (X icon) now appears correctly in far right corner of both dialogs. Changes made: Removed 'className=\"flex flex-row items-center justify-between\"' from DialogHeader components in both Activity Log and Manage Invites dialogs, allowing default shadcn Dialog styling to properly position the close button."
 
+  - task: "Contact privacy checkboxes UI"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CONTACT PRIVACY UI IMPLEMENTED ✅ Added privacy checkboxes to Add/Edit Member form: 1) Added is_phone_private and is_address_private to formData state 2) Added Checkbox components below Phone and Address input fields with clear labels 'Make phone number private (hide from non-admin users)' and 'Make address private (hide from non-admin users)' 3) Updated resetForm() and handleEdit() to handle privacy fields 4) Added Checkbox import from @/components/ui/checkbox 5) Updated version to v.1.8a in Login.js 6) Updated UpdateLog.js with privacy feature documentation. Verified via screenshot - checkboxes visible and properly styled in form. NEEDS TESTING: 1) Create member with privacy checkboxes checked 2) Edit member and toggle privacy settings 3) Verify privacy data sent to backend correctly 4) Check privacy display for non-admin users."
+
   - task: "Admin chat page and interface"
     implemented: true
     working: true
