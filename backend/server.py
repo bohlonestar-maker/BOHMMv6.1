@@ -2007,8 +2007,8 @@ HIGHWAY ASYLUM (HA) CHAPTER OFFICERS (Chain of Command):
 - HA Vice President (HAVP): Sancho
 - HA Sergeant at Arms (HAS@A): Tapeworm
 - HA Enforcer (HAENF): *Vacant*
-- HA Prospect Manager (HAPM): Phantom
 - HA Secretary (HASEC): Hee Haw
+- HA Prospect Manager (HAPM): Phantom
 
 HIGHWAY SOULS (HS) CHAPTER OFFICERS:
 - HS President (HSPrez): Bobkat
