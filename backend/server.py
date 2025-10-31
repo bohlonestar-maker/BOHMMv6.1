@@ -2029,8 +2029,8 @@ CHAPTER OFFICER STRUCTURE:
 - Vice President - Second in command
 - Sergeant at Arms (S@A) - "Legal office" of chapter, enforces By-laws
 - Enforcer - Prospect management
-- Prospect Manager (PM) - Manages prospects (reporting position in CoC)
-- Secretary - Administrative duties (non-reporting position)
+- Secretary - Administrative duties
+- Prospect Manager (PM) - Manages prospects (last in CoC reporting structure)
 
 PROSPECT REQUIREMENTS:
 - Attend weekly meetings (Thursdays 4pm CST - MANDATORY)
