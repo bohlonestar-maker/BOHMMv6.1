@@ -8,6 +8,19 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.8",
+      date: "November 1, 2025",
+      changes: [
+        "3-Role System: Implemented Admin, Member (previously User), and Prospect roles with distinct access levels",
+        "Password Management: Admins can now change passwords for any system user with 8+ character validation",
+        "Prospect Restrictions: Limited contact access - names hidden, can only message HA chapter officers",
+        "Messaging Controls: Prospects restricted to contact HA President, VP, S@A, Secretary, and Prospect Manager only",
+        "Role Migration: All existing 'user' accounts automatically converted to 'member' role",
+        "Invite System: Updated to support inviting users with prospect role",
+        "Chatbot Clarification: Prospect Manager position exists only in Highway Asylum chapter"
+      ]
+    },
+    {
       version: "v.1.7d",
       date: "October 31, 2025",
       changes: [
