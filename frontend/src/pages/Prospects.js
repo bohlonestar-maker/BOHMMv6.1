@@ -766,6 +766,7 @@ export default function Prospects({ onLogout, userRole }) {
                           checked={selectedProspects.includes(prospect.id)}
                           onCheckedChange={() => handleToggleSelect(prospect.id)}
                           aria-label={`Select ${prospect.handle}`}
+                          className="border-slate-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                         />
                       </TableCell>
                       <TableCell>{prospect.handle}</TableCell>
