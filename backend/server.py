@@ -747,23 +747,39 @@ async def update_member(member_id: str, member_data: MemberUpdate, current_user:
     return updated_member
 
 @api_router.delete("/members/{member_id}")
-async def delete_member(member_id: str, current_user: dict = Depends(verify_admin)):
-    # Get member info before deleting
+async def delete_member(
+    member_id: str, 
+    reason: str,
+    current_user: dict = Depends(verify_admin)
+):
+    """Archive a member with deletion reason"""
+    # Get member info before archiving
     member = await db.members.find_one({"id": member_id}, {"_id": 0})
-    
-    result = await db.members.delete_one({"id": member_id})
-    if result.deleted_count == 0:
+    if not member:
         raise HTTPException(status_code=404, detail="Member not found")
     
-    # Log activity
-    if member:
-        await log_activity(
-            username=current_user["username"],
-            action="member_delete",
-            details=f"Deleted member: {member.get('name', 'Unknown')} ({member.get('handle', 'Unknown')})"
-        )
+    # Create archived record
+    archived_member = {
+        **member,
+        "deletion_reason": reason,
+        "deleted_by": current_user["username"],
+        "deleted_at": datetime.now(timezone.utc).isoformat()
+    }
     
-    return {"message": "Member deleted successfully"}
+    # Move to archived collection
+    await db.archived_members.insert_one(archived_member)
+    
+    # Remove from active members
+    await db.members.delete_one({"id": member_id})
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="member_archive",
+        details=f"Archived member: {member.get('name', 'Unknown')} ({member.get('handle', 'Unknown')}) - Reason: {reason}"
+    )
+    
+    return {"message": "Member archived successfully"}
 
 # Dues tracking endpoint
 @api_router.put("/members/{member_id}/dues")
