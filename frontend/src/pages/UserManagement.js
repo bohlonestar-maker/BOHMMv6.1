@@ -1436,7 +1436,20 @@ export default function UserManagement({ onLogout }) {
 
             {/* Archived Prospects */}
             <div className="border-t border-slate-700 pt-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-3">Archived Prospects ({archivedProspects.length})</h3>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold text-slate-100">Archived Prospects ({archivedProspects.length})</h3>
+                {archivedProspects.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleExportArchivedProspects}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export CSV
+                  </Button>
+                )}
+              </div>
               {archivedProspects.length > 0 ? (
                 <div className="space-y-2">
                   {archivedProspects.map((prospect) => {
