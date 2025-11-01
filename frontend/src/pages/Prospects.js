@@ -529,29 +529,32 @@ export default function Prospects({ onLogout, userRole }) {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <Button
-              onClick={handleExportCSV}
-              size="sm"
-              className="flex items-center justify-center gap-2 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </Button>
-            <Dialog open={dialogOpen} onOpenChange={(open) => {
-              setDialogOpen(open);
-              if (!open) resetForm();
-            }}>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={handleExportCSV}
+                size="sm"
+                className="flex items-center justify-center gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </Button>
+
               {selectedProspects.length > 0 && (
                 <Button
                   onClick={handleBulkPromote}
                   size="sm"
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <UserPlus className="w-4 h-4" />
                   Bulk Promote ({selectedProspects.length})
                 </Button>
               )}
-              <DialogTrigger asChild>
+
+              <Dialog open={dialogOpen} onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
                 <Button
                   size="sm"
                   className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white w-full sm:w-auto"
