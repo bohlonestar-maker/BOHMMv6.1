@@ -1550,6 +1550,5 @@ export default function UserManagement({ onLogout }) {
         </DialogContent>
       </Dialog>
     </div>
-    </div>
   );
 }
