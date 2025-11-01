@@ -738,7 +738,7 @@ export default function Prospects({ onLogout, userRole }) {
                             size="sm"
                             variant="ghost"
                             className="text-red-600 hover:text-red-700"
-                            onClick={() => handleDelete(prospect.id)}
+                            onClick={() => handleDelete(prospect)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
