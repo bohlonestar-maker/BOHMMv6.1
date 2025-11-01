@@ -685,6 +685,15 @@ export default function Prospects({ onLogout, userRole }) {
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="text-blue-600 hover:text-blue-700"
+                            onClick={() => handleOpenActions(prospect)}
+                            title="View/Add Actions"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => handleEdit(prospect)}
                           >
                             <Pencil className="w-4 h-4" />
