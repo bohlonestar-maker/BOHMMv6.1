@@ -3958,6 +3958,9 @@ class BOHDirectoryAPITester:
         # NEW FEATURE TEST: Prospects (Hangarounds) Functionality
         self.test_prospects_functionality()
         
+        # NEW HIGH PRIORITY FEATURE: Bulk Promotion of Prospects to Members
+        self.test_bulk_promotion_functionality()
+        
         # Test member operations
         self.test_member_operations()
         
