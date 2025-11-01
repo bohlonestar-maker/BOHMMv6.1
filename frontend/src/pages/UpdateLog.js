@@ -8,6 +8,20 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.2.0",
+      date: "November 1, 2025",
+      changes: [
+        "Rebranding: Updated from 'Member Directory' to 'Member Management' to reflect comprehensive management capabilities",
+        "Bulk Promotion: Added ability to promote multiple prospects to members simultaneously with chapter/title assignment",
+        "Checkbox Improvements: Enhanced visibility with green checkmarks and better border styling on dark theme",
+        "Dynamic Bulk Button: 'Bulk Promote (X)' button appears automatically when prospects are selected",
+        "Prospects Dark Theme: Fixed all UI elements on Prospects page to conform to application-wide dark theme",
+        "Chatbot Repositioning: Moved AI assistant icon higher (bottom-20) to prevent overlap with action buttons",
+        "Backend Testing: Comprehensive bulk promotion endpoint testing completed (50/50 tests passed)",
+        "Selection System: Master checkbox in header for select all/none functionality with individual row checkboxes"
+      ]
+    },
+    {
       version: "v.1.9",
       date: "November 4, 2025",
       changes: [
