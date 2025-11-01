@@ -3615,6 +3615,307 @@ class BOHDirectoryAPITester:
         print(f"   🔒 Privacy feature fix testing completed")
         return privacy_member_id
 
+    def test_bulk_promotion_functionality(self):
+        """Test bulk promotion of prospects to members - NEW HIGH PRIORITY FEATURE"""
+        print(f"\n🚀 Testing Bulk Promotion of Prospects to Members...")
+        
+        # Step 1: Create test prospects for bulk promotion
+        test_prospects = []
+        prospect_ids = []
+        
+        for i in range(1, 6):  # Create 5 test prospects
+            prospect_data = {
+                "handle": f"BulkTest{i}",
+                "name": f"Bulk Test Prospect {i}",
+                "email": f"bulktest{i}@example.com",
+                "phone": f"555-000{i}",
+                "address": f"{i}00 Bulk Test Street, Test City, TC 1234{i}",
+                "dob": "1990-01-01",
+                "join_date": "2024-01-01"
+            }
+            
+            success, created_prospect = self.run_test(
+                f"Create Test Prospect {i}",
+                "POST",
+                "prospects",
+                201,
+                data=prospect_data
+            )
+            
+            if success and 'id' in created_prospect:
+                test_prospects.append(created_prospect)
+                prospect_ids.append(created_prospect['id'])
+                print(f"   Created prospect {i} ID: {created_prospect['id']}")
+            else:
+                print(f"❌ Failed to create test prospect {i} - cannot continue bulk promotion tests")
+                return
+        
+        if len(prospect_ids) < 3:
+            print("❌ Need at least 3 prospects for bulk promotion tests")
+            return
+        
+        # Step 2: Test successful bulk promotion
+        bulk_promotion_data = {
+            "prospect_ids": prospect_ids[:3],  # Promote first 3 prospects
+            "chapter": "Test Chapter",
+            "title": "Member"
+        }
+        
+        success, promotion_response = self.run_test(
+            "Bulk Promote Prospects (3 prospects)",
+            "POST",
+            "prospects/bulk-promote",
+            200,
+            data=bulk_promotion_data
+        )
+        
+        promoted_handles = []
+        if success:
+            # Verify response format
+            expected_fields = ['message', 'promoted_count', 'failed_count']
+            missing_fields = [field for field in expected_fields if field not in promotion_response]
+            
+            if not missing_fields:
+                self.log_test("Bulk Promotion - Response Format", True, f"All required fields present: {expected_fields}")
+                
+                # Verify promoted count
+                if promotion_response.get('promoted_count') == 3:
+                    self.log_test("Bulk Promotion - Promoted Count", True, f"Promoted count: {promotion_response['promoted_count']}")
+                else:
+                    self.log_test("Bulk Promotion - Promoted Count", False, f"Expected 3, got {promotion_response.get('promoted_count')}")
+                
+                # Verify failed count
+                if promotion_response.get('failed_count') == 0:
+                    self.log_test("Bulk Promotion - Failed Count", True, f"Failed count: {promotion_response['failed_count']}")
+                else:
+                    self.log_test("Bulk Promotion - Failed Count", False, f"Expected 0, got {promotion_response.get('failed_count')}")
+                
+                # Store promoted handles for verification
+                promoted_handles = [f"BulkTest{i}" for i in range(1, 4)]
+                
+            else:
+                self.log_test("Bulk Promotion - Response Format", False, f"Missing fields: {missing_fields}")
+        
+        # Step 3: Verify new members were created
+        success, members = self.run_test(
+            "Get Members to Verify Promotion",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success and isinstance(members, list):
+            promoted_members = []
+            for member in members:
+                if member.get('handle') in promoted_handles:
+                    promoted_members.append(member)
+            
+            if len(promoted_members) == 3:
+                self.log_test("Verify Members Created", True, f"Found {len(promoted_members)} promoted members")
+                
+                # Verify member data
+                for member in promoted_members:
+                    # Check chapter and title
+                    if member.get('chapter') == 'Test Chapter' and member.get('title') == 'Member':
+                        self.log_test(f"Member {member.get('handle')} - Chapter/Title", True, f"Chapter: {member.get('chapter')}, Title: {member.get('title')}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - Chapter/Title", False, f"Expected 'Test Chapter'/'Member', got '{member.get('chapter')}'/'{member.get('title')}'")
+                    
+                    # Check contact info transfer
+                    handle_num = member.get('handle', '').replace('BulkTest', '')
+                    expected_email = f"bulktest{handle_num}@example.com"
+                    expected_phone = f"555-000{handle_num}"
+                    
+                    if member.get('email') == expected_email:
+                        self.log_test(f"Member {member.get('handle')} - Email Transfer", True, f"Email: {member.get('email')}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - Email Transfer", False, f"Expected {expected_email}, got {member.get('email')}")
+                    
+                    if member.get('phone') == expected_phone:
+                        self.log_test(f"Member {member.get('handle')} - Phone Transfer", True, f"Phone: {member.get('phone')}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - Phone Transfer", False, f"Expected {expected_phone}, got {member.get('phone')}")
+                    
+                    # Check DOB and join_date transfer
+                    if member.get('dob') == '1990-01-01':
+                        self.log_test(f"Member {member.get('handle')} - DOB Transfer", True, f"DOB: {member.get('dob')}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - DOB Transfer", False, f"Expected '1990-01-01', got {member.get('dob')}")
+                    
+                    if member.get('join_date') == '2024-01-01':
+                        self.log_test(f"Member {member.get('handle')} - Join Date Transfer", True, f"Join Date: {member.get('join_date')}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - Join Date Transfer", False, f"Expected '2024-01-01', got {member.get('join_date')}")
+                    
+                    # Check 24-meeting attendance structure
+                    if 'meeting_attendance' in member:
+                        attendance = member['meeting_attendance']
+                        current_year = str(2025)  # Assuming current year
+                        if current_year in attendance:
+                            meetings = attendance[current_year]
+                            if len(meetings) == 24:
+                                self.log_test(f"Member {member.get('handle')} - 24 Meeting Structure", True, f"24 meetings initialized")
+                            else:
+                                self.log_test(f"Member {member.get('handle')} - 24 Meeting Structure", False, f"Expected 24 meetings, got {len(meetings)}")
+                        else:
+                            self.log_test(f"Member {member.get('handle')} - Meeting Attendance Year", False, f"No attendance data for {current_year}")
+                    else:
+                        self.log_test(f"Member {member.get('handle')} - Meeting Attendance", False, "No meeting_attendance field")
+            else:
+                self.log_test("Verify Members Created", False, f"Expected 3 promoted members, found {len(promoted_members)}")
+        
+        # Step 4: Verify prospects were archived (no longer in prospects list)
+        success, remaining_prospects = self.run_test(
+            "Get Prospects to Verify Archival",
+            "GET",
+            "prospects",
+            200
+        )
+        
+        if success and isinstance(remaining_prospects, list):
+            promoted_prospect_handles = [f"BulkTest{i}" for i in range(1, 4)]
+            still_in_prospects = []
+            
+            for prospect in remaining_prospects:
+                if prospect.get('handle') in promoted_prospect_handles:
+                    still_in_prospects.append(prospect.get('handle'))
+            
+            if len(still_in_prospects) == 0:
+                self.log_test("Verify Prospects Archived", True, "Promoted prospects no longer in prospects list")
+            else:
+                self.log_test("Verify Prospects Archived", False, f"These prospects still in list: {still_in_prospects}")
+        
+        # Step 5: Test edge cases
+        
+        # Edge Case 1: Empty prospect_ids array
+        success, empty_response = self.run_test(
+            "Bulk Promote Empty Array (Should Succeed with 0 count)",
+            "POST",
+            "prospects/bulk-promote",
+            200,
+            data={"prospect_ids": [], "chapter": "Test Chapter", "title": "Member"}
+        )
+        
+        if success and empty_response.get('promoted_count') == 0:
+            self.log_test("Edge Case - Empty Array Handling", True, "Empty array handled correctly")
+        else:
+            self.log_test("Edge Case - Empty Array Handling", False, f"Expected promoted_count=0, got {empty_response.get('promoted_count')}")
+        
+        # Edge Case 2: Non-existent prospect ID
+        fake_id = "00000000-0000-0000-0000-000000000000"
+        success, nonexistent_response = self.run_test(
+            "Bulk Promote Non-existent ID",
+            "POST",
+            "prospects/bulk-promote",
+            200,  # Should succeed but report failures
+            data={"prospect_ids": [fake_id], "chapter": "Test Chapter", "title": "Member"}
+        )
+        
+        if success:
+            if nonexistent_response.get('promoted_count') == 0 and nonexistent_response.get('failed_count') == 1:
+                self.log_test("Edge Case - Non-existent ID Handling", True, "Non-existent ID handled correctly")
+            else:
+                self.log_test("Edge Case - Non-existent ID Handling", False, f"Expected promoted=0, failed=1, got promoted={nonexistent_response.get('promoted_count')}, failed={nonexistent_response.get('failed_count')}")
+        
+        # Edge Case 3: Missing chapter field
+        if len(prospect_ids) > 3:
+            success, missing_chapter_response = self.run_test(
+                "Bulk Promote Missing Chapter (Should Fail)",
+                "POST",
+                "prospects/bulk-promote",
+                422,  # Validation error
+                data={"prospect_ids": [prospect_ids[3]], "title": "Member"}
+            )
+        
+        # Edge Case 4: Missing title field
+        if len(prospect_ids) > 3:
+            success, missing_title_response = self.run_test(
+                "Bulk Promote Missing Title (Should Fail)",
+                "POST",
+                "prospects/bulk-promote",
+                422,  # Validation error
+                data={"prospect_ids": [prospect_ids[3]], "chapter": "Test Chapter"}
+            )
+        
+        # Edge Case 5: Try to promote same prospects twice (should fail since they're already archived)
+        success, duplicate_response = self.run_test(
+            "Bulk Promote Same Prospects Twice",
+            "POST",
+            "prospects/bulk-promote",
+            200,  # Should succeed but report failures
+            data={"prospect_ids": prospect_ids[:3], "chapter": "Test Chapter", "title": "Member"}
+        )
+        
+        if success:
+            if duplicate_response.get('promoted_count') == 0 and duplicate_response.get('failed_count') == 3:
+                self.log_test("Edge Case - Duplicate Promotion Handling", True, "Already promoted prospects handled correctly")
+            else:
+                self.log_test("Edge Case - Duplicate Promotion Handling", False, f"Expected promoted=0, failed=3, got promoted={duplicate_response.get('promoted_count')}, failed={duplicate_response.get('failed_count')}")
+        
+        # Step 6: Verify activity logging
+        success, logs = self.run_test(
+            "Get Activity Logs for Bulk Promotion",
+            "GET",
+            "logs?action=bulk_promote_prospects&limit=10",
+            200
+        )
+        
+        if success and isinstance(logs, list):
+            bulk_promotion_logs = [log for log in logs if log.get('action') == 'bulk_promote_prospects']
+            if len(bulk_promotion_logs) > 0:
+                self.log_test("Activity Logging - Bulk Promotion Logged", True, f"Found {len(bulk_promotion_logs)} bulk promotion log entries")
+                
+                # Check log details
+                latest_log = bulk_promotion_logs[0]
+                if 'Test Chapter' in latest_log.get('details', ''):
+                    self.log_test("Activity Logging - Log Details", True, f"Log contains chapter info: {latest_log.get('details')}")
+                else:
+                    self.log_test("Activity Logging - Log Details", False, f"Log missing chapter info: {latest_log.get('details')}")
+            else:
+                self.log_test("Activity Logging - Bulk Promotion Logged", False, "No bulk promotion logs found")
+        
+        # Clean up: Delete created members and remaining prospects
+        print(f"\n   🧹 Cleaning up test data...")
+        
+        # Delete promoted members
+        success, cleanup_members = self.run_test(
+            "Get Members for Cleanup",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success:
+            for member in cleanup_members:
+                if member.get('handle', '').startswith('BulkTest'):
+                    success, delete_response = self.run_test(
+                        f"Delete Member {member.get('handle')} (Cleanup)",
+                        "DELETE",
+                        f"members/{member['id']}?reason=Test cleanup",
+                        200
+                    )
+        
+        # Delete remaining prospects
+        success, cleanup_prospects = self.run_test(
+            "Get Prospects for Cleanup",
+            "GET",
+            "prospects",
+            200
+        )
+        
+        if success:
+            for prospect in cleanup_prospects:
+                if prospect.get('handle', '').startswith('BulkTest'):
+                    success, delete_response = self.run_test(
+                        f"Delete Prospect {prospect.get('handle')} (Cleanup)",
+                        "DELETE",
+                        f"prospects/{prospect['id']}?reason=Test cleanup",
+                        200
+                    )
+        
+        print(f"   🚀 Bulk promotion functionality testing completed")
+        return prospect_ids
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
