@@ -243,6 +243,56 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     }
   };
 
+  const handleOpenActions = (member) => {
+    setSelectedMember(member);
+    setActionForm({ type: "merit", date: new Date().toISOString().split('T')[0], description: "" });
+    setActionsDialogOpen(true);
+  };
+
+  const handleAddAction = async (e) => {
+    e.preventDefault();
+    if (!actionForm.description.trim()) {
+      toast.error("Please enter a description");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${API}/members/${selectedMember.id}/actions`,
+        null,
+        {
+          params: {
+            action_type: actionForm.type,
+            date: actionForm.date,
+            description: actionForm.description
+          },
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      toast.success("Action added successfully");
+      setActionForm({ type: "merit", date: new Date().toISOString().split('T')[0], description: "" });
+      fetchMembers(); // Refresh to get updated actions
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to add action");
+    }
+  };
+
+  const handleDeleteAction = async (actionId) => {
+    if (!window.confirm("Are you sure you want to delete this action?")) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/members/${selectedMember.id}/actions/${actionId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Action deleted successfully");
+      fetchMembers(); // Refresh to get updated actions
+    } catch (error) {
+      toast.error("Failed to delete action");
+    }
+  };
+
   const handleEdit = (member) => {
     setEditingMember(member);
     
