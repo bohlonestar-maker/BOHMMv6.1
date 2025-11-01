@@ -744,6 +744,30 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         </div>
                       </div>
 
+                      <div>
+                        <Label className="text-white">Date of Birth (optional)</Label>
+                        <Input
+                          type="date"
+                          value={formData.dob}
+                          onChange={(e) =>
+                            setFormData({ ...formData, dob: e.target.value })
+                          }
+                          className="text-white"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-white">Join Date (optional)</Label>
+                        <Input
+                          type="date"
+                          value={formData.join_date}
+                          onChange={(e) =>
+                            setFormData({ ...formData, join_date: e.target.value })
+                          }
+                          className="text-white"
+                        />
+                      </div>
+
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <Label className="text-white">Dues Tracking</Label>
