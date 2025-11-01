@@ -1347,14 +1347,25 @@ export default function UserManagement({ onLogout }) {
                     return (
                       <div key={member.id} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-semibold text-slate-100">{member.handle} - {member.name}</p>
                             <p className="text-sm text-slate-400">{member.chapter} | {member.title}</p>
                             <p className="text-sm text-slate-300 mt-2"><span className="font-medium">Reason:</span> {member.deletion_reason}</p>
                           </div>
-                          <div className="text-right text-sm text-slate-500">
-                            <p>Archived by {member.deleted_by}</p>
-                            <p>{cstDate} CST</p>
+                          <div className="flex items-start gap-3">
+                            <div className="text-right text-sm text-slate-500">
+                              <p>Archived by {member.deleted_by}</p>
+                              <p>{cstDate} CST</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700 border-green-600"
+                              onClick={() => handleRestoreMember(member.id, member.name)}
+                              title="Restore member"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
