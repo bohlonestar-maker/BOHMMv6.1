@@ -3824,12 +3824,12 @@ class BOHDirectoryAPITester:
         # Step 5: Test edge cases
         
         # Edge Case 1: Empty prospect_ids array
-        success, empty_response = self.run_test(
+        success, empty_response = self.run_test_bulk_promote(
             "Bulk Promote Empty Array (Should Succeed with 0 count)",
-            "POST",
-            "prospects/bulk-promote",
-            200,
-            data={"prospect_ids": [], "chapter": "Test Chapter", "title": "Member"}
+            [],  # Empty array
+            "Test Chapter",
+            "Member",
+            200
         )
         
         if success and empty_response.get('promoted_count') == 0:
