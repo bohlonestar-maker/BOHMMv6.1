@@ -3757,10 +3757,19 @@ class BOHDirectoryAPITester:
                     else:
                         self.log_test(f"Member {member.get('handle')} - Chapter/Title", False, f"Expected 'Test Chapter'/'Member', got '{member.get('chapter')}'/'{member.get('title')}'")
                     
-                    # Check contact info transfer
-                    handle_num = member.get('handle', '').replace('BulkTest', '')
-                    expected_email = f"bulktest{handle_num}@example.com"
-                    expected_phone = f"555-000{handle_num}"
+                    # Check contact info transfer - find matching prospect
+                    matching_prospect = None
+                    for prospect in test_prospects[:3]:  # Only check first 3 that were promoted
+                        if prospect['handle'] == member.get('handle'):
+                            matching_prospect = prospect
+                            break
+                    
+                    if matching_prospect:
+                        expected_email = matching_prospect['email']
+                        expected_phone = matching_prospect['phone']
+                    else:
+                        expected_email = "unknown@example.com"
+                        expected_phone = "555-0000"
                     
                     if member.get('email') == expected_email:
                         self.log_test(f"Member {member.get('handle')} - Email Transfer", True, f"Email: {member.get('email')}")
