@@ -396,8 +396,12 @@ class Member(BaseModel):
     email: EmailStr
     phone: str
     address: str
+    dob: Optional[str] = None  # Date of Birth (YYYY-MM-DD format)
+    join_date: Optional[str] = None  # Date joined the organization (YYYY-MM-DD format)
     phone_private: bool = False  # If True, only admins can see phone
     address_private: bool = False  # If True, only admins can see address
+    actions: list = Field(default_factory=list)  # Merit, Promotion, Disciplinary actions
+    # Format: [{"type": "merit|promotion|disciplinary", "date": "YYYY-MM-DD", "description": "...", "added_by": "username", "added_at": "ISO timestamp"}]
     dues: dict = Field(default_factory=lambda: {
         str(datetime.now(timezone.utc).year): [{"status": "unpaid", "note": ""} for _ in range(12)]
         # Format: {"2025": [{"status": "paid|unpaid|late", "note": "reason if late"}, ...], "2024": [...]}
