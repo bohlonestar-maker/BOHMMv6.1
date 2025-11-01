@@ -1125,6 +1125,15 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="text-blue-600 hover:text-blue-700"
+                              onClick={() => handleOpenActions(member)}
+                              title="View/Add Actions"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => handleEdit(member)}
                               data-testid={`edit-member-${member.id}`}
                             >
