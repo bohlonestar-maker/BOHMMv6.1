@@ -8,6 +8,22 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.9",
+      date: "November 4, 2025",
+      changes: [
+        "DOB & Join Date: Added optional Date of Birth and Join Date fields to member and prospect profiles",
+        "Actions History: Comprehensive tracking system for merit awards, promotions, and disciplinary actions (admin-only)",
+        "Actions UI: FileText button opens dialog to view history and add new actions with type, date, and description",
+        "Archive System: Members/prospects now archived (not deleted) with mandatory reason and complete metadata",
+        "Archive Manager: New 'Archived' button in User Management displays all archived records with deletion details",
+        "Restore/Undo: Green restore button on archived records moves them back to active status with one click",
+        "Archive Export: CSV export for archived members and prospects including all metadata and deletion reason",
+        "CST Timestamps: All archived records display date and time in Central Standard Time (e.g., 'Oct 28, 2025, 3:45 PM CST')",
+        "CSV Decryption: Fixed all CSV exports to show actual readable data instead of encrypted values",
+        "Phone Formatting: All phone numbers automatically formatted to (xxx) xxx-xxxx format throughout application"
+      ]
+    },
+    {
       version: "v.1.8b",
       date: "November 3, 2025",
       changes: [
