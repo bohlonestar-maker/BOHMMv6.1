@@ -972,7 +972,7 @@ export default function Prospects({ onLogout, userRole }) {
                             </Button>
                           </div>
                           <p className="text-slate-200 text-sm mb-2">{action.description}</p>
-                          <p className="text-slate-500 text-xs">
+                          <p className="text-slate-400 text-xs">
                             Added by {action.added_by} on {new Date(action.added_at).toLocaleDateString()}
                           </p>
                         </div>
