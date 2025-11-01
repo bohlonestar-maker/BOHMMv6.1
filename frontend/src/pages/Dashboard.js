@@ -97,6 +97,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [actionsDialogOpen, setActionsDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [actionForm, setActionForm] = useState({ type: "merit", date: "", description: "" });
   const [editingMember, setEditingMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [meetingDates, setMeetingDates] = useState([]);
