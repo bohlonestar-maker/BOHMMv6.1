@@ -1234,22 +1234,39 @@ async def update_prospect(prospect_id: str, prospect_data: ProspectUpdate, curre
     return updated_prospect
 
 @api_router.delete("/prospects/{prospect_id}")
-async def delete_prospect(prospect_id: str, current_user: dict = Depends(verify_admin)):
+async def delete_prospect(
+    prospect_id: str,
+    reason: str,
+    current_user: dict = Depends(verify_admin)
+):
+    """Archive a prospect with deletion reason"""
+    # Get prospect info before archiving
     prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
-    
-    result = await db.prospects.delete_one({"id": prospect_id})
-    if result.deleted_count == 0:
+    if not prospect:
         raise HTTPException(status_code=404, detail="Prospect not found")
     
-    # Log activity
-    if prospect:
-        await log_activity(
-            username=current_user["username"],
-            action="prospect_delete",
-            details=f"Deleted prospect: {prospect.get('name', 'Unknown')} ({prospect.get('handle', 'Unknown')})"
-        )
+    # Create archived record
+    archived_prospect = {
+        **prospect,
+        "deletion_reason": reason,
+        "deleted_by": current_user["username"],
+        "deleted_at": datetime.now(timezone.utc).isoformat()
+    }
     
-    return {"message": "Prospect deleted successfully"}
+    # Move to archived collection
+    await db.archived_prospects.insert_one(archived_prospect)
+    
+    # Remove from active prospects
+    await db.prospects.delete_one({"id": prospect_id})
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="prospect_archive",
+        details=f"Archived prospect: {prospect.get('name', 'Unknown')} ({prospect.get('handle', 'Unknown')}) - Reason: {reason}"
+    )
+    
+    return {"message": "Prospect archived successfully"}
 
 @api_router.get("/prospects/export/csv")
 async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
