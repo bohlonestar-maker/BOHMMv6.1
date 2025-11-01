@@ -849,6 +849,9 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     
     members = await db.members.find({}, {"_id": 0}).to_list(10000)
     
+    # Decrypt sensitive data for all members
+    decrypted_members = [decrypt_member_sensitive_data(member) for member in members]
+    
     # Define sort order
     CHAPTERS = ["National", "AD", "HA", "HS"]
     TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM"]
@@ -859,7 +862,7 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
         title_index = TITLES.index(member.get('title', '')) if member.get('title', '') in TITLES else 999
         return (chapter_index, title_index)
     
-    sorted_members = sorted(members, key=sort_key)
+    sorted_members = sorted(decrypted_members, key=sort_key)
     
     output = StringIO()
     writer = csv.writer(output)
