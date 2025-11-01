@@ -1994,10 +1994,13 @@ async def export_archived_prospects_csv(current_user: dict = Depends(verify_admi
     """Export archived prospects to CSV"""
     archived = await db.archived_prospects.find({}, {"_id": 0}).to_list(1000)
     
+    # Decrypt sensitive data for all archived prospects
+    decrypted_archived = [decrypt_member_sensitive_data(prospect) for prospect in archived]
+    
     # Create CSV content
     csv_content = "Handle,Name,Email,Phone,Address,Date of Birth,Join Date,Deletion Reason,Archived By,Archived At (CST)\n"
     
-    for prospect in archived:
+    for prospect in decrypted_archived:
         # Convert archived timestamp to CST
         deleted_at = prospect.get('deleted_at', '')
         if deleted_at:
