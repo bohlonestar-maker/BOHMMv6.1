@@ -3818,7 +3818,7 @@ class BOHDirectoryAPITester:
         )
         
         if success and isinstance(remaining_prospects, list):
-            promoted_prospect_handles = [f"BulkTest{i}" for i in range(1, 4)]
+            promoted_prospect_handles = [test_prospects[i]['handle'] for i in range(3)]
             still_in_prospects = []
             
             for prospect in remaining_prospects:
