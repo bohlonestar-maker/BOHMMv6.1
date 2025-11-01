@@ -236,6 +236,56 @@ export default function Prospects({ onLogout, userRole }) {
     }
   };
 
+  const handleOpenActions = (prospect) => {
+    setSelectedProspect(prospect);
+    setActionForm({ type: "merit", date: new Date().toISOString().split('T')[0], description: "" });
+    setActionsDialogOpen(true);
+  };
+
+  const handleAddAction = async (e) => {
+    e.preventDefault();
+    if (!actionForm.description.trim()) {
+      toast.error("Please enter a description");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${API}/prospects/${selectedProspect.id}/actions`,
+        null,
+        {
+          params: {
+            action_type: actionForm.type,
+            date: actionForm.date,
+            description: actionForm.description
+          },
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      toast.success("Action added successfully");
+      setActionForm({ type: "merit", date: new Date().toISOString().split('T')[0], description: "" });
+      fetchProspects(); // Refresh to get updated actions
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to add action");
+    }
+  };
+
+  const handleDeleteAction = async (actionId) => {
+    if (!window.confirm("Are you sure you want to delete this action?")) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/prospects/${selectedProspect.id}/actions/${actionId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Action deleted successfully");
+      fetchProspects(); // Refresh to get updated actions
+    } catch (error) {
+      toast.error("Failed to delete action");
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       handle: "",
@@ -243,6 +293,8 @@ export default function Prospects({ onLogout, userRole }) {
       email: "",
       phone: "",
       address: "",
+      dob: "",
+      join_date: "",
       meeting_attendance: {
         year: new Date().getFullYear(),
         meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
