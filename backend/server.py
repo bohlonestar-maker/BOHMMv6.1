@@ -1118,6 +1118,38 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
     for idx, month in enumerate(months):
         first_date, third_date = meeting_dates[idx]
         first_str = first_date.strftime("%m/%d") if first_date else ""
+        third_str = third_date.strftime("%m/%d") if third_date else ""
+        csv_content += f",{month}-1st ({first_str}),{month}-1st Note,{month}-3rd ({third_str}),{month}-3rd Note"
+    csv_content += "\n"
+    
+    # Add data rows
+    for prospect in prospects:
+        attendance = prospect.get('meeting_attendance', {})
+        
+        # Handle new format (dict with years as keys) and old format (single year dict)
+        year_data = attendance.get(str(current_year), {})
+        meetings = year_data if isinstance(year_data, list) else year_data.get('meetings', [])
+        
+        # Ensure we have 24 meetings
+        while len(meetings) < 24:
+            meetings.append({"status": 0, "note": ""})
+        
+        row = f"{prospect['handle']},{prospect['name']},{prospect['email']},{prospect['phone']},{prospect['address']},{current_year}"
+        
+        for i in range(24):
+            meeting = meetings[i] if i < len(meetings) else {"status": 0, "note": ""}
+            status_map = {0: "Absent", 1: "Present", 2: "Excused"}
+            status = status_map.get(meeting.get('status', 0), "Absent")
+            note = meeting.get('note', '').replace(',', ';').replace('\n', ' ')
+            row += f",{status},{note}"
+        
+        csv_content += row + "\n"
+    
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=prospects_export.csv"}
+    )
 
 @api_router.post("/prospects/{prospect_id}/promote", response_model=Member, status_code=201)
 async def promote_prospect_to_member(
