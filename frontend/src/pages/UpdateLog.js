@@ -8,6 +8,18 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.1.8b",
+      date: "November 3, 2025",
+      changes: [
+        "Prospect Promotion: Added green promotion button to move prospects to members directory with chapter and title selection",
+        "Member Analytics: Added Analytics button and dialog to User Management showing total members and breakdown by chapter",
+        "Promotion Dialog: Select chapter (National, AD, HA, HS) and title when promoting prospects to members",
+        "Privacy Fix: Corrected field name mismatch (phone_private/address_private) for proper privacy functionality",
+        "Automatic Migration: Prospect data including meeting attendance automatically copied when promoted to member",
+        "Activity Logging: All prospect promotions logged in system activity log for audit trail"
+      ]
+    },
+    {
       version: "v.1.8a",
       date: "November 2, 2025",
       changes: [
