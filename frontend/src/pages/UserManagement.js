@@ -1393,13 +1393,24 @@ export default function UserManagement({ onLogout }) {
                     return (
                       <div key={prospect.id} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-semibold text-slate-100">{prospect.handle} - {prospect.name}</p>
                             <p className="text-sm text-slate-300 mt-2"><span className="font-medium">Reason:</span> {prospect.deletion_reason}</p>
                           </div>
-                          <div className="text-right text-sm text-slate-500">
-                            <p>Archived by {prospect.deleted_by}</p>
-                            <p>{cstDate} CST</p>
+                          <div className="flex items-start gap-3">
+                            <div className="text-right text-sm text-slate-500">
+                              <p>Archived by {prospect.deleted_by}</p>
+                              <p>{cstDate} CST</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700 border-green-600"
+                              onClick={() => handleRestoreProspect(prospect.id, prospect.name)}
+                              title="Restore prospect"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
