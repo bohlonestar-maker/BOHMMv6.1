@@ -736,7 +736,7 @@ export default function Prospects({ onLogout, userRole }) {
           </div>
 
           {filteredProspects.length === 0 ? (
-            <p className="text-center text-slate-500 py-8">No prospects found</p>
+            <p className="text-center text-slate-400 py-8">No prospects found</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
