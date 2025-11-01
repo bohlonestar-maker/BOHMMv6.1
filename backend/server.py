@@ -1936,6 +1936,92 @@ async def restore_archived_prospect(prospect_id: str, current_user: dict = Depen
     
     return {"message": "Prospect restored successfully"}
 
+@api_router.get("/archived/members/export/csv")
+async def export_archived_members_csv(current_user: dict = Depends(verify_admin)):
+    """Export archived members to CSV"""
+    archived = await db.archived_members.find({}, {"_id": 0}).to_list(1000)
+    
+    # Create CSV content
+    csv_content = "Handle,Name,Email,Phone,Address,Chapter,Title,Date of Birth,Join Date,Deletion Reason,Archived By,Archived At (CST)\n"
+    
+    for member in archived:
+        # Convert archived timestamp to CST
+        deleted_at = member.get('deleted_at', '')
+        if deleted_at:
+            from datetime import datetime
+            dt = datetime.fromisoformat(deleted_at.replace('Z', '+00:00'))
+            # Convert to CST (UTC-6)
+            import pytz
+            cst = pytz.timezone('America/Chicago')
+            dt_cst = dt.astimezone(cst)
+            archived_time = dt_cst.strftime('%m/%d/%Y %I:%M %p')
+        else:
+            archived_time = ''
+        
+        row = [
+            member.get('handle', ''),
+            member.get('name', ''),
+            member.get('email', ''),
+            member.get('phone', ''),
+            member.get('address', ''),
+            member.get('chapter', ''),
+            member.get('title', ''),
+            member.get('dob', ''),
+            member.get('join_date', ''),
+            member.get('deletion_reason', '').replace(',', ';').replace('\n', ' '),
+            member.get('deleted_by', ''),
+            archived_time
+        ]
+        csv_content += ','.join(f'"{str(v)}"' for v in row) + '\n'
+    
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=archived_members.csv"}
+    )
+
+@api_router.get("/archived/prospects/export/csv")
+async def export_archived_prospects_csv(current_user: dict = Depends(verify_admin)):
+    """Export archived prospects to CSV"""
+    archived = await db.archived_prospects.find({}, {"_id": 0}).to_list(1000)
+    
+    # Create CSV content
+    csv_content = "Handle,Name,Email,Phone,Address,Date of Birth,Join Date,Deletion Reason,Archived By,Archived At (CST)\n"
+    
+    for prospect in archived:
+        # Convert archived timestamp to CST
+        deleted_at = prospect.get('deleted_at', '')
+        if deleted_at:
+            from datetime import datetime
+            dt = datetime.fromisoformat(deleted_at.replace('Z', '+00:00'))
+            # Convert to CST (UTC-6)
+            import pytz
+            cst = pytz.timezone('America/Chicago')
+            dt_cst = dt.astimezone(cst)
+            archived_time = dt_cst.strftime('%m/%d/%Y %I:%M %p')
+        else:
+            archived_time = ''
+        
+        row = [
+            prospect.get('handle', ''),
+            prospect.get('name', ''),
+            prospect.get('email', ''),
+            prospect.get('phone', ''),
+            prospect.get('address', ''),
+            prospect.get('dob', ''),
+            prospect.get('join_date', ''),
+            prospect.get('deletion_reason', '').replace(',', ';').replace('\n', ' '),
+            prospect.get('deleted_by', ''),
+            archived_time
+        ]
+        csv_content += ','.join(f'"{str(v)}"' for v in row) + '\n'
+    
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=archived_prospects.csv"}
+    )
+
 # Private messaging endpoints (all authenticated users)
 @api_router.post("/messages", response_model=PrivateMessage)
 async def send_private_message(message: PrivateMessageCreate, current_user: dict = Depends(verify_token)):
