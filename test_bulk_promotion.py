@@ -54,19 +54,22 @@ def test_bulk_promotion_api(token, prospect_ids):
     
     print("Testing bulk promotion API...")
     
-    # Method 1: Query parameters
-    print("\n1. Testing with query parameters:")
+    # Method 1: Query parameters for chapter/title, body for prospect_ids list
+    print("\n1. Testing with query params + body list:")
     params = {
-        'prospect_ids': prospect_ids,
         'chapter': 'Test Chapter',
         'title': 'Member'
     }
-    response = requests.post(f"{BASE_URL}/prospects/bulk-promote", params=params, headers=headers, verify=False)
+    response = requests.post(f"{BASE_URL}/prospects/bulk-promote", params=params, json=prospect_ids, headers=headers, verify=False)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.text}")
     
-    # Method 2: JSON body
-    print("\n2. Testing with JSON body:")
+    if response.status_code == 200:
+        print("✅ SUCCESS! This is the correct API format.")
+        return True
+    
+    # Method 2: All in JSON body (what we tried before)
+    print("\n2. Testing with all in JSON body:")
     data = {
         'prospect_ids': prospect_ids,
         'chapter': 'Test Chapter',
@@ -76,19 +79,7 @@ def test_bulk_promotion_api(token, prospect_ids):
     print(f"Status: {response.status_code}")
     print(f"Response: {response.text}")
     
-    # Method 3: Form data
-    print("\n3. Testing with form data:")
-    form_data = {
-        'chapter': 'Test Chapter',
-        'title': 'Member'
-    }
-    # Add prospect_ids as multiple form fields
-    for prospect_id in prospect_ids:
-        form_data[f'prospect_ids'] = prospect_id
-    
-    response = requests.post(f"{BASE_URL}/prospects/bulk-promote", data=form_data, headers={'Authorization': f'Bearer {token}'}, verify=False)
-    print(f"Status: {response.status_code}")
-    print(f"Response: {response.text}")
+    return False
 
 def main():
     # Login
