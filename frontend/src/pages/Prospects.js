@@ -524,6 +524,24 @@ export default function Prospects({ onLogout, userRole }) {
                     />
                   </div>
 
+                  <div>
+                    <Label>Date of Birth (optional)</Label>
+                    <Input
+                      type="date"
+                      value={formData.dob}
+                      onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Join Date (optional)</Label>
+                    <Input
+                      type="date"
+                      value={formData.join_date}
+                      onChange={(e) => setFormData({ ...formData, join_date: e.target.value })}
+                    />
+                  </div>
+
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center mb-3">
                       <Label className="text-base font-semibold">Meeting Attendance</Label>
