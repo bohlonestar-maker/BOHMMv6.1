@@ -3655,18 +3655,13 @@ class BOHDirectoryAPITester:
             return
         
         # Step 2: Test successful bulk promotion
-        bulk_promotion_data = {
-            "prospect_ids": prospect_ids[:3],  # Promote first 3 prospects
-            "chapter": "Test Chapter",
-            "title": "Member"
-        }
-        
-        success, promotion_response = self.run_test(
+        # Note: API expects chapter/title as query params and prospect_ids as JSON array in body
+        success, promotion_response = self.run_test_bulk_promote(
             "Bulk Promote Prospects (3 prospects)",
-            "POST",
-            "prospects/bulk-promote",
-            200,
-            data=bulk_promotion_data
+            prospect_ids[:3],  # Promote first 3 prospects
+            "Test Chapter",
+            "Member",
+            200
         )
         
         promoted_handles = []
