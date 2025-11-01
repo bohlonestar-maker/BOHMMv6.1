@@ -99,6 +99,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionsDialogOpen, setActionsDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
+  const [deleteReason, setDeleteReason] = useState("");
   const [selectedMember, setSelectedMember] = useState(null);
   const [actionForm, setActionForm] = useState({ type: "merit", date: "", description: "" });
   const [editingMember, setEditingMember] = useState(null);
