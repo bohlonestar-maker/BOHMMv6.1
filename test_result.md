@@ -379,6 +379,30 @@ frontend:
         agent: "main"
         comment: "CLOSE BUTTON POSITIONING FIX COMPLETE ✅ Issue: Close button on Activity Log dialog needed to be moved to far right corner. Fixed by removing custom flex classes from DialogHeader that were interfering with default shadcn Dialog close button positioning. Also fixed Manage Invites dialog for consistency. Verified via screenshot that close button (X icon) now appears correctly in far right corner of both dialogs. Changes made: Removed 'className=\"flex flex-row items-center justify-between\"' from DialogHeader components in both Activity Log and Manage Invites dialogs, allowing default shadcn Dialog styling to properly position the close button."
 
+  - task: "Prospects page dark theme conformity"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Prospects.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "PROSPECTS DARK THEME FIX COMPLETE ✅ Updated Prospects page to conform to dark theme matching Dashboard and other pages. Changes: 1) Main container: bg-white → bg-slate-800, border-slate-200 → border-slate-700 2) Search input: Added bg-slate-900, border-slate-700, text-slate-100, placeholder:text-slate-400 3) Link colors: text-blue-600 → text-blue-400 with hover:text-blue-300 for better visibility on dark background 4) Meeting attendance cards: Added border-slate-700, bg-slate-900 5) Month labels: Added text-slate-200 6) Text colors: text-slate-500 → text-slate-400 for better contrast. Verified via screenshot - all elements now properly styled with dark theme colors matching the rest of the application."
+
+  - task: "Bulk promotion UI for prospects"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Prospects.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "BULK PROMOTION UI IMPLEMENTED ✅ Added bulk promotion functionality to Prospects page. Features: 1) Selection State: Added selectedProspects state array to track selected prospect IDs 2) Checkboxes: Added checkbox in each table row for individual selection, master checkbox in header for select all/none 3) Dynamic Button: 'Bulk Promote' button appears only when prospects are selected, shows count (e.g., 'Bulk Promote (2)') 4) Bulk Promote Dialog: Dialog to confirm bulk promotion and specify chapter/title for all selected prospects 5) API Integration: Calls POST /api/prospects/bulk-promote with prospect IDs and assignment data 6) Handler Functions: handleToggleSelect, handleSelectAll, handleBulkPromote, handleBulkPromoteSubmit 7) Toast Notifications: Success/error feedback after bulk promotion. Visual confirmation via screenshot shows checkboxes and dynamic button working. NEEDS TESTING: 1) Select/deselect prospects 2) Master checkbox functionality 3) Bulk promote dialog 4) API call success 5) Prospects removed from list after promotion 6) Verify new members created."
+
   - task: "Contact privacy checkboxes UI"
     implemented: true
     working: true
