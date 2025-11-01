@@ -1188,6 +1188,8 @@ export default function UserManagement({ onLogout }) {
                   <TableRow>
                     <TableHead>Username</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Chapter</TableHead>
+                    <TableHead>Title</TableHead>
                     <TableHead>Created At</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1204,6 +1206,8 @@ export default function UserManagement({ onLogout }) {
                           <span className="capitalize">{user.role}</span>
                         </div>
                       </TableCell>
+                      <TableCell>{user.chapter || "-"}</TableCell>
+                      <TableCell>{user.title || "-"}</TableCell>
                       <TableCell>
                         {new Date(user.created_at).toLocaleDateString()}
                       </TableCell>
