@@ -747,6 +747,7 @@ export default function Prospects({ onLogout, userRole }) {
                         checked={selectedProspects.length === filteredProspects.length && filteredProspects.length > 0}
                         onCheckedChange={handleSelectAll}
                         aria-label="Select all"
+                        className="border-slate-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                       />
                     </TableHead>
                     <TableHead>Handle</TableHead>
