@@ -3666,9 +3666,9 @@ class BOHDirectoryAPITester:
         
         for i in range(1, 6):  # Create 5 test prospects
             prospect_data = {
-                "handle": f"BulkTest{i}",
+                "handle": f"BulkTest{i}_{datetime.now().strftime('%H%M%S')}",  # Make handles unique
                 "name": f"Bulk Test Prospect {i}",
-                "email": f"bulktest{i}@example.com",
+                "email": f"bulktest{i}_{datetime.now().strftime('%H%M%S')}@example.com",  # Make emails unique
                 "phone": f"555-000{i}",
                 "address": f"{i}00 Bulk Test Street, Test City, TC 1234{i}",
                 "dob": "1990-01-01",
