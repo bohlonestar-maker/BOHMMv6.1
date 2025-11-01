@@ -3874,12 +3874,12 @@ class BOHDirectoryAPITester:
             )
         
         # Edge Case 5: Try to promote same prospects twice (should fail since they're already archived)
-        success, duplicate_response = self.run_test(
+        success, duplicate_response = self.run_test_bulk_promote(
             "Bulk Promote Same Prospects Twice",
-            "POST",
-            "prospects/bulk-promote",
-            200,  # Should succeed but report failures
-            data={"prospect_ids": prospect_ids[:3], "chapter": "Test Chapter", "title": "Member"}
+            prospect_ids[:3],  # Same IDs as before
+            "Test Chapter",
+            "Member",
+            200  # Should succeed but report failures
         )
         
         if success:
