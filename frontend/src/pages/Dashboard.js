@@ -1158,7 +1158,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             <Button
                               size="sm"
                               variant="destructive"
-                              onClick={() => handleDelete(member.id)}
+                              onClick={() => handleDelete(member)}
                               data-testid={`delete-member-${member.id}`}
                             >
                               <Trash2 className="w-4 h-4" />
