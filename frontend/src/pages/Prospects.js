@@ -618,6 +618,15 @@ export default function Prospects({ onLogout, userRole }) {
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            onClick={() => handlePromote(prospect)}
+                            title="Promote to Member"
+                          >
+                            <UserPlus className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => handleEdit(prospect)}
                           >
                             <Pencil className="w-4 h-4" />
