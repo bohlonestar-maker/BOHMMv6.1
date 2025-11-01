@@ -288,6 +288,18 @@ backend:
         agent: "testing"
         comment: "PRIVACY FEATURE FIX VERIFICATION COMPLETE ✅ CORRECTED FIELD NAMES WORKING PERFECTLY: Comprehensive testing of privacy feature with corrected field names (phone_private and address_private without 'is_' prefix). ✅ SCENARIO 1 - Create Member with Privacy Enabled: Successfully created member 'PrivacyFixTest' with phone_private=true and address_private=true, privacy flags saved correctly ✅ SCENARIO 2 - Admin Can See Actual Values: Admin (testadmin) can see actual phone '555-1234-5678' and address '789 Fix Street' (not 'Private' text) ✅ SCENARIO 3 - Regular User Privacy Test: Created regular user successfully, non-admin user sees phone='Private' and address='Private' when privacy flags are true ✅ SCENARIO 4 - Cleanup: Successfully deleted test member 'PrivacyFixTest' and test user. All 4 verification scenarios passed. Privacy feature is working correctly with the corrected field names (phone_private and address_private)."
 
+  - task: "Bulk promotion of prospects to members"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "BULK PROMOTION BACKEND IMPLEMENTED ✅ Created POST /api/prospects/bulk-promote endpoint. Functionality: 1) Accepts list of prospect IDs, chapter, and title 2) Validates all prospects exist before processing 3) For each prospect, creates new member with same contact info + assigned chapter/title 4) Inherits DOB and join_date if present 5) Creates 24-meeting attendance structure 6) Archives prospect with reason 'Promoted to Member' 7) Logs activity for each promotion 8) Returns success count and list of promoted handles. NEEDS TESTING: 1) Bulk promote multiple prospects 2) Verify new members created with correct data 3) Verify prospects archived 4) Test with mix of valid/invalid IDs 5) Verify all data migrated correctly."
+
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
     implemented: true
