@@ -554,15 +554,17 @@ export default function Prospects({ onLogout, userRole }) {
                 setDialogOpen(open);
                 if (!open) resetForm();
               }}>
-                <DialogTrigger asChild>
-                <Button
-                  size="sm"
-                  className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white w-full sm:w-auto"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Prospect
-                </Button>
-              </DialogTrigger>
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Prospect
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+              </div>
               <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-lg sm:text-xl">
