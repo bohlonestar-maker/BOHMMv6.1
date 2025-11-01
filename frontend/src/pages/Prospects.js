@@ -940,6 +940,48 @@ export default function Prospects({ onLogout, userRole }) {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Archive Prospect</DialogTitle>
+            </DialogHeader>
+            {prospectToDelete && (
+              <div className="space-y-4 mt-4">
+                <p className="text-slate-200">
+                  You are about to archive <span className="font-semibold">{prospectToDelete.handle} - {prospectToDelete.name}</span>. 
+                  This action will move the prospect to the archived records.
+                </p>
+                <div>
+                  <Label>Reason for Archiving *</Label>
+                  <Textarea
+                    value={deleteReason}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    placeholder="Enter reason for archiving..."
+                    rows={3}
+                    required
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleConfirmDelete}
+                  >
+                    Archive Prospect
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
