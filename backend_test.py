@@ -3839,12 +3839,12 @@ class BOHDirectoryAPITester:
         
         # Edge Case 2: Non-existent prospect ID
         fake_id = "00000000-0000-0000-0000-000000000000"
-        success, nonexistent_response = self.run_test(
+        success, nonexistent_response = self.run_test_bulk_promote(
             "Bulk Promote Non-existent ID",
-            "POST",
-            "prospects/bulk-promote",
-            200,  # Should succeed but report failures
-            data={"prospect_ids": [fake_id], "chapter": "Test Chapter", "title": "Member"}
+            [fake_id],  # Non-existent ID
+            "Test Chapter",
+            "Member",
+            200  # Should succeed but report failures
         )
         
         if success:
