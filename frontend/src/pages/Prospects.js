@@ -191,6 +191,45 @@ export default function Prospects({ onLogout, userRole }) {
     }
   };
 
+  const handlePromote = (prospect) => {
+    setPromotingProspect(prospect);
+    setPromoteFormData({
+      chapter: "",
+      title: ""
+    });
+    setPromoteDialogOpen(true);
+  };
+
+  const handlePromoteSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!promoteFormData.chapter || !promoteFormData.title) {
+      toast.error("Please select both chapter and title");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${API}/prospects/${promotingProspect.id}/promote`,
+        null,
+        {
+          params: {
+            chapter: promoteFormData.chapter,
+            title: promoteFormData.title
+          },
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      toast.success(`${promotingProspect.handle} promoted to member successfully!`);
+      setPromoteDialogOpen(false);
+      setPromotingProspect(null);
+      fetchProspects();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to promote prospect");
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       handle: "",
