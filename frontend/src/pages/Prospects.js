@@ -75,8 +75,11 @@ export default function Prospects({ onLogout, userRole }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
   const [actionsDialogOpen, setActionsDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingProspect, setEditingProspect] = useState(null);
   const [promotingProspect, setPromotingProspect] = useState(null);
+  const [prospectToDelete, setProspectToDelete] = useState(null);
+  const [deleteReason, setDeleteReason] = useState("");
   const [selectedProspect, setSelectedProspect] = useState(null);
   const [actionForm, setActionForm] = useState({ type: "merit", date: "", description: "" });
   const [searchTerm, setSearchTerm] = useState("");
