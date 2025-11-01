@@ -1431,6 +1431,94 @@ async def promote_prospect_to_member(
     
     return member_data
 
+@api_router.post("/prospects/bulk-promote")
+async def bulk_promote_prospects(
+    prospect_ids: list[str],
+    chapter: str,
+    title: str,
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Bulk promote multiple prospects to members with same chapter and title
+    """
+    promoted_count = 0
+    failed_prospects = []
+    
+    for prospect_id in prospect_ids:
+        try:
+            # Get the prospect
+            prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+            if not prospect:
+                failed_prospects.append({"id": prospect_id, "reason": "Prospect not found"})
+                continue
+            
+            # Create member data from prospect data
+            member_data = {
+                "id": str(uuid.uuid4()),
+                "chapter": chapter,
+                "title": title,
+                "handle": prospect["handle"],
+                "name": prospect["name"],
+                "email": prospect["email"],
+                "phone": prospect["phone"],
+                "address": prospect["address"],
+                "dob": prospect.get("dob"),
+                "join_date": prospect.get("join_date"),
+                "phone_private": False,
+                "address_private": False,
+                "actions": prospect.get("actions", []),
+                "dues": {
+                    str(datetime.now(timezone.utc).year): [{"status": "unpaid", "note": ""} for _ in range(12)]
+                },
+                "meeting_attendance": prospect.get("meeting_attendance", {
+                    str(datetime.now(timezone.utc).year): [{"status": 0, "note": ""} for _ in range(24)]
+                }),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Encrypt sensitive data
+            member_data = encrypt_member_sensitive_data(member_data)
+            
+            # Check for duplicate handle or email
+            existing_handle = await db.members.find_one({"handle": member_data["handle"]})
+            if existing_handle:
+                failed_prospects.append({"id": prospect_id, "handle": prospect["handle"], "reason": "Handle already exists in members"})
+                continue
+            
+            email_hash = hashlib.sha256(member_data["email"].lower().encode()).hexdigest()
+            existing_email = await db.members.find_one({"email_hash": email_hash})
+            if existing_email:
+                failed_prospects.append({"id": prospect_id, "handle": prospect["handle"], "reason": "Email already exists in members"})
+                continue
+            
+            member_data["email_hash"] = email_hash
+            
+            # Insert into members collection
+            await db.members.insert_one(member_data)
+            
+            # Delete from prospects collection
+            await db.prospects.delete_one({"id": prospect_id})
+            
+            promoted_count += 1
+            
+        except Exception as e:
+            failed_prospects.append({"id": prospect_id, "reason": str(e)})
+    
+    # Log activity
+    await log_activity(
+        current_user["username"],
+        "bulk_promote_prospects",
+        f"Bulk promoted {promoted_count} prospects to {chapter} chapter"
+    )
+    
+    return {
+        "message": f"Successfully promoted {promoted_count} prospects",
+        "promoted_count": promoted_count,
+        "failed_count": len(failed_prospects),
+        "failed_prospects": failed_prospects
+    }
+
 # User management endpoints (admin only)
 @api_router.get("/users", response_model=List[UserResponse])
 async def get_users(current_user: dict = Depends(verify_admin)):
