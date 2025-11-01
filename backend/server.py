@@ -1857,6 +1857,23 @@ async def clear_unused_invites(current_user: dict = Depends(verify_admin)):
         "deleted_count": result.deleted_count
     }
 
+# Archived records endpoints (admin only)
+@api_router.get("/archived/members")
+async def get_archived_members(current_user: dict = Depends(verify_admin)):
+    """Get all archived members"""
+    archived = await db.archived_members.find({}, {"_id": 0}).to_list(1000)
+    # Sort by deletion date (newest first)
+    archived.sort(key=lambda x: x.get('deleted_at', ''), reverse=True)
+    return archived
+
+@api_router.get("/archived/prospects")
+async def get_archived_prospects(current_user: dict = Depends(verify_admin)):
+    """Get all archived prospects"""
+    archived = await db.archived_prospects.find({}, {"_id": 0}).to_list(1000)
+    # Sort by deletion date (newest first)
+    archived.sort(key=lambda x: x.get('deleted_at', ''), reverse=True)
+    return archived
+
 # Private messaging endpoints (all authenticated users)
 @api_router.post("/messages", response_model=PrivateMessage)
 async def send_private_message(message: PrivateMessageCreate, current_user: dict = Depends(verify_token)):
