@@ -732,6 +732,7 @@ export default function Prospects({ onLogout, userRole }) {
                 </form>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           {filteredProspects.length === 0 ? (
