@@ -541,6 +541,16 @@ export default function Prospects({ onLogout, userRole }) {
               setDialogOpen(open);
               if (!open) resetForm();
             }}>
+              {selectedProspects.length > 0 && (
+                <Button
+                  onClick={handleBulkPromote}
+                  size="sm"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Bulk Promote ({selectedProspects.length})
+                </Button>
+              )}
               <DialogTrigger asChild>
                 <Button
                   size="sm"
