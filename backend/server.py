@@ -1118,6 +1118,77 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
     for idx, month in enumerate(months):
         first_date, third_date = meeting_dates[idx]
         first_str = first_date.strftime("%m/%d") if first_date else ""
+
+@api_router.post("/prospects/{prospect_id}/promote", response_model=Member, status_code=201)
+async def promote_prospect_to_member(
+    prospect_id: str,
+    chapter: str,
+    title: str,
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Promote a prospect to a member by copying their data to members collection
+    and deleting from prospects collection
+    """
+    # Get the prospect
+    prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+    if not prospect:
+        raise HTTPException(status_code=404, detail="Prospect not found")
+    
+    # Create member data from prospect data
+    member_data = {
+        "id": str(uuid.uuid4()),  # Generate new ID for member
+        "chapter": chapter,
+        "title": title,
+        "handle": prospect["handle"],
+        "name": prospect["name"],
+        "email": prospect["email"],
+        "phone": prospect["phone"],
+        "address": prospect["address"],
+        "phone_private": False,
+        "address_private": False,
+        "dues": {
+            str(datetime.now(timezone.utc).year): [{"status": "unpaid", "note": ""} for _ in range(12)]
+        },
+        "meeting_attendance": prospect.get("meeting_attendance", {
+            str(datetime.now(timezone.utc).year): [{"status": 0, "note": ""} for _ in range(24)]
+        }),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Encrypt sensitive data
+    member_data = encrypt_member_sensitive_data(member_data)
+    
+    # Check for duplicate handle or email
+    existing_handle = await db.members.find_one({"handle": member_data["handle"]})
+    if existing_handle:
+        raise HTTPException(status_code=400, detail="A member with this handle already exists")
+    
+    email_hash = hashlib.sha256(member_data["email"].lower().encode()).hexdigest()
+    existing_email = await db.members.find_one({"email_hash": email_hash})
+    if existing_email:
+        raise HTTPException(status_code=400, detail="A member with this email already exists")
+    
+    member_data["email_hash"] = email_hash
+    
+    # Insert into members collection
+    await db.members.insert_one(member_data)
+    
+    # Delete from prospects collection
+    await db.prospects.delete_one({"id": prospect_id})
+    
+    # Log activity
+    await log_activity(
+        current_user["username"],
+        "promote_prospect",
+        f"Promoted prospect {prospect['handle']} to member in chapter {chapter}"
+    )
+    
+    # Decrypt for response
+    member_data = decrypt_member_sensitive_data(member_data)
+    
+    return member_data
         third_str = third_date.strftime("%m/%d") if third_date else ""
         csv_content += f",{month}-1st ({first_str}),{month}-1st Note,{month}-3rd ({third_str}),{month}-3rd Note"
     csv_content += "\n"
