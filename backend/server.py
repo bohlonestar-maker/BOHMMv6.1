@@ -428,7 +428,10 @@ class Event(BaseModel):
     location: Optional[str] = None
     chapter: Optional[str] = None  # National, AD, HA, HS, or None for all chapters
     title_filter: Optional[str] = None  # Prez, VP, etc., or None for all titles
-    created_by: str
+    created_by: str  # Username of creator
+    creator_chapter: Optional[str] = None  # Creator's chapter
+    creator_title: Optional[str] = None  # Creator's title
+    creator_handle: Optional[str] = None  # Creator's handle from members collection
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     discord_notifications_enabled: bool = True  # Allow Discord notifications for this event
     notification_24h_sent: bool = False  # Track if 24h notification was sent
