@@ -322,7 +322,7 @@ export default function EventCalendar() {
                           <SelectValue placeholder="All Chapters" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Chapters</SelectItem>
+                          <SelectItem value="all">All Chapters</SelectItem>
                           <SelectItem value="National">National</SelectItem>
                           <SelectItem value="AD">Asphalt Demons</SelectItem>
                           <SelectItem value="HA">Highway Asylum</SelectItem>
@@ -343,7 +343,7 @@ export default function EventCalendar() {
                           <SelectValue placeholder="All Titles" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Titles</SelectItem>
+                          <SelectItem value="all">All Titles</SelectItem>
                           <SelectItem value="Prez">Prez</SelectItem>
                           <SelectItem value="VP">VP</SelectItem>
                           <SelectItem value="S@A">S@A</SelectItem>
@@ -387,7 +387,7 @@ export default function EventCalendar() {
                   <SelectValue placeholder="All Chapters" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Chapters</SelectItem>
+                  <SelectItem value="all">All Chapters</SelectItem>
                   <SelectItem value="National">National</SelectItem>
                   <SelectItem value="AD">Asphalt Demons</SelectItem>
                   <SelectItem value="HA">Highway Asylum</SelectItem>
@@ -403,7 +403,7 @@ export default function EventCalendar() {
                   <SelectValue placeholder="All Titles" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Titles</SelectItem>
+                  <SelectItem value="all">All Titles</SelectItem>
                   <SelectItem value="Prez">Prez</SelectItem>
                   <SelectItem value="VP">VP</SelectItem>
                   <SelectItem value="S@A">S@A</SelectItem>
@@ -590,7 +590,7 @@ export default function EventCalendar() {
                       <SelectValue placeholder="All Chapters" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Chapters</SelectItem>
+                      <SelectItem value="all">All Chapters</SelectItem>
                       <SelectItem value="National">National</SelectItem>
                       <SelectItem value="AD">Asphalt Demons</SelectItem>
                       <SelectItem value="HA">Highway Asylum</SelectItem>
@@ -611,7 +611,7 @@ export default function EventCalendar() {
                       <SelectValue placeholder="All Titles" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Titles</SelectItem>
+                      <SelectItem value="all">All Titles</SelectItem>
                       <SelectItem value="Prez">Prez</SelectItem>
                       <SelectItem value="VP">VP</SelectItem>
                       <SelectItem value="S@A">S@A</SelectItem>
