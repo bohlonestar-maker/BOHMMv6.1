@@ -4206,6 +4206,9 @@ class BOHDirectoryAPITester:
         # NEW HIGH PRIORITY FEATURE: Bulk Promotion of Prospects to Members
         self.test_bulk_promotion_functionality()
         
+        # REVIEW REQUEST: User Chapter and Title Assignment
+        self.test_user_chapter_title_assignment()
+        
         # Test member operations
         self.test_member_operations()
         
