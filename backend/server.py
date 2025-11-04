@@ -3139,6 +3139,10 @@ async def check_and_send_event_notifications():
                 time_until_event = event_date - now
                 hours_until_event = time_until_event.total_seconds() / 3600
                 
+                # Skip if Discord notifications are disabled for this event
+                if not event.get('discord_notifications_enabled', True):
+                    continue
+                
                 # Check for 24-hour notification (between 23.5 and 24.5 hours)
                 if 23.5 <= hours_until_event <= 24.5 and not event.get('notification_24h_sent'):
                     print(f"📢 Sending 24h notification for: {event['title']}")
