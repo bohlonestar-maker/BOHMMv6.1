@@ -1023,6 +1023,18 @@ export default function UserManagement({ onLogout }) {
               </DialogHeader>
               <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
                 <div>
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={editFormData.email}
+                    onChange={(e) =>
+                      setEditFormData({ ...editFormData, email: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
                   <Label>Role</Label>
                   <Select
                     value={editFormData.role}
