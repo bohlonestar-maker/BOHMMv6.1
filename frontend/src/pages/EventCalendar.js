@@ -54,6 +54,7 @@ export default function EventCalendar() {
     location: "",
     chapter: "all",
     title_filter: "all",
+    discord_notifications_enabled: true,
   });
 
   const [editFormData, setEditFormData] = useState({
@@ -64,6 +65,7 @@ export default function EventCalendar() {
     location: "",
     chapter: "all",
     title_filter: "all",
+    discord_notifications_enabled: true,
   });
 
   useEffect(() => {
