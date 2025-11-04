@@ -3184,14 +3184,18 @@ async def send_discord_notification(event: dict, hours_before: int):
 
 async def check_and_send_event_notifications():
     """Check for upcoming events and send notifications"""
+    import sys
     try:
         # Use Central Time for all event calculations
         import pytz
         central = pytz.timezone('America/Chicago')
         now = datetime.now(central)
         
+        print(f"🔍 [SCHEDULER] Running notification check at {now.strftime('%Y-%m-%d %H:%M:%S %Z')}", file=sys.stderr, flush=True)
+        
         # Get all events
         events = await db.events.find({}, {"_id": 0}).to_list(length=None)
+        print(f"📋 [SCHEDULER] Found {len(events)} total events", file=sys.stderr, flush=True)
         
         for event in events:
             try:
@@ -3216,36 +3220,56 @@ async def check_and_send_event_notifications():
                 time_until_event = event_date - now
                 hours_until_event = time_until_event.total_seconds() / 3600
                 
+                print(f"  📅 Event '{event.get('title')}': {hours_until_event:.2f}h away (Discord enabled: {event.get('discord_notifications_enabled', True)})", file=sys.stderr, flush=True)
+                
                 # Skip if Discord notifications are disabled for this event
                 if not event.get('discord_notifications_enabled', True):
+                    print(f"  ⏭️  Skipping - Discord notifications disabled", file=sys.stderr, flush=True)
+                    continue
+                
+                # Skip past events
+                if hours_until_event < 0:
+                    print(f"  ⏭️  Skipping - Event is in the past", file=sys.stderr, flush=True)
                     continue
                 
                 # Check for 24-hour notification (between 23.5 and 24.5 hours)
                 if 23.5 <= hours_until_event <= 24.5 and not event.get('notification_24h_sent'):
-                    print(f"📢 Sending 24h notification for: {event['title']}")
+                    print(f"📢 [SCHEDULER] Sending 24h notification for: {event['title']}", file=sys.stderr, flush=True)
                     success = await send_discord_notification(event, 24)
                     if success:
                         await db.events.update_one(
                             {"id": event['id']},
                             {"$set": {"notification_24h_sent": True}}
                         )
+                        print(f"✅ [SCHEDULER] 24h notification sent successfully", file=sys.stderr, flush=True)
+                    else:
+                        print(f"❌ [SCHEDULER] 24h notification failed", file=sys.stderr, flush=True)
                 
                 # Check for 3-hour notification (between 2.5 and 3.5 hours)
                 elif 2.5 <= hours_until_event <= 3.5 and not event.get('notification_3h_sent'):
-                    print(f"📢 Sending 3h notification for: {event['title']}")
+                    print(f"📢 [SCHEDULER] Sending 3h notification for: {event['title']}", file=sys.stderr, flush=True)
                     success = await send_discord_notification(event, 3)
                     if success:
                         await db.events.update_one(
                             {"id": event['id']},
                             {"$set": {"notification_3h_sent": True}}
                         )
+                        print(f"✅ [SCHEDULER] 3h notification sent successfully", file=sys.stderr, flush=True)
+                    else:
+                        print(f"❌ [SCHEDULER] 3h notification failed", file=sys.stderr, flush=True)
                         
             except Exception as e:
-                print(f"❌ Error processing event {event.get('id')}: {str(e)}")
+                print(f"❌ [SCHEDULER] Error processing event {event.get('id')}: {str(e)}", file=sys.stderr, flush=True)
+                import traceback
+                traceback.print_exc(file=sys.stderr)
                 continue
+        
+        print(f"✅ [SCHEDULER] Notification check completed", file=sys.stderr, flush=True)
                 
     except Exception as e:
-        print(f"❌ Error in check_and_send_event_notifications: {str(e)}")
+        print(f"❌ [SCHEDULER] Error in check_and_send_event_notifications: {str(e)}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
 
 def run_notification_check():
     """Wrapper to run async notification check in sync context"""
