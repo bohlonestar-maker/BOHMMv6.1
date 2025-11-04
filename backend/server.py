@@ -3197,7 +3197,13 @@ async def send_discord_notification(event: dict, hours_before: int):
 async def check_and_send_event_notifications():
     """Check for upcoming events and send notifications"""
     import sys
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
     try:
+        # Create a fresh MongoDB client for this thread's event loop
+        scheduler_client = AsyncIOMotorClient(mongo_url)
+        scheduler_db = scheduler_client[os.environ['DB_NAME']]
+        
         # Use Central Time for all event calculations
         import pytz
         central = pytz.timezone('America/Chicago')
@@ -3206,7 +3212,7 @@ async def check_and_send_event_notifications():
         print(f"🔍 [SCHEDULER] Running notification check at {now.strftime('%Y-%m-%d %H:%M:%S %Z')}", file=sys.stderr, flush=True)
         
         # Get all events
-        events = await db.events.find({}, {"_id": 0}).to_list(length=None)
+        events = await scheduler_db.events.find({}, {"_id": 0}).to_list(length=None)
         print(f"📋 [SCHEDULER] Found {len(events)} total events", file=sys.stderr, flush=True)
         
         for event in events:
