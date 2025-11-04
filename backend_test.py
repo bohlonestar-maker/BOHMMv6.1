@@ -4582,6 +4582,9 @@ class BOHDirectoryAPITester:
         # REVIEW REQUEST: User Chapter and Title Assignment
         self.test_user_chapter_title_assignment()
         
+        # PRIORITY TEST: Scheduled Discord Event Notifications
+        self.test_scheduled_discord_notifications()
+        
         # Test member operations
         self.test_member_operations()
         
