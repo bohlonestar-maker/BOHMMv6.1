@@ -371,6 +371,8 @@ export default function UserManagement({ onLogout }) {
     setEditingUser(user);
     setEditFormData({
       role: user.role,
+      chapter: user.chapter || "",
+      title: user.title || "",
       permissions: user.permissions || {
         basic_info: true,
         email: false,
