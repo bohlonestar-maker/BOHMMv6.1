@@ -787,6 +787,19 @@ export default function UserManagement({ onLogout }) {
                   </div>
 
                   <div>
+                    <Label>Email</Label>
+                    <Input
+                      data-testid="email-input"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
                     <Label>Password</Label>
                     <Input
                       data-testid="password-input"
