@@ -758,9 +758,9 @@ export default function EventCalendar() {
                   <div className="flex items-start gap-3 bg-slate-700/30 p-4 rounded-lg">
                     <Clock className="w-6 h-6 text-blue-400 mt-1" />
                     <div>
-                      <div className="text-sm text-slate-400 mb-1">Time</div>
+                      <div className="text-sm text-slate-400 mb-1">Time (Central Time)</div>
                       <div className="text-lg font-semibold">
-                        {selectedEvent.time || <span className="text-slate-500">Not specified</span>}
+                        {selectedEvent.time ? `${selectedEvent.time} CST` : <span className="text-slate-500">Not specified</span>}
                       </div>
                     </div>
                   </div>
