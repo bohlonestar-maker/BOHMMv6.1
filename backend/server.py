@@ -1666,6 +1666,11 @@ async def create_user(user_data: UserCreate, current_user: dict = Depends(verify
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists")
     
+    # Check if email exists
+    existing_email = await db.users.find_one({"email": user_data.email})
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    
     # Set default permissions if not provided
     permissions = user_data.permissions
     if permissions is None:
@@ -1692,8 +1697,11 @@ async def create_user(user_data: UserCreate, current_user: dict = Depends(verify
     
     user = User(
         username=user_data.username,
+        email=user_data.email,
         password_hash=hash_password(user_data.password),
         role=user_data.role,
+        chapter=user_data.chapter,
+        title=user_data.title,
         permissions=permissions
     )
     doc = user.model_dump()
