@@ -3135,7 +3135,7 @@ async def check_and_send_event_notifications():
                 
                 # Check for 24-hour notification (between 23.5 and 24.5 hours)
                 if 23.5 <= hours_until_event <= 24.5 and not event.get('notification_24h_sent'):
-                    logger.info(f"Sending 24h notification for: {event['title']}")
+                    print(f"📢 Sending 24h notification for: {event['title']}")
                     success = await send_discord_notification(event, 24)
                     if success:
                         await db.events.update_one(
@@ -3145,7 +3145,7 @@ async def check_and_send_event_notifications():
                 
                 # Check for 3-hour notification (between 2.5 and 3.5 hours)
                 elif 2.5 <= hours_until_event <= 3.5 and not event.get('notification_3h_sent'):
-                    logger.info(f"Sending 3h notification for: {event['title']}")
+                    print(f"📢 Sending 3h notification for: {event['title']}")
                     success = await send_discord_notification(event, 3)
                     if success:
                         await db.events.update_one(
@@ -3154,11 +3154,11 @@ async def check_and_send_event_notifications():
                         )
                         
             except Exception as e:
-                logger.error(f"Error processing event {event.get('id')}: {str(e)}")
+                print(f"❌ Error processing event {event.get('id')}: {str(e)}")
                 continue
                 
     except Exception as e:
-        logger.error(f"Error in check_and_send_event_notifications: {str(e)}")
+        print(f"❌ Error in check_and_send_event_notifications: {str(e)}")
 
 def run_notification_check():
     """Wrapper to run async notification check in sync context"""
@@ -3169,7 +3169,7 @@ def run_notification_check():
         loop.run_until_complete(check_and_send_event_notifications())
         loop.close()
     except Exception as e:
-        logger.error(f"Error running notification check: {str(e)}")
+        print(f"❌ Error running notification check: {str(e)}")
 
 # Initialize scheduler
 scheduler = BackgroundScheduler()
