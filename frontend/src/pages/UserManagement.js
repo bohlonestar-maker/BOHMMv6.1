@@ -1007,9 +1007,9 @@ export default function UserManagement({ onLogout }) {
                     <Button
                       type="submit"
                       data-testid="submit-user-button"
-                      className="bg-slate-800 hover:bg-slate-900"
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
-                      Create User
+                      Add User
                     </Button>
                   </div>
                 </form>
