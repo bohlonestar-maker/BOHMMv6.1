@@ -4304,14 +4304,20 @@ class BOHDirectoryAPITester:
         from datetime import datetime, timedelta
         import time
         
-        # Calculate exact times for testing
-        now = datetime.utcnow()
-        event_24h_time = now + timedelta(hours=24)
-        event_3h_time = now + timedelta(hours=3)
+        # Calculate exact times for testing (scheduler uses Central Time)
+        import pytz
+        central = pytz.timezone('America/Chicago')
+        now_cst = datetime.now(central)
         
-        print(f"   Current time: {now.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"   24h test event time: {event_24h_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"   3h test event time: {event_3h_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+        # For 24h notification: event should be 24 hours from now in CST
+        event_24h_time_cst = now_cst + timedelta(hours=24)
+        
+        # For 3h notification: event should be 3 hours from now in CST  
+        event_3h_time_cst = now_cst + timedelta(hours=3)
+        
+        print(f"   Current time CST: {now_cst.strftime('%Y-%m-%d %H:%M:%S')} CST")
+        print(f"   24h test event time CST: {event_24h_time_cst.strftime('%Y-%m-%d %H:%M:%S')} CST")
+        print(f"   3h test event time CST: {event_3h_time_cst.strftime('%Y-%m-%d %H:%M:%S')} CST")
         
         # Test 1: Create event exactly 24 hours from now
         event_24h_data = {
