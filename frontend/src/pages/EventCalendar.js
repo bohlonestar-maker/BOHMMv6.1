@@ -143,7 +143,8 @@ export default function EventCalendar() {
     }
   };
 
-  const handleEdit = (event) => {
+  const handleEdit = (event, e) => {
+    e.stopPropagation(); // Prevent row click when clicking edit button
     setEditingEvent(event);
     setEditFormData({
       title: event.title,
@@ -155,6 +156,11 @@ export default function EventCalendar() {
       title_filter: event.title_filter || "all",
     });
     setEditDialogOpen(true);
+  };
+
+  const handleViewDetails = (event) => {
+    setSelectedEvent(event);
+    setDetailDialogOpen(true);
   };
 
   const handleEditSubmit = async (e) => {
@@ -181,7 +187,8 @@ export default function EventCalendar() {
     }
   };
 
-  const handleDelete = async (eventId, eventTitle) => {
+  const handleDelete = async (eventId, eventTitle, e) => {
+    e.stopPropagation(); // Prevent row click when clicking delete button
     if (!window.confirm(`Are you sure you want to delete "${eventTitle}"?`)) {
       return;
     }
