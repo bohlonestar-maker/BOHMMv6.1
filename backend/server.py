@@ -3064,6 +3064,18 @@ async def delete_event(event_id: str, current_user: dict = Depends(verify_admin)
     return {"message": "Event deleted successfully"}
 
 
+@api_router.post("/events/trigger-notification-check")
+async def trigger_notification_check(current_user: dict = Depends(verify_admin)):
+    """Manually trigger the scheduler's notification check (admin only, for testing)"""
+    import threading
+    
+    # Run in a separate thread to avoid blocking
+    thread = threading.Thread(target=run_notification_check)
+    thread.start()
+    
+    return {"message": "Notification check triggered. Check backend logs for results."}
+
+
 
 # ==================== DISCORD NOTIFICATION SYSTEM ====================
 
