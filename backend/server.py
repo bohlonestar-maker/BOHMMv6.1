@@ -332,6 +332,7 @@ class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
+    email: EmailStr  # Required email field
     password_hash: str
     role: str = "member"  # admin, member, or prospect
     chapter: Optional[str] = None  # National, AD, HA, HS
@@ -349,6 +350,7 @@ class User(BaseModel):
 
 class UserCreate(BaseModel):
     username: str
+    email: EmailStr  # Required email field
     password: str
     role: str = "member"
     chapter: Optional[str] = None
@@ -356,6 +358,7 @@ class UserCreate(BaseModel):
     permissions: Optional[dict] = None
 
 class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None  # Allow email updates
     password: Optional[str] = None
     role: Optional[str] = None
     chapter: Optional[str] = None
@@ -365,6 +368,7 @@ class UserUpdate(BaseModel):
 class UserResponse(BaseModel):
     id: str
     username: str
+    email: str  # Include email in response
     role: str
     chapter: Optional[str] = None
     title: Optional[str] = None
