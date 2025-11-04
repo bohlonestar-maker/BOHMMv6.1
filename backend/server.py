@@ -1722,6 +1722,10 @@ async def update_user(user_id: str, user_data: UserUpdate, current_user: dict = 
         update_data['password_hash'] = hash_password(user_data.password)
     if user_data.role:
         update_data['role'] = user_data.role
+    if user_data.chapter is not None:
+        update_data['chapter'] = user_data.chapter
+    if user_data.title is not None:
+        update_data['title'] = user_data.title
     if user_data.permissions is not None:
         update_data['permissions'] = user_data.permissions
     
