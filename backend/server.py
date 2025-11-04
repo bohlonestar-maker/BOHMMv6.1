@@ -3277,11 +3277,26 @@ def run_notification_check():
     import sys
     try:
         print(f"🚀 [SCHEDULER] Starting notification check job...", file=sys.stderr, flush=True)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(check_and_send_event_notifications())
-        loop.close()
-        print(f"✅ [SCHEDULER] Notification check job completed", file=sys.stderr, flush=True)
+        
+        # Try to get the existing event loop
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If loop is running, schedule the coroutine as a task
+                asyncio.create_task(check_and_send_event_notifications())
+                print(f"📝 [SCHEDULER] Notification check scheduled as task", file=sys.stderr, flush=True)
+            else:
+                # If loop exists but not running, use it
+                loop.run_until_complete(check_and_send_event_notifications())
+                print(f"✅ [SCHEDULER] Notification check job completed", file=sys.stderr, flush=True)
+        except RuntimeError:
+            # No event loop exists, create one
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(check_and_send_event_notifications())
+            loop.close()
+            print(f"✅ [SCHEDULER] Notification check job completed", file=sys.stderr, flush=True)
+            
     except Exception as e:
         print(f"❌ [SCHEDULER] Error running notification check: {str(e)}", file=sys.stderr, flush=True)
         import traceback
