@@ -430,6 +430,8 @@ class Event(BaseModel):
     title_filter: Optional[str] = None  # Prez, VP, etc., or None for all titles
     created_by: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notification_24h_sent: bool = False  # Track if 24h notification was sent
+    notification_3h_sent: bool = False   # Track if 3h notification was sent
 
 class EventCreate(BaseModel):
     title: str
