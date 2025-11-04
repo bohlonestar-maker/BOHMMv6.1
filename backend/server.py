@@ -3028,7 +3028,7 @@ DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
 async def send_discord_notification(event: dict, hours_before: int):
     """Send Discord notification for an event"""
     if not DISCORD_WEBHOOK_URL:
-        logger.warning("Discord webhook URL not configured")
+        print("⚠️  Discord webhook URL not configured")
         return False
     
     try:
@@ -3092,14 +3092,14 @@ async def send_discord_notification(event: dict, hours_before: int):
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         
         if response.status_code == 204:
-            logger.info(f"Discord notification sent for event: {event['title']} ({hours_before}h before)")
+            print(f"✅ Discord notification sent for event: {event['title']} ({hours_before}h before)")
             return True
         else:
-            logger.error(f"Discord notification failed: {response.status_code} - {response.text}")
+            print(f"❌ Discord notification failed: {response.status_code} - {response.text}")
             return False
             
     except Exception as e:
-        logger.error(f"Error sending Discord notification: {str(e)}")
+        print(f"❌ Error sending Discord notification: {str(e)}")
         return False
 
 async def check_and_send_event_notifications():
