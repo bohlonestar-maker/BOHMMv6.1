@@ -544,7 +544,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User chapter and title assignment"
+    - "Scheduled Discord event notifications monitoring"
+    - "3-role system end-to-end testing"
+    - "Password change feature testing"
+    - "Bulk promotion end-to-end testing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
