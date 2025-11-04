@@ -548,6 +548,17 @@ export default function EventCalendar() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        {event.discord_notifications_enabled && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => handleSendDiscordNow(event, e)}
+                            className="text-green-400 hover:text-green-300"
+                            title="Send Discord notification now"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"
