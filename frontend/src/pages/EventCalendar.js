@@ -450,7 +450,12 @@ export default function EventCalendar() {
                 filteredEvents.map((event) => (
                   <TableRow
                     key={event.id}
-                    className={isUpcoming(event.date) ? "bg-slate-700/30" : ""}
+                    onClick={() => handleViewDetails(event)}
+                    className={`cursor-pointer transition-colors ${
+                      isUpcoming(event.date) 
+                        ? "bg-slate-700/30 hover:bg-slate-700/50" 
+                        : "hover:bg-slate-700/30"
+                    }`}
                   >
                     <TableCell>
                       <div className="flex flex-col">
@@ -464,7 +469,7 @@ export default function EventCalendar() {
                       <div>
                         <div className="font-medium">{event.title}</div>
                         {event.description && (
-                          <div className="text-sm text-slate-400 mt-1">
+                          <div className="text-sm text-slate-400 mt-1 line-clamp-2">
                             {event.description}
                           </div>
                         )}
@@ -501,7 +506,7 @@ export default function EventCalendar() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleEdit(event)}
+                          onClick={(e) => handleEdit(event, e)}
                           className="text-blue-400 hover:text-blue-300"
                         >
                           <Edit className="w-4 h-4" />
@@ -509,7 +514,7 @@ export default function EventCalendar() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleDelete(event.id, event.title)}
+                          onClick={(e) => handleDelete(event.id, event.title, e)}
                           className="text-red-400 hover:text-red-300"
                         >
                           <Trash2 className="w-4 h-4" />
