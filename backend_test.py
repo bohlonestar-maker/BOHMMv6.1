@@ -4354,12 +4354,12 @@ class BOHDirectoryAPITester:
             print("❌ Failed to create 24h test event - cannot continue notification tests")
             return
         
-        # Test 2: Create event exactly 3 hours from now (optional)
+        # Test 2: Create event exactly 3 hours from now (CST)
         event_3h_data = {
             "title": "3h Notification Test Event", 
             "description": "This event is scheduled exactly 3 hours from now to test scheduled Discord notifications",
-            "date": event_3h_time.strftime('%Y-%m-%d'),
-            "time": event_3h_time.strftime('%H:%M'),
+            "date": event_3h_time_cst.strftime('%Y-%m-%d'),
+            "time": event_3h_time_cst.strftime('%H:%M'),
             "location": "Test Location 3h",
             "chapter": None,
             "title_filter": None,
