@@ -64,63 +64,85 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* Floating Chat Button - Responsive positioning */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-40 transition-all hover:scale-110"
+          className="fixed bottom-20 right-4 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-40 transition-all hover:scale-110"
           aria-label="Open chat"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Responsive sizing and positioning */}
       {isOpen && (
-        <div className="fixed bottom-20 right-6 w-96 h-[500px] bg-slate-800 border border-slate-700 rounded-lg shadow-2xl flex flex-col z-40">
-          {/* Header */}
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+        <div 
+          className={`
+            fixed z-40
+            ${/* Mobile: Full screen */ ''}
+            inset-0 sm:inset-auto
+            ${/* Tablet & Desktop: Positioned bottom-right */ ''}
+            sm:bottom-20 sm:right-6
+            ${/* Responsive width */ ''}
+            w-full sm:w-96 md:w-[420px] lg:w-[450px]
+            ${/* Responsive height */ ''}
+            h-full sm:h-[500px] md:h-[550px] lg:h-[600px]
+            ${/* Styling */ ''}
+            bg-slate-800 border-0 sm:border sm:border-slate-700 
+            rounded-none sm:rounded-lg shadow-2xl 
+            flex flex-col
+          `}
+        >
+          {/* Header - Responsive padding */}
+          <div className="bg-blue-600 text-white p-3 sm:p-4 rounded-t-none sm:rounded-t-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-semibold">BOH AI Assistant</span>
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-semibold text-sm sm:text-base">BOH AI Assistant</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="hover:bg-blue-700 p-1 rounded"
+              aria-label="Close chat"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Messages - Responsive padding and spacing */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
             {messages.map((msg, index) => (
               <div
                 key={index}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    msg.role === "user"
+                  className={`
+                    max-w-[85%] sm:max-w-[80%]
+                    rounded-lg p-2.5 sm:p-3
+                    ${msg.role === "user"
                       ? "bg-blue-600 text-white"
                       : "bg-slate-700 text-slate-100"
-                  }`}
+                    }
+                  `}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    {msg.content}
+                  </p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-700 text-slate-100 rounded-lg p-3">
+                <div className="bg-slate-700 text-slate-100 rounded-lg p-2.5 sm:p-3">
                   <Loader2 className="w-4 h-4 animate-spin" />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Input */}
-          <div className="p-4 border-t border-slate-700">
+          {/* Input - Responsive padding and sizing */}
+          <div className="p-3 sm:p-4 border-t border-slate-700">
             <div className="flex gap-2">
               <Input
                 type="text"
@@ -129,13 +151,12 @@ export default function ChatBot() {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1 bg-slate-700 border-slate-600 text-slate-100 placeholder-slate-400"
+                className="flex-1 bg-slate-700 border-slate-600 text-slate-100 placeholder-slate-400 text-sm sm:text-base h-10 sm:h-9"
               />
               <Button
                 onClick={sendMessage}
                 disabled={isLoading || !inputMessage.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
-                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 h-10 sm:h-9 px-3 sm:px-4"
               >
                 <Send className="w-4 h-4" />
               </Button>
