@@ -4161,6 +4161,142 @@ class BOHDirectoryAPITester:
         print(f"   👥 User chapter and title assignment testing completed")
         return testchat_user, testmember_user
 
+    def test_event_calendar_functionality(self):
+        """Test event calendar functionality - CREATE TEST EVENT FOR DEMONSTRATION"""
+        print(f"\n📅 Testing Event Calendar Functionality...")
+        
+        # Test 1: Create the demonstration event as requested
+        demo_event = {
+            "title": "BOH National Rally 2025",
+            "description": "Annual brothers gathering with rides, food, and live music. All chapters welcome!",
+            "date": "2025-12-15",
+            "time": "10:00",
+            "location": "Sturgis Rally Grounds, SD",
+            "chapter": None,
+            "title_filter": None
+        }
+        
+        success, created_event = self.run_test(
+            "Create Demo Event - BOH National Rally 2025",
+            "POST",
+            "events",
+            200,
+            data=demo_event
+        )
+        
+        event_id = None
+        if success:
+            # Verify response contains event ID and success message
+            if 'id' in created_event and 'message' in created_event:
+                event_id = created_event['id']
+                self.log_test("Event Creation - Response Format", True, f"Event ID: {event_id}, Message: {created_event['message']}")
+            else:
+                self.log_test("Event Creation - Response Format", False, f"Missing id or message in response: {created_event}")
+        else:
+            print("❌ Failed to create demo event - cannot continue event tests")
+            return
+        
+        # Test 2: Verify event created successfully by getting all events
+        success, events = self.run_test(
+            "Get All Events - Verify Demo Event Exists",
+            "GET",
+            "events",
+            200
+        )
+        
+        if success and isinstance(events, list):
+            # Find our demo event
+            demo_event_found = None
+            for event in events:
+                if event.get('id') == event_id:
+                    demo_event_found = event
+                    break
+            
+            if demo_event_found:
+                self.log_test("Demo Event Found in Events List", True, f"Event title: {demo_event_found.get('title')}")
+                
+                # Verify all event data matches what we created
+                verification_checks = [
+                    ('title', demo_event['title']),
+                    ('description', demo_event['description']),
+                    ('date', demo_event['date']),
+                    ('time', demo_event['time']),
+                    ('location', demo_event['location']),
+                    ('chapter', demo_event['chapter']),
+                    ('title_filter', demo_event['title_filter'])
+                ]
+                
+                all_fields_correct = True
+                for field, expected_value in verification_checks:
+                    actual_value = demo_event_found.get(field)
+                    if actual_value != expected_value:
+                        self.log_test(f"Event Data Verification - {field}", False, f"Expected: {expected_value}, Got: {actual_value}")
+                        all_fields_correct = False
+                    else:
+                        self.log_test(f"Event Data Verification - {field}", True, f"Correct: {actual_value}")
+                
+                if all_fields_correct:
+                    self.log_test("Demo Event - All Data Verified", True, "All event fields match expected values")
+                
+                # Verify event has created_by field (should be current user)
+                if 'created_by' in demo_event_found:
+                    self.log_test("Event Creation - Created By Field", True, f"Created by: {demo_event_found['created_by']}")
+                else:
+                    self.log_test("Event Creation - Created By Field", False, "Missing created_by field")
+                
+                # Verify event has created_at timestamp
+                if 'created_at' in demo_event_found:
+                    self.log_test("Event Creation - Created At Timestamp", True, f"Created at: {demo_event_found['created_at']}")
+                else:
+                    self.log_test("Event Creation - Created At Timestamp", False, "Missing created_at field")
+            else:
+                self.log_test("Demo Event Found in Events List", False, f"Event with ID {event_id} not found in events list")
+        else:
+            self.log_test("Get All Events", False, f"Expected list of events, got: {type(events)}")
+        
+        # Test 3: Test upcoming events count (should include our demo event)
+        success, count_response = self.run_test(
+            "Get Upcoming Events Count",
+            "GET",
+            "events/upcoming-count",
+            200
+        )
+        
+        if success and 'count' in count_response:
+            count = count_response['count']
+            if count >= 1:
+                self.log_test("Upcoming Events Count", True, f"Found {count} upcoming events (includes our demo event)")
+            else:
+                self.log_test("Upcoming Events Count", False, f"Expected at least 1 upcoming event, got {count}")
+        else:
+            self.log_test("Upcoming Events Count", False, f"Invalid response format: {count_response}")
+        
+        # Test 4: Test event filtering by chapter (should return our event since chapter=None means all chapters)
+        success, filtered_events = self.run_test(
+            "Get Events Filtered by Chapter",
+            "GET",
+            "events?chapter=National",
+            200
+        )
+        
+        if success and isinstance(filtered_events, list):
+            # Our demo event should appear since chapter=None means it's for all chapters
+            demo_in_filtered = any(event.get('id') == event_id for event in filtered_events)
+            if demo_in_filtered:
+                self.log_test("Event Filtering - Chapter Filter", True, "Demo event appears in National chapter filter (chapter=None includes all)")
+            else:
+                self.log_test("Event Filtering - Chapter Filter", False, "Demo event missing from National chapter filter")
+        
+        print(f"\n   📅 Event Calendar Testing Summary:")
+        print(f"   ✅ Demo Event Created: BOH National Rally 2025")
+        print(f"   ✅ Event Date: December 15, 2025 at 10:00 AM")
+        print(f"   ✅ Location: Sturgis Rally Grounds, SD")
+        print(f"   ✅ Available to all chapters (chapter=None)")
+        print(f"   ✅ Event ID: {event_id}")
+        print(f"   📝 Demo event kept for UI testing purposes")
+        
+        return event_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
