@@ -2940,6 +2940,17 @@ async def get_upcoming_events_count(current_user: dict = Depends(verify_token)):
 @api_router.post("/events")
 async def create_event(event_data: EventCreate, current_user: dict = Depends(verify_admin)):
     """Create a new event (admin only)"""
+    
+    # Get creator's chapter and title from current_user
+    creator_chapter = current_user.get("chapter")
+    creator_title = current_user.get("title")
+    
+    # Find creator's handle from members collection
+    creator_handle = None
+    member = await db.members.find_one({"email": current_user.get("email")}, {"_id": 0, "handle": 1})
+    if member:
+        creator_handle = member.get("handle")
+    
     event = Event(
         title=event_data.title,
         description=event_data.description,
@@ -2949,7 +2960,10 @@ async def create_event(event_data: EventCreate, current_user: dict = Depends(ver
         chapter=event_data.chapter,
         title_filter=event_data.title_filter,
         discord_notifications_enabled=event_data.discord_notifications_enabled,
-        created_by=current_user["username"]
+        created_by=current_user["username"],
+        creator_chapter=creator_chapter,
+        creator_title=creator_title,
+        creator_handle=creator_handle
     )
     
     doc = event.model_dump()
