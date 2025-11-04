@@ -159,9 +159,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   useEffect(() => {
     fetchMembers();
     fetchUnreadPrivateCount();
+    fetchUpcomingEventsCount();
     // Auto-refresh counts every 30 seconds
     const interval = setInterval(() => {
       fetchUnreadPrivateCount();
+      fetchUpcomingEventsCount();
     }, 30000);
     return () => clearInterval(interval);
   }, [userRole]);
@@ -177,6 +179,19 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       if (!handleApiError(error, "Failed to fetch unread private messages count")) {
         console.error("Failed to fetch unread private messages count:", error);
       }
+    }
+  };
+
+  const fetchUpcomingEventsCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/events/upcoming-count`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUpcomingEventsCount(response.data.count);
+    } catch (error) {
+      // Silently fail - events feature might not be critical
+      console.error("Failed to fetch upcoming events count:", error);
     }
   };
 
