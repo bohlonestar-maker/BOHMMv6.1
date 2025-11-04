@@ -1738,6 +1738,10 @@ async def update_user(user_id: str, user_data: UserUpdate, current_user: dict = 
         updates.append("password")
     if user_data.role:
         updates.append(f"role to {user_data.role}")
+    if user_data.chapter is not None:
+        updates.append(f"chapter to {user_data.chapter}")
+    if user_data.title is not None:
+        updates.append(f"title to {user_data.title}")
     if user_data.permissions is not None:
         updates.append("permissions")
     
