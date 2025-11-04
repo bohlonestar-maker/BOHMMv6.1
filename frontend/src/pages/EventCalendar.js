@@ -112,8 +112,8 @@ export default function EventCalendar() {
       date: "",
       time: "",
       location: "",
-      chapter: "",
-      title_filter: "",
+      chapter: "all",
+      title_filter: "all",
     });
   };
 
@@ -136,7 +136,7 @@ export default function EventCalendar() {
       setDialogOpen(false);
       resetForm();
       fetchEvents();
-    } catch (error) {
+    } catch (error){
       toast.error(error.response?.data?.detail || "Failed to create event");
     }
   };
@@ -149,8 +149,8 @@ export default function EventCalendar() {
       date: event.date,
       time: event.time || "",
       location: event.location || "",
-      chapter: event.chapter || "",
-      title_filter: event.title_filter || "",
+      chapter: event.chapter || "all",
+      title_filter: event.title_filter || "all",
     });
     setEditDialogOpen(true);
   };
@@ -159,8 +159,15 @@ export default function EventCalendar() {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
+    // Convert "all" to null for API
+    const apiData = {
+      ...editFormData,
+      chapter: editFormData.chapter === "all" ? null : editFormData.chapter,
+      title_filter: editFormData.title_filter === "all" ? null : editFormData.title_filter,
+    };
+
     try {
-      await axios.put(`${API}/api/events/${editingEvent.id}`, editFormData, {
+      await axios.put(`${API}/api/events/${editingEvent.id}`, apiData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Event updated successfully");
