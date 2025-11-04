@@ -368,7 +368,7 @@ class UserUpdate(BaseModel):
 class UserResponse(BaseModel):
     id: str
     username: str
-    email: str  # Include email in response
+    email: Optional[str] = None  # Optional for backward compatibility
     role: str
     chapter: Optional[str] = None
     title: Optional[str] = None
