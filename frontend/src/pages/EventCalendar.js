@@ -814,8 +814,24 @@ export default function EventCalendar() {
                   Created by {selectedEvent.created_by} on {new Date(selectedEvent.created_at).toLocaleDateString()}
                 </div>
 
-                {/* Close Button */}
-                <div className="flex justify-end pt-4">
+                {/* Action Buttons */}
+                <div className="flex justify-between items-center pt-4">
+                  {selectedEvent.discord_notifications_enabled ? (
+                    <Button
+                      onClick={(e) => {
+                        setDetailDialogOpen(false);
+                        handleSendDiscordNow(selectedEvent, e);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Discord Now
+                    </Button>
+                  ) : (
+                    <div className="text-sm text-slate-500">
+                      Discord notifications disabled
+                    </div>
+                  )}
                   <Button
                     variant="outline"
                     onClick={() => setDetailDialogOpen(false)}
