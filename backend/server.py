@@ -3364,4 +3364,14 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    # Stop scheduler if it's running
+    global scheduler
+    if scheduler and scheduler.running:
+        try:
+            scheduler.shutdown()
+            print("✅ [SCHEDULER] Discord event notification scheduler stopped", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"⚠️ [SCHEDULER] Error stopping scheduler: {str(e)}", file=sys.stderr, flush=True)
+    
+    # Close MongoDB client
     client.close()
