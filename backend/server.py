@@ -673,6 +673,7 @@ async def create_default_admin():
                     "phone": True,
                     "address": True,
                     "dues_tracking": True,
+                    "meeting_attendance": True,  # All admins need access to all features
                     "admin_actions": True
                 }
             )
