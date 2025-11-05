@@ -35,6 +35,13 @@ if not ENCRYPTION_KEY:
     raise ValueError("ENCRYPTION_KEY not found in environment variables")
 cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 
+# Configure logging (must be early so it's available throughout the module)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 def encrypt_data(data: str) -> str:
     """Encrypt data using AES-256 encryption"""
     if not data:
