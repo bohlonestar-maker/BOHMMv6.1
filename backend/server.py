@@ -694,17 +694,11 @@ async def start_scheduler():
     """Start the APScheduler for Discord event notifications"""
     import sys
     global scheduler
-    # TEMPORARY: Scheduler disabled for deployment debugging
-    sys.stderr.write("⚠️ [SCHEDULER] Scheduler temporarily disabled for deployment debugging\n")
-    sys.stderr.flush()
-    scheduler = None
-    return
-    
     try:
-        import sys
         from apscheduler.schedulers.background import BackgroundScheduler
         
-        print("🔧 [SCHEDULER] Initializing Discord event notification system...", file=sys.stderr, flush=True)
+        sys.stderr.write("🔧 [SCHEDULER] Initializing Discord event notification system...\n")
+        sys.stderr.flush()
         
         scheduler = BackgroundScheduler()
         scheduler.add_job(
@@ -715,9 +709,11 @@ async def start_scheduler():
             replace_existing=True
         )
         scheduler.start()
-        print("✅ [SCHEDULER] Discord event notification system started (checking every 30 minutes)", file=sys.stderr, flush=True)
+        sys.stderr.write("✅ [SCHEDULER] Discord event notification system started (checking every 30 minutes)\n")
+        sys.stderr.flush()
     except Exception as e:
-        print(f"⚠️ [SCHEDULER] Failed to start scheduler (app will continue without it): {str(e)}", file=sys.stderr, flush=True)
+        sys.stderr.write(f"⚠️ [SCHEDULER] Failed to start scheduler (app will continue without it): {str(e)}\n")
+        sys.stderr.flush()
         # Don't crash the application if scheduler fails to start - this is non-critical functionality
         import traceback
         traceback.print_exc(file=sys.stderr)
