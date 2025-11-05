@@ -619,6 +619,11 @@ async def start_scheduler():
     """Start the APScheduler for Discord event notifications"""
     global scheduler
     try:
+        import sys
+        from apscheduler.schedulers.background import BackgroundScheduler
+        
+        print("🔧 [SCHEDULER] Initializing Discord event notification system...", file=sys.stderr, flush=True)
+        
         scheduler = BackgroundScheduler()
         scheduler.add_job(
             run_notification_check,
@@ -630,10 +635,11 @@ async def start_scheduler():
         scheduler.start()
         print("✅ [SCHEDULER] Discord event notification system started (checking every 30 minutes)", file=sys.stderr, flush=True)
     except Exception as e:
-        print(f"❌ [SCHEDULER] Failed to start scheduler: {str(e)}", file=sys.stderr, flush=True)
-        # Don't crash the application if scheduler fails to start
+        print(f"⚠️ [SCHEDULER] Failed to start scheduler (app will continue without it): {str(e)}", file=sys.stderr, flush=True)
+        # Don't crash the application if scheduler fails to start - this is non-critical functionality
         import traceback
         traceback.print_exc(file=sys.stderr)
+        scheduler = None
 
 # Auth endpoints
 @api_router.post("/auth/login", response_model=LoginResponse)
