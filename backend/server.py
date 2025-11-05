@@ -3318,19 +3318,9 @@ def run_notification_check():
         import traceback
         traceback.print_exc(file=sys.stderr)
 
-# Initialize scheduler
+# Initialize scheduler variable (will be started in startup event)
 import sys
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    run_notification_check,
-    'interval',
-    minutes=30,  # Check every 30 minutes
-    id='event_notifications',
-    replace_existing=True
-)
-scheduler.start()
-
-print("✅ [SCHEDULER] Discord event notification system started (checking every 30 minutes)", file=sys.stderr, flush=True)
+scheduler = None
 
 
 # Include the router in the main app
