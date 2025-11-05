@@ -12,6 +12,8 @@ try:
 except:
     pass
 
+sys.stderr.write("  [INIT] Importing FastAPI...\n")
+sys.stderr.flush()
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
