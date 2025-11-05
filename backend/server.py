@@ -64,6 +64,8 @@ sys.stderr.write("  [INIT] Importing email MIME...\n")
 sys.stderr.flush()
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+sys.stderr.write("  [INIT] Importing cryptography (Fernet)...\n")
+sys.stderr.flush()
 from cryptography.fernet import Fernet
 import hashlib
 
