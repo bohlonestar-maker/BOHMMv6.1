@@ -29,12 +29,13 @@ import hashlib
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-print("🔧 [INIT] Connecting to MongoDB...", file=sys.stderr, flush=True)
+# MongoDB connection - deferred initialization to avoid blocking at import time
+print("🔧 [INIT] Preparing MongoDB configuration...", file=sys.stderr, flush=True)
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+# Don't connect immediately - let Motor connect lazily on first use
+client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
 db = client[os.environ['DB_NAME']]
-print("✅ [INIT] MongoDB client initialized", file=sys.stderr, flush=True)
+print("✅ [INIT] MongoDB client configured (will connect on first use)", file=sys.stderr, flush=True)
 
 # Encryption setup (AES-256)
 print("🔧 [INIT] Setting up encryption...", file=sys.stderr, flush=True)
