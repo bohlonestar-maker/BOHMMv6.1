@@ -42,12 +42,14 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection - deferred initialization to avoid blocking at import time
-print("🔧 [INIT] Preparing MongoDB configuration...", file=sys.stderr, flush=True)
+sys.stderr.write("🔧 [INIT] Preparing MongoDB configuration...\n")
+sys.stderr.flush()
 mongo_url = os.environ['MONGO_URL']
 # Don't connect immediately - let Motor connect lazily on first use
 client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
 db = client[os.environ['DB_NAME']]
-print("✅ [INIT] MongoDB client configured (will connect on first use)", file=sys.stderr, flush=True)
+sys.stderr.write("✅ [INIT] MongoDB client configured (will connect on first use)\n")
+sys.stderr.flush()
 
 # Encryption setup (AES-256)
 print("🔧 [INIT] Setting up encryption...", file=sys.stderr, flush=True)
