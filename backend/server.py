@@ -67,7 +67,12 @@ from email.mime.multipart import MIMEMultipart
 sys.stderr.write("  [INIT] Importing cryptography (Fernet)...\n")
 sys.stderr.flush()
 from cryptography.fernet import Fernet
+sys.stderr.write("  [INIT] Importing hashlib...\n")
+sys.stderr.flush()
 import hashlib
+
+sys.stderr.write("✅ [INIT] All imports completed successfully\n")
+sys.stderr.flush()
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
