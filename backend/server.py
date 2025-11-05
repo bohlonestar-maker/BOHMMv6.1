@@ -655,6 +655,7 @@ async def create_default_admin():
 @app.on_event("startup")
 async def start_scheduler():
     """Start the APScheduler for Discord event notifications"""
+    import sys
     global scheduler
     # TEMPORARY: Scheduler disabled for deployment debugging
     sys.stderr.write("⚠️ [SCHEDULER] Scheduler temporarily disabled for deployment debugging\n")
