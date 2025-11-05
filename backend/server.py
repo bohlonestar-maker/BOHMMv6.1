@@ -18,6 +18,8 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Response
 sys.stderr.write("  [INIT] Importing security...\n")
 sys.stderr.flush()
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+sys.stderr.write("  [INIT] Importing dotenv...\n")
+sys.stderr.flush()
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
