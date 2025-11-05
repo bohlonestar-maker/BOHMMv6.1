@@ -36,6 +36,8 @@ from pathlib import Path
 
 sys.stderr.write("✅ [INIT] Core imports successful\n")
 sys.stderr.flush()
+sys.stderr.write("  [INIT] Importing Pydantic...\n")
+sys.stderr.flush()
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 import uuid
