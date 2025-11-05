@@ -39,6 +39,8 @@ sys.stderr.flush()
 sys.stderr.write("  [INIT] Importing Pydantic...\n")
 sys.stderr.flush()
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
+sys.stderr.write("  [INIT] Importing typing & utils...\n")
+sys.stderr.flush()
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone, timedelta
