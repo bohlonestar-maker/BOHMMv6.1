@@ -37,10 +37,12 @@ db = client[os.environ['DB_NAME']]
 print("✅ [INIT] MongoDB client initialized", file=sys.stderr, flush=True)
 
 # Encryption setup (AES-256)
+print("🔧 [INIT] Setting up encryption...", file=sys.stderr, flush=True)
 ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
 if not ENCRYPTION_KEY:
     raise ValueError("ENCRYPTION_KEY not found in environment variables")
 cipher_suite = Fernet(ENCRYPTION_KEY.encode())
+print("✅ [INIT] Encryption configured", file=sys.stderr, flush=True)
 
 # Configure logging (must be early so it's available throughout the module)
 logging.basicConfig(
