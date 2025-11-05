@@ -664,6 +664,7 @@ async def create_default_admin():
             print("🔧 [STARTUP] Creating default admin user...", file=sys.stderr, flush=True)
             admin_user = User(
                 username="admin",
+                email="admin@brothersofthehighway.com",  # Required email field
                 password_hash=hash_password("admin123"),
                 role="admin",
                 permissions={
