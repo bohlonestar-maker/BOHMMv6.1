@@ -54,6 +54,8 @@ sys.stderr.write("  [INIT] Importing CSV & IO...\n")
 sys.stderr.flush()
 import csv
 from io import StringIO
+sys.stderr.write("  [INIT] Importing responses...\n")
+sys.stderr.flush()
 from fastapi.responses import StreamingResponse, Response
 import aiosmtplib
 from email.mime.text import MIMEText
