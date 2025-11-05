@@ -656,6 +656,12 @@ async def create_default_admin():
 async def start_scheduler():
     """Start the APScheduler for Discord event notifications"""
     global scheduler
+    # TEMPORARY: Scheduler disabled for deployment debugging
+    sys.stderr.write("⚠️ [SCHEDULER] Scheduler temporarily disabled for deployment debugging\n")
+    sys.stderr.flush()
+    scheduler = None
+    return
+    
     try:
         import sys
         from apscheduler.schedulers.background import BackgroundScheduler
