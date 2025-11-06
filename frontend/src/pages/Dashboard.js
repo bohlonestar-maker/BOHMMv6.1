@@ -531,9 +531,190 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success("CSV exported successfully");
+      toast.success("CSV downloaded successfully");
     } catch (error) {
       toast.error("Failed to export CSV");
+    }
+  };
+
+  const handleViewCSV = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(`${API}/members/export/csv`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: "text",
+      });
+      
+      // Open CSV in new window with formatted view
+      const csvWindow = window.open("", "_blank");
+      csvWindow.document.write(`
+        <html>
+          <head>
+            <title>Members Export - Brothers of the Highway</title>
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #1e293b;
+                color: #e2e8f0;
+                padding: 20px;
+                margin: 0;
+              }
+              h1 {
+                color: #10b981;
+                border-bottom: 2px solid #10b981;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+              }
+              .controls {
+                margin-bottom: 20px;
+                display: flex;
+                gap: 10px;
+              }
+              button {
+                background: #10b981;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+              }
+              button:hover {
+                background: #059669;
+              }
+              .table-container {
+                overflow-x: auto;
+                background: #334155;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+              }
+              th {
+                background: #475569;
+                color: #10b981;
+                font-weight: 600;
+                padding: 12px 8px;
+                text-align: left;
+                position: sticky;
+                top: 0;
+                border-bottom: 2px solid #10b981;
+                white-space: nowrap;
+              }
+              td {
+                padding: 10px 8px;
+                border-bottom: 1px solid #475569;
+              }
+              tr:hover td {
+                background: #475569;
+              }
+              .section-header {
+                background: #1e293b !important;
+                font-weight: bold;
+                color: #fbbf24;
+              }
+              pre {
+                background: #1e293b;
+                padding: 15px;
+                border-radius: 8px;
+                overflow-x: auto;
+                border: 1px solid #475569;
+                display: none;
+              }
+              .show-raw pre {
+                display: block;
+              }
+              .show-raw table {
+                display: none;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>🏍️ Members Export - Brothers of the Highway</h1>
+            <div class="controls">
+              <button onclick="downloadCSV()">Download CSV</button>
+              <button onclick="toggleView()">Toggle Raw CSV</button>
+              <button onclick="window.print()">Print</button>
+            </div>
+            <div id="content" class="table-container">
+              <table id="csvTable"></table>
+            </div>
+            <pre id="rawCSV">${response.data.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            <script>
+              function parseCSV(text) {
+                const lines = text.split('\\n').filter(line => line.trim());
+                const result = [];
+                for (let line of lines) {
+                  const row = [];
+                  let cell = '';
+                  let inQuotes = false;
+                  for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                      inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                      row.push(cell);
+                      cell = '';
+                    } else {
+                      cell += char;
+                    }
+                  }
+                  row.push(cell);
+                  result.push(row);
+                }
+                return result;
+              }
+
+              const csvData = parseCSV(\`${response.data.replace(/`/g, '\\`')}\`);
+              const table = document.getElementById('csvTable');
+              
+              // Create header
+              const thead = document.createElement('thead');
+              const headerRow = document.createElement('tr');
+              csvData[0].forEach(cell => {
+                const th = document.createElement('th');
+                th.textContent = cell;
+                headerRow.appendChild(th);
+              });
+              thead.appendChild(headerRow);
+              table.appendChild(thead);
+              
+              // Create body
+              const tbody = document.createElement('tbody');
+              for (let i = 1; i < csvData.length; i++) {
+                const tr = document.createElement('tr');
+                csvData[i].forEach(cell => {
+                  const td = document.createElement('td');
+                  td.textContent = cell;
+                  tbody.appendChild(td);
+                });
+                tbody.appendChild(tr);
+              }
+              table.appendChild(tbody);
+
+              function downloadCSV() {
+                const blob = new Blob([\`${response.data.replace(/`/g, '\\`')}\`], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'members.csv';
+                a.click();
+              }
+
+              function toggleView() {
+                document.getElementById('content').classList.toggle('show-raw');
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      csvWindow.document.close();
+      toast.success("CSV opened in new window");
+    } catch (error) {
+      toast.error("Failed to view CSV");
     }
   };
 
