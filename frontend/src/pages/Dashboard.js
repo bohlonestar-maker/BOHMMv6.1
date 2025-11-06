@@ -556,109 +556,286 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       csvWindow.document.write(`
         <html>
           <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+            <meta charset="UTF-8">
             <title>Members Export - Brothers of the Highway</title>
             <style>
+              * {
+                box-sizing: border-box;
+              }
+              
               body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
                 background: #1e293b;
                 color: #e2e8f0;
-                padding: 20px;
+                padding: 10px;
                 margin: 0;
               }
+              
               h1 {
                 color: #10b981;
                 border-bottom: 2px solid #10b981;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
+                padding-bottom: 8px;
+                margin: 0 0 15px 0;
+                font-size: 1.25rem;
               }
-              .controls {
-                margin-bottom: 20px;
+              
+              .info {
+                background: #334155;
+                padding: 8px 12px;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                font-size: 0.875rem;
+                line-height: 1.6;
+              }
+              
+              .info-mobile {
                 display: flex;
-                gap: 10px;
+                flex-direction: column;
+                gap: 4px;
+              }
+              
+              .controls {
+                margin-bottom: 15px;
+                display: flex;
+                gap: 8px;
                 flex-wrap: wrap;
               }
+              
               button {
                 background: #10b981;
                 color: white;
                 border: none;
-                padding: 10px 20px;
+                padding: 10px 16px;
                 border-radius: 6px;
                 cursor: pointer;
                 font-weight: 600;
+                font-size: 0.875rem;
+                flex: 1 1 auto;
+                min-width: 120px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
               }
-              button:hover {
+              
+              button:active {
                 background: #059669;
+                transform: scale(0.98);
               }
+              
               .table-container {
                 overflow-x: auto;
+                overflow-y: auto;
                 background: #334155;
                 border-radius: 8px;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-                max-height: 80vh;
+                max-height: calc(100vh - 200px);
+                -webkit-overflow-scrolling: touch;
               }
+              
               table {
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 13px;
+                font-size: 0.75rem;
+                min-width: 800px;
               }
+              
               th {
                 background: #475569;
                 color: #10b981;
                 font-weight: 600;
-                padding: 12px 8px;
+                padding: 10px 6px;
                 text-align: left;
                 position: sticky;
                 top: 0;
                 border-bottom: 2px solid #10b981;
                 white-space: nowrap;
                 z-index: 10;
+                font-size: 0.75rem;
               }
+              
               td {
-                padding: 10px 8px;
+                padding: 8px 6px;
                 border-bottom: 1px solid #475569;
                 white-space: nowrap;
+                font-size: 0.75rem;
               }
-              tr:hover td {
+              
+              tr:active td {
                 background: #475569;
               }
+              
               pre {
                 background: #1e293b;
-                padding: 15px;
+                padding: 12px;
                 border-radius: 8px;
                 overflow-x: auto;
                 border: 1px solid #475569;
                 display: none;
-                max-height: 80vh;
+                max-height: calc(100vh - 200px);
+                font-size: 0.75rem;
+                line-height: 1.4;
+                -webkit-overflow-scrolling: touch;
               }
+              
               .show-raw pre {
                 display: block;
               }
+              
               .show-raw .table-container {
                 display: none;
               }
-              .info {
+              
+              .scroll-hint {
+                text-align: center;
+                color: #94a3b8;
+                font-size: 0.75rem;
+                padding: 8px;
                 background: #334155;
-                padding: 10px 15px;
                 border-radius: 6px;
-                margin-bottom: 20px;
-                font-size: 14px;
+                margin-top: 10px;
+              }
+              
+              /* Tablet styles (768px and up) */
+              @media (min-width: 768px) {
+                body {
+                  padding: 20px;
+                }
+                
+                h1 {
+                  font-size: 1.75rem;
+                  padding-bottom: 12px;
+                  margin-bottom: 20px;
+                }
+                
+                .info {
+                  padding: 12px 16px;
+                  font-size: 0.9375rem;
+                }
+                
+                .info-mobile {
+                  flex-direction: row;
+                  gap: 16px;
+                }
+                
+                .controls {
+                  gap: 10px;
+                  margin-bottom: 20px;
+                }
+                
+                button {
+                  padding: 12px 20px;
+                  font-size: 0.9375rem;
+                  flex: 0 1 auto;
+                  min-width: 150px;
+                }
+                
+                table {
+                  font-size: 0.8125rem;
+                }
+                
+                th, td {
+                  padding: 12px 8px;
+                  font-size: 0.8125rem;
+                }
+                
+                pre {
+                  font-size: 0.8125rem;
+                  padding: 15px;
+                }
+                
+                .scroll-hint {
+                  font-size: 0.8125rem;
+                }
+              }
+              
+              /* Laptop/Desktop styles (1024px and up) */
+              @media (min-width: 1024px) {
+                body {
+                  padding: 30px;
+                }
+                
+                h1 {
+                  font-size: 2rem;
+                }
+                
+                .info {
+                  font-size: 1rem;
+                }
+                
+                button {
+                  font-size: 1rem;
+                  min-width: 180px;
+                }
+                
+                button:hover {
+                  background: #059669;
+                  transform: translateY(-1px);
+                }
+                
+                table {
+                  font-size: 0.875rem;
+                }
+                
+                th, td {
+                  font-size: 0.875rem;
+                }
+                
+                tr:hover td {
+                  background: #475569;
+                }
+                
+                pre {
+                  font-size: 0.875rem;
+                }
+              }
+              
+              /* Print styles */
+              @media print {
+                body {
+                  background: white;
+                  color: black;
+                  padding: 0;
+                }
+                
+                .controls, .scroll-hint {
+                  display: none;
+                }
+                
+                .table-container {
+                  max-height: none;
+                  box-shadow: none;
+                }
+                
+                table {
+                  font-size: 10pt;
+                }
+                
+                th {
+                  background: #f1f5f9 !important;
+                  color: black !important;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
               }
             </style>
           </head>
           <body>
             <h1>Members Export - Brothers of the Highway</h1>
             <div class="info">
-              <strong>Total Members:</strong> <span id="memberCount">Loading...</span> | 
-              <strong>Export Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
+              <div class="info-mobile">
+                <span><strong>Total Members:</strong> <span id="memberCount">Loading...</span></span>
+                <span><strong>Export Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</span>
+              </div>
             </div>
             <div class="controls">
-              <button onclick="downloadFullCSV()">Download Complete CSV</button>
-              <button onclick="toggleView()">Toggle Raw View</button>
+              <button onclick="downloadFullCSV()">Download CSV</button>
+              <button onclick="toggleView()">Toggle Raw</button>
               <button onclick="window.print()">Print</button>
             </div>
             <div id="content" class="table-container">
               <table id="csvTable"></table>
             </div>
+            <div class="scroll-hint">Swipe or scroll horizontally to view all columns</div>
             <pre id="rawCSV"></pre>
             <script>
               // Get CSV data from opener's sessionStorage
