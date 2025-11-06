@@ -1070,20 +1070,21 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     output = StringIO()
     writer = csv.writer(output)
     
-    # Build header based on permissions
+    # Build header based on permissions with better formatting
     header = []
     if is_admin or permissions.get("basic_info"):
         header.extend(['Chapter', 'Title', 'Member Handle', 'Name'])
     if is_admin or permissions.get("email"):
-        header.append('Email')
+        header.append('Email Address')
     if is_admin or permissions.get("phone"):
-        header.append('Phone')
+        header.append('Phone Number')
     if is_admin or permissions.get("address"):
-        header.append('Address')
+        header.append('Mailing Address')
     if is_admin or permissions.get("dues_tracking"):
-        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        header.append('Dues Year')
-        header.extend(month_names)
+        month_names = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December']
+        header.append('📅 Dues Year')
+        header.extend([f'💰 {month}' for month in month_names])
     if is_admin or permissions.get("meeting_attendance"):
         # Helper function to get nth weekday of month
         def get_nth_weekday(year, month, weekday, n):
