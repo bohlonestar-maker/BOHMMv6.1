@@ -351,6 +351,18 @@ backend:
         agent: "testing"
         comment: "SCHEDULED DISCORD NOTIFICATIONS COMPREHENSIVE TESTING COMPLETE ✅ FULL END-TO-END VERIFICATION SUCCESSFUL: ✅ AUTHENTICATION: Successfully logged in with testadmin/testpass123 credentials ✅ EVENT CREATION: Created test events at exact times - 24h event (Nov 5, 17:21 CST) and 3h event (Nov 4, 20:21 CST) ✅ SCHEDULER TRIGGER: POST /api/events/trigger-notification-check endpoint working correctly (200 status) ✅ SCHEDULER EXECUTION: Confirmed scheduler running with proper Central Time calculations - 24h event exactly 24.00h away, 3h event exactly 3.00h away ✅ DISCORD NOTIFICATIONS SENT: Backend logs show successful Discord webhook calls: '📢 Sending 24h notification for: 24h Notification Test Event' → '✅ 24h notification sent successfully' and '📢 Sending 3h notification for: 3h Notification Test Event' → '✅ 3h notification sent successfully' ✅ DATABASE FLAGS UPDATED: Verified notification_24h_sent and notification_3h_sent flags correctly updated to true after notifications sent ✅ TIME WINDOW VALIDATION: Confirmed scheduler respects 23.5-24.5h window for 24h notifications and 2.5-3.5h window for 3h notifications ✅ DISCORD WEBHOOK: Confirmed Discord webhook URL configured and notifications successfully delivered (HTTP 204 responses) ✅ LOGGING SYSTEM: Comprehensive [SCHEDULER] logs provide full visibility into notification process. The scheduled Discord notification system is fully operational and working as designed."
 
+  - task: "Password change functionality for admin users"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "PASSWORD CHANGE FUNCTIONALITY COMPREHENSIVE TESTING COMPLETE ✅ ALL 22 TESTS PASSED: ✅ ADMIN CHANGES USER PASSWORD: Successfully tested PUT /api/users/{user_id}/password endpoint with proper response message 'Password changed successfully' ✅ OLD PASSWORD VALIDATION: Confirmed old password no longer works after change (401 Unauthorized) ✅ NEW PASSWORD VALIDATION: Verified new password works correctly for login and token verification ✅ PASSWORD VALIDATION: Short passwords (<8 characters) correctly rejected with 400 error and message 'Password must be at least 8 characters' ✅ ACCESS CONTROL: Non-admin users cannot change passwords (403 Forbidden) ✅ INVALID USER ID: Non-existent user IDs return 404 'User not found' ✅ ACTIVITY LOGGING: Password changes properly logged in audit logs with correct action 'password_change' and details ✅ SECURITY: Password hashes not exposed in API responses, passwords not stored as plain text ✅ END-TO-END FLOW: Complete password change workflow from admin action → old password invalidation → new password activation → user login verification. The password change feature is production-ready and working as designed."
+
 
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
