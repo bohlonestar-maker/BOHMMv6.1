@@ -599,19 +599,66 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 font-weight: 400;
               }
               
-              .info {
-                background: #334155;
-                padding: 8px 12px;
-                border-radius: 6px;
+              .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
                 margin-bottom: 15px;
-                font-size: 0.875rem;
-                line-height: 1.6;
               }
               
-              .info-mobile {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
+              .stat-card {
+                background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+                padding: 12px;
+                border-radius: 10px;
+                border: 1px solid #475569;
+                text-align: center;
+                transition: transform 0.2s, box-shadow 0.2s;
+              }
+              
+              .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+              }
+              
+              .stat-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #10b981;
+                display: block;
+              }
+              
+              .stat-label {
+                font-size: 0.75rem;
+                color: #94a3b8;
+                margin-top: 4px;
+              }
+              
+              .search-bar {
+                background: #334155;
+                padding: 10px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #475569;
+              }
+              
+              .search-input {
+                width: 100%;
+                padding: 10px 12px;
+                background: #1e293b;
+                border: 1px solid #475569;
+                border-radius: 8px;
+                color: #e2e8f0;
+                font-size: 0.875rem;
+                outline: none;
+                transition: border-color 0.2s;
+              }
+              
+              .search-input:focus {
+                border-color: #10b981;
+              }
+              
+              .search-input::placeholder {
+                color: #64748b;
               }
               
               .controls {
