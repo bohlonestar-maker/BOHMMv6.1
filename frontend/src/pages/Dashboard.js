@@ -782,18 +782,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 overflow-x: auto;
                 border: 1px solid #475569;
                 display: none;
-                max-height: calc(100vh - 200px);
+                max-height: calc(100vh - 350px);
                 font-size: 0.75rem;
                 line-height: 1.4;
                 -webkit-overflow-scrolling: touch;
-              }
-              
-              .show-raw pre {
-                display: block;
-              }
-              
-              .show-raw .table-container {
-                display: none;
+                white-space: pre-wrap;
+                word-wrap: break-word;
               }
               
               .scroll-hint {
