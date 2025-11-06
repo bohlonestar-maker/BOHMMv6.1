@@ -539,11 +539,17 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
   const handleViewCSV = async () => {
     const token = localStorage.getItem("token");
+    const apiUrl = API;
+    
     try {
       const response = await axios.get(`${API}/members/export/csv`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: "text",
       });
+      
+      // Store CSV data in sessionStorage to avoid embedding large data in HTML
+      const csvDataKey = 'csv_export_' + Date.now();
+      sessionStorage.setItem(csvDataKey, response.data);
       
       // Open CSV in new window with formatted view
       const csvWindow = window.open("", "_blank");
@@ -569,6 +575,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 margin-bottom: 20px;
                 display: flex;
                 gap: 10px;
+                flex-wrap: wrap;
               }
               button {
                 background: #10b981;
@@ -587,11 +594,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 background: #334155;
                 border-radius: 8px;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                max-height: 80vh;
               }
               table {
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 14px;
+                font-size: 13px;
               }
               th {
                 background: #475569;
@@ -603,18 +611,15 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 top: 0;
                 border-bottom: 2px solid #10b981;
                 white-space: nowrap;
+                z-index: 10;
               }
               td {
                 padding: 10px 8px;
                 border-bottom: 1px solid #475569;
+                white-space: nowrap;
               }
               tr:hover td {
                 background: #475569;
-              }
-              .section-header {
-                background: #1e293b !important;
-                font-weight: bold;
-                color: #fbbf24;
               }
               pre {
                 background: #1e293b;
@@ -623,89 +628,136 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 overflow-x: auto;
                 border: 1px solid #475569;
                 display: none;
+                max-height: 80vh;
               }
               .show-raw pre {
                 display: block;
               }
-              .show-raw table {
+              .show-raw .table-container {
                 display: none;
+              }
+              .info {
+                background: #334155;
+                padding: 10px 15px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+                font-size: 14px;
               }
             </style>
           </head>
           <body>
             <h1>🏍️ Members Export - Brothers of the Highway</h1>
+            <div class="info">
+              <strong>Total Members:</strong> <span id="memberCount">Loading...</span> | 
+              <strong>Export Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
+            </div>
             <div class="controls">
-              <button onclick="downloadCSV()">Download CSV</button>
-              <button onclick="toggleView()">Toggle Raw CSV</button>
-              <button onclick="window.print()">Print</button>
+              <button onclick="downloadFullCSV()">📥 Download Complete CSV</button>
+              <button onclick="toggleView()">🔄 Toggle Raw View</button>
+              <button onclick="window.print()">🖨️ Print</button>
             </div>
             <div id="content" class="table-container">
               <table id="csvTable"></table>
             </div>
-            <pre id="rawCSV">${response.data.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            <pre id="rawCSV"></pre>
             <script>
-              function parseCSV(text) {
-                const lines = text.split('\\n').filter(line => line.trim());
-                const result = [];
-                for (let line of lines) {
-                  const row = [];
-                  let cell = '';
-                  let inQuotes = false;
-                  for (let i = 0; i < line.length; i++) {
-                    const char = line[i];
-                    if (char === '"') {
-                      inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                      row.push(cell);
-                      cell = '';
-                    } else {
-                      cell += char;
+              // Get CSV data from opener's sessionStorage
+              const csvDataKey = '${csvDataKey}';
+              let csvText = '';
+              
+              if (window.opener && window.opener.sessionStorage) {
+                csvText = window.opener.sessionStorage.getItem(csvDataKey);
+                // Clean up after retrieving
+                window.opener.sessionStorage.removeItem(csvDataKey);
+              }
+              
+              if (!csvText) {
+                document.body.innerHTML = '<h1 style="color: #ef4444;">Error: CSV data not found</h1>';
+              } else {
+                // Set raw CSV
+                document.getElementById('rawCSV').textContent = csvText;
+                
+                function parseCSV(text) {
+                  const lines = text.split('\\n').filter(line => line.trim());
+                  const result = [];
+                  for (let line of lines) {
+                    const row = [];
+                    let cell = '';
+                    let inQuotes = false;
+                    for (let i = 0; i < line.length; i++) {
+                      const char = line[i];
+                      if (char === '"') {
+                        inQuotes = !inQuotes;
+                      } else if (char === ',' && !inQuotes) {
+                        row.push(cell.trim());
+                        cell = '';
+                      } else {
+                        cell += char;
+                      }
                     }
+                    row.push(cell.trim());
+                    result.push(row);
                   }
-                  row.push(cell);
-                  result.push(row);
+                  return result;
                 }
-                return result;
-              }
 
-              const csvData = parseCSV(\`${response.data.replace(/`/g, '\\`')}\`);
-              const table = document.getElementById('csvTable');
-              
-              // Create header
-              const thead = document.createElement('thead');
-              const headerRow = document.createElement('tr');
-              csvData[0].forEach(cell => {
-                const th = document.createElement('th');
-                th.textContent = cell;
-                headerRow.appendChild(th);
-              });
-              thead.appendChild(headerRow);
-              table.appendChild(thead);
-              
-              // Create body
-              const tbody = document.createElement('tbody');
-              for (let i = 1; i < csvData.length; i++) {
-                const tr = document.createElement('tr');
-                csvData[i].forEach(cell => {
-                  const td = document.createElement('td');
-                  td.textContent = cell;
-                  tbody.appendChild(td);
+                const csvData = parseCSV(csvText);
+                const table = document.getElementById('csvTable');
+                
+                // Update member count
+                document.getElementById('memberCount').textContent = csvData.length - 1;
+                
+                // Create header
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                csvData[0].forEach(cell => {
+                  const th = document.createElement('th');
+                  th.textContent = cell;
+                  headerRow.appendChild(th);
                 });
-                tbody.appendChild(tr);
-              }
-              table.appendChild(tbody);
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Create body
+                const tbody = document.createElement('tbody');
+                for (let i = 1; i < csvData.length; i++) {
+                  const tr = document.createElement('tr');
+                  csvData[i].forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                  });
+                  tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
 
-              function downloadCSV() {
-                const blob = new Blob([\`${response.data.replace(/`/g, '\\`')}\`], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'members.csv';
-                a.click();
-              }
+                function downloadFullCSV() {
+                  // Create blob with the complete CSV data
+                  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'brothers_of_highway_members_' + new Date().toISOString().split('T')[0] + '.csv';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  window.URL.revokeObjectURL(url);
+                  alert('Complete CSV file downloaded with all ' + (csvData.length - 1) + ' members and ' + csvData[0].length + ' columns!');
+                }
 
-              function toggleView() {
-                document.getElementById('content').classList.toggle('show-raw');
+                function toggleView() {
+                  document.getElementById('content').classList.toggle('show-raw');
+                  const btn = event.target;
+                  if (document.getElementById('content').classList.contains('show-raw')) {
+                    btn.textContent = '🔄 Toggle Table View';
+                  } else {
+                    btn.textContent = '🔄 Toggle Raw View';
+                  }
+                }
+                
+                // Make functions globally available
+                window.downloadFullCSV = downloadFullCSV;
+                window.toggleView = toggleView;
               }
             </script>
           </body>
@@ -714,6 +766,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       csvWindow.document.close();
       toast.success("CSV opened in new window");
     } catch (error) {
+      console.error("CSV export error:", error);
       toast.error("Failed to view CSV");
     }
   };
