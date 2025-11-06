@@ -6,6 +6,7 @@ Comprehensive Privacy Feature Test - All scenarios from review request
 import requests
 import json
 import urllib3
+import sys
 from datetime import datetime
 
 # Suppress SSL warnings
