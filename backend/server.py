@@ -1114,13 +1114,13 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
             third_str = third_wed.strftime("%m/%d") if third_wed else ""
             
             meeting_labels.extend([
-                f'📋 {month_name} 1st Wed ({first_str})', 
-                f'📝 {month_name} 1st Note',
-                f'📋 {month_name} 3rd Wed ({third_str})',
-                f'📝 {month_name} 3rd Note'
+                f'Meeting - {month_name} 1st Wed ({first_str})', 
+                f'Meeting - {month_name} 1st Note',
+                f'Meeting - {month_name} 3rd Wed ({third_str})',
+                f'Meeting - {month_name} 3rd Note'
             ])
         
-        header.append('📅 Attendance Year')
+        header.append('Attendance Year')
         header.extend(meeting_labels)
     
     writer.writerow(header)
