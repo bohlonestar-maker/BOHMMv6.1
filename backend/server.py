@@ -2141,7 +2141,11 @@ async def accept_invite(accept_data: InviteAccept):
     )
     
     # Generate login token
-    token = create_access_token({"sub": user.username, "role": user.role})
+    token = create_access_token({
+        "sub": user.username, 
+        "role": user.role,
+        "chapter": user.chapter  # Include chapter for privacy/access control
+    })
     
     return {
         "message": "Account created successfully",
