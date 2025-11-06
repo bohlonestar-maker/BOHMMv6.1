@@ -567,18 +567,36 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-                background: #1e293b;
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
                 color: #e2e8f0;
                 padding: 10px;
                 margin: 0;
+                min-height: 100vh;
+              }
+              
+              .header {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                padding: 15px 20px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
               }
               
               h1 {
-                color: #10b981;
-                border-bottom: 2px solid #10b981;
-                padding-bottom: 8px;
-                margin: 0 0 15px 0;
+                color: white;
+                margin: 0;
                 font-size: 1.25rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              
+              .subtitle {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 0.75rem;
+                margin-top: 5px;
+                font-weight: 400;
               }
               
               .info {
