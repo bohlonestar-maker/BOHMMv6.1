@@ -1989,8 +1989,8 @@ async def change_user_password(user_id: str, password_data: PasswordChange, curr
     if len(password_data.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     
-    # Hash new password
-    password_hash = bcrypt.hashpw(password_data.new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    # Hash new password using helper function
+    password_hash = hash_password(password_data.new_password)
     
     # Update user password
     result = await db.users.update_one(
