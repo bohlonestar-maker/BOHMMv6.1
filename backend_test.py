@@ -5350,6 +5350,9 @@ class BOHDirectoryAPITester:
         # PRIVACY FEATURE FIX: Test corrected field names
         self.test_privacy_feature_fix()
         
+        # PRIORITY TEST: Password Change Functionality
+        self.test_password_change_functionality()
+        
         self.test_resend_invite_functionality()
         self.test_member_loading_regression()
         
