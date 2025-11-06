@@ -5057,6 +5057,263 @@ class BOHDirectoryAPITester:
         
         print(f"   🔒 Privacy feature testing completed")
 
+    def test_password_change_functionality(self):
+        """Test password change functionality - PRIORITY TEST"""
+        print(f"\n🔑 Testing Password Change Functionality...")
+        
+        # Test 1: Admin Changes User Password
+        print(f"\n   📝 Test 1: Admin Changes User Password...")
+        
+        # Create a test user with initial password
+        test_user = {
+            "username": f"passwordtest_{datetime.now().strftime('%H%M%S')}",
+            "email": f"passwordtest_{datetime.now().strftime('%H%M%S')}@example.com",
+            "password": "initialpass123",
+            "role": "member"
+        }
+        
+        success, created_user = self.run_test(
+            "Create Test User with Initial Password",
+            "POST",
+            "users",
+            201,
+            data=test_user
+        )
+        
+        user_id = None
+        if success and 'id' in created_user:
+            user_id = created_user['id']
+            print(f"   Created test user ID: {user_id}")
+        else:
+            print("❌ Failed to create test user - cannot continue password tests")
+            return
+        
+        # Change password to new password
+        password_change_data = {
+            "new_password": "newpass456"
+        }
+        
+        success, change_response = self.run_test(
+            "Admin Changes User Password",
+            "PUT",
+            f"users/{user_id}/password",
+            200,
+            data=password_change_data
+        )
+        
+        if success:
+            # Verify response message
+            if change_response.get('message') == "Password changed successfully":
+                self.log_test("Password Change Response Message", True, "Correct success message returned")
+            else:
+                self.log_test("Password Change Response Message", False, f"Expected 'Password changed successfully', got: {change_response.get('message')}")
+        
+        # Test 2: Verify old password no longer works
+        print(f"\n   🚫 Test 2: Old Password Should Fail...")
+        
+        success, old_login_response = self.run_test(
+            "Login with Old Password (Should Fail)",
+            "POST",
+            "auth/login",
+            401,  # Should fail with 401
+            data={"username": test_user["username"], "password": "initialpass123"}
+        )
+        
+        # Test 3: Verify new password works
+        print(f"\n   ✅ Test 3: New Password Should Work...")
+        
+        success, new_login_response = self.run_test(
+            "Login with New Password (Should Succeed)",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": test_user["username"], "password": "newpass456"}
+        )
+        
+        if success and 'token' in new_login_response:
+            self.log_test("New Password Login Success", True, "User can login with new password")
+            
+            # Verify token works
+            original_token = self.token
+            self.token = new_login_response['token']
+            
+            success, verify_response = self.run_test(
+                "Verify New Password Token",
+                "GET",
+                "auth/verify",
+                200
+            )
+            
+            if success and verify_response.get('username') == test_user["username"]:
+                self.log_test("New Password Token Verification", True, "Token verification successful")
+            else:
+                self.log_test("New Password Token Verification", False, "Token verification failed")
+            
+            # Restore admin token
+            self.token = original_token
+        else:
+            self.log_test("New Password Login Success", False, "User cannot login with new password")
+        
+        # Test 4: Password Validation - Short Password
+        print(f"\n   📏 Test 4: Password Validation...")
+        
+        short_password_data = {
+            "new_password": "short"  # Less than 8 characters
+        }
+        
+        success, validation_response = self.run_test(
+            "Change to Short Password (Should Fail)",
+            "PUT",
+            f"users/{user_id}/password",
+            400,  # Should fail with 400
+            data=short_password_data
+        )
+        
+        # Test 5: Non-Admin Access (Create regular user and test)
+        print(f"\n   🔒 Test 5: Non-Admin Access Control...")
+        
+        # Create regular member user
+        regular_user = {
+            "username": f"regularuser_{datetime.now().strftime('%H%M%S')}",
+            "email": f"regularuser_{datetime.now().strftime('%H%M%S')}@example.com",
+            "password": "memberpass123",
+            "role": "member"
+        }
+        
+        success, created_regular = self.run_test(
+            "Create Regular Member User",
+            "POST",
+            "users",
+            201,
+            data=regular_user
+        )
+        
+        regular_user_id = None
+        if success and 'id' in created_regular:
+            regular_user_id = created_regular['id']
+            
+            # Login as regular user
+            success, regular_login = self.run_test(
+                "Login as Regular Member",
+                "POST",
+                "auth/login",
+                200,
+                data={"username": regular_user["username"], "password": regular_user["password"]}
+            )
+            
+            if success and 'token' in regular_login:
+                # Save admin token and use regular user token
+                admin_token = self.token
+                self.token = regular_login['token']
+                
+                # Try to change another user's password (should fail)
+                success, unauthorized_response = self.run_test(
+                    "Regular User Tries to Change Password (Should Fail)",
+                    "PUT",
+                    f"users/{user_id}/password",
+                    403,  # Should fail with 403 (Forbidden)
+                    data={"new_password": "hackedpass123"}
+                )
+                
+                # Restore admin token
+                self.token = admin_token
+        
+        # Test 6: Invalid User ID
+        print(f"\n   🔍 Test 6: Invalid User ID...")
+        
+        invalid_user_id = "00000000-0000-0000-0000-000000000000"
+        success, invalid_response = self.run_test(
+            "Change Password for Non-existent User (Should Fail)",
+            "PUT",
+            f"users/{invalid_user_id}/password",
+            404,  # Should fail with 404
+            data={"new_password": "validpass123"}
+        )
+        
+        # Test 7: Activity Logging Verification
+        print(f"\n   📋 Test 7: Activity Logging...")
+        
+        # Get activity logs to verify password change was logged
+        success, activity_logs = self.run_test(
+            "Get Activity Logs",
+            "GET",
+            "activity",
+            200
+        )
+        
+        if success and isinstance(activity_logs, list):
+            # Look for password change activity
+            password_change_logs = [
+                log for log in activity_logs 
+                if log.get('action') == 'password_change' and 
+                   test_user["username"] in log.get('details', '')
+            ]
+            
+            if password_change_logs:
+                self.log_test("Password Change Activity Logged", True, f"Found {len(password_change_logs)} password change log entries")
+                
+                # Verify log details
+                latest_log = password_change_logs[0]  # Most recent
+                expected_details = f"Changed password for user: {test_user['username']}"
+                if expected_details in latest_log.get('details', ''):
+                    self.log_test("Activity Log Details Correct", True, f"Log details: {latest_log['details']}")
+                else:
+                    self.log_test("Activity Log Details Correct", False, f"Expected: {expected_details}, got: {latest_log.get('details')}")
+            else:
+                self.log_test("Password Change Activity Logged", False, "No password change activity found in logs")
+        
+        # Test 8: Password Hash Security Verification
+        print(f"\n   🔐 Test 8: Password Hash Security...")
+        
+        # Get user data to verify password is hashed (not stored as plain text)
+        success, users_list = self.run_test(
+            "Get Users List for Hash Verification",
+            "GET",
+            "users",
+            200
+        )
+        
+        if success and isinstance(users_list, list):
+            # Find our test user
+            test_user_data = None
+            for user in users_list:
+                if user.get('id') == user_id:
+                    test_user_data = user
+                    break
+            
+            if test_user_data:
+                # Verify password_hash field is not exposed in API response
+                if 'password_hash' not in test_user_data:
+                    self.log_test("Password Hash Not Exposed in API", True, "password_hash field correctly excluded from API response")
+                else:
+                    self.log_test("Password Hash Not Exposed in API", False, "password_hash field exposed in API response")
+                
+                # Verify password field is not the plain text password
+                if test_user_data.get('password') != "newpass456":
+                    self.log_test("Password Not Stored as Plain Text", True, "Password is not stored as plain text in API response")
+                else:
+                    self.log_test("Password Not Stored as Plain Text", False, "Password appears to be stored as plain text")
+        
+        # Clean up test users
+        print(f"\n   🧹 Cleaning up password test data...")
+        
+        cleanup_users = [
+            (user_id, "Delete Password Test User"),
+            (regular_user_id, "Delete Regular Test User")
+        ]
+        
+        for cleanup_user_id, description in cleanup_users:
+            if cleanup_user_id:
+                success, response = self.run_test(
+                    description,
+                    "DELETE",
+                    f"users/{cleanup_user_id}",
+                    200
+                )
+        
+        print(f"   🔑 Password change functionality testing completed")
+        return user_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
