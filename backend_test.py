@@ -4926,6 +4926,7 @@ class BOHDirectoryAPITester:
             self.run_test("Delete Regular Member User", "DELETE", f"users/{regular_member_id}", 200)
         
         print(f"   🔒 Privacy feature testing completed")
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
@@ -4937,6 +4938,9 @@ class BOHDirectoryAPITester:
         if not login_success:
             print("❌ Login failed - cannot continue with other tests")
             return self.generate_report()
+        
+        # PRIORITY TEST: Privacy Feature - National Chapter Admin Access
+        self.test_privacy_feature_national_admin_access()
         
         # Test token verification
         self.test_auth_verify()
