@@ -881,24 +881,48 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               @media (min-width: 1024px) {
                 body {
                   padding: 30px;
+                  max-width: 1600px;
+                  margin: 0 auto;
+                }
+                
+                .header {
+                  padding: 25px 30px;
                 }
                 
                 h1 {
                   font-size: 2rem;
                 }
                 
-                .info {
+                .subtitle {
                   font-size: 1rem;
+                }
+                
+                .stat-value {
+                  font-size: 2rem;
+                }
+                
+                .stat-label {
+                  font-size: 0.875rem;
+                }
+                
+                .search-input {
+                  font-size: 1rem;
+                  padding: 14px 18px;
                 }
                 
                 button {
                   font-size: 1rem;
                   min-width: 180px;
+                  padding: 14px 24px;
                 }
                 
                 button:hover {
-                  background: #059669;
-                  transform: translateY(-1px);
+                  transform: translateY(-2px);
+                  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+                }
+                
+                .table-container {
+                  max-height: calc(100vh - 450px);
                 }
                 
                 table {
@@ -907,10 +931,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 
                 th, td {
                   font-size: 0.875rem;
-                }
-                
-                tr:hover td {
-                  background: #475569;
+                  padding: 14px 12px;
                 }
                 
                 pre {
