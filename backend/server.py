@@ -730,7 +730,11 @@ async def login(login_data: LoginRequest):
     if not verify_password(login_data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
-    token = create_access_token({"sub": user["username"], "role": user["role"]})
+    token = create_access_token({
+        "sub": user["username"], 
+        "role": user["role"],
+        "chapter": user.get("chapter")  # Include chapter for privacy/access control
+    })
     
     # Log login activity
     await log_activity(
