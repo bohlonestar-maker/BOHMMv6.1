@@ -5237,7 +5237,7 @@ class BOHDirectoryAPITester:
         success, activity_logs = self.run_test(
             "Get Activity Logs",
             "GET",
-            "activity",
+            "logs",
             200
         )
         
