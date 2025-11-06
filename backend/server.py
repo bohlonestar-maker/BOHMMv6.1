@@ -1083,8 +1083,8 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     if is_admin or permissions.get("dues_tracking"):
         month_names = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December']
-        header.append('📅 Dues Year')
-        header.extend([f'💰 {month}' for month in month_names])
+        header.append('Dues Year')
+        header.extend([f'Dues - {month}' for month in month_names])
     if is_admin or permissions.get("meeting_attendance"):
         # Helper function to get nth weekday of month
         def get_nth_weekday(year, month, weekday, n):
