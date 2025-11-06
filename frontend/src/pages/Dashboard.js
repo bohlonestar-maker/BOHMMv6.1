@@ -749,9 +749,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   document.getElementById('content').classList.toggle('show-raw');
                   const btn = event.target;
                   if (document.getElementById('content').classList.contains('show-raw')) {
-                    btn.textContent = '🔄 Toggle Table View';
+                    btn.textContent = 'Toggle Table View';
                   } else {
-                    btn.textContent = '🔄 Toggle Raw View';
+                    btn.textContent = 'Toggle Raw View';
                   }
                 }
                 
