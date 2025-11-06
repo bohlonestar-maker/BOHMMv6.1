@@ -819,6 +819,14 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     if user_role == 'prospect':
         member['name'] = 'Hidden'
     
+    # Apply privacy settings (hide phone/address if marked private and user is not National Chapter admin)
+    # Only National Chapter admins can see private contact info
+    if not is_national_admin:
+        if member.get('phone_private', False):
+            member['phone'] = 'Private'
+        if member.get('address_private', False):
+            member['address'] = 'Private'
+    
     if isinstance(member.get('created_at'), str):
         member['created_at'] = datetime.fromisoformat(member['created_at'])
     if isinstance(member.get('updated_at'), str):
