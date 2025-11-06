@@ -1079,17 +1079,69 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
                 function toggleView() {
                   document.getElementById('content').classList.toggle('show-raw');
-                  const btn = event.target;
+                  const toggleText = document.getElementById('toggleText');
                   if (document.getElementById('content').classList.contains('show-raw')) {
-                    btn.textContent = 'Toggle Table View';
+                    toggleText.textContent = 'Table View';
                   } else {
-                    btn.textContent = 'Toggle Raw View';
+                    toggleText.textContent = 'Raw View';
+                  }
+                }
+                
+                function filterTable() {
+                  const input = document.getElementById('searchInput');
+                  const filter = input.value.toLowerCase();
+                  const tbody = document.getElementById('tableBody');
+                  const rows = tbody.getElementsByTagName('tr');
+                  let visibleCount = 0;
+                  
+                  for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const cells = row.getElementsByTagName('td');
+                    let found = false;
+                    
+                    for (let j = 0; j < cells.length; j++) {
+                      const cellText = cells[j].textContent || cells[j].innerText;
+                      if (cellText.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                      }
+                    }
+                    
+                    if (found) {
+                      row.style.display = '';
+                      visibleCount++;
+                    } else {
+                      row.style.display = 'none';
+                    }
+                  }
+                  
+                  // Update member count with filtered results
+                  const memberCount = document.getElementById('memberCount');
+                  if (filter) {
+                    memberCount.textContent = visibleCount + ' / ' + (csvData.length - 1);
+                  } else {
+                    memberCount.textContent = csvData.length - 1;
+                  }
+                  
+                  // Show no results message
+                  if (visibleCount === 0 && filter) {
+                    if (!document.getElementById('noResults')) {
+                      const noResults = document.createElement('div');
+                      noResults.id = 'noResults';
+                      noResults.className = 'no-results';
+                      noResults.innerHTML = '<i class="fas fa-search"></i><div>No members found matching "' + filter + '"</div>';
+                      tbody.appendChild(noResults);
+                    }
+                  } else {
+                    const noResults = document.getElementById('noResults');
+                    if (noResults) noResults.remove();
                   }
                 }
                 
                 // Make functions globally available
                 window.downloadFullCSV = downloadFullCSV;
                 window.toggleView = toggleView;
+                window.filterTable = filterTable;
               }
             </script>
           </body>
