@@ -931,22 +931,61 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             </style>
           </head>
           <body>
-            <h1>Members Export - Brothers of the Highway</h1>
-            <div class="info">
-              <div class="info-mobile">
-                <span><strong>Total Members:</strong> <span id="memberCount">Loading...</span></span>
-                <span><strong>Export Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</span>
+            <div class="header">
+              <h1>
+                <i class="fas fa-table"></i>
+                Members Export
+              </h1>
+              <div class="subtitle">Brothers of the Highway - Member Directory</div>
+            </div>
+            
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-value" id="memberCount">0</span>
+                <span class="stat-label">Total Members</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="columnCount">69</span>
+                <span class="stat-label">Data Columns</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">${new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</span>
+                <span class="stat-label">Export Date</span>
               </div>
             </div>
-            <div class="controls">
-              <button onclick="downloadFullCSV()">Download CSV</button>
-              <button onclick="toggleView()">Toggle Raw</button>
-              <button onclick="window.print()">Print</button>
+            
+            <div class="search-bar">
+              <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Search members by name, handle, chapter, or any field..."
+                onkeyup="filterTable()"
+              >
             </div>
+            
+            <div class="controls">
+              <button onclick="downloadFullCSV()">
+                <i class="fas fa-download"></i>
+                Download
+              </button>
+              <button class="btn-secondary" onclick="toggleView()">
+                <i class="fas fa-code"></i>
+                <span id="toggleText">Raw View</span>
+              </button>
+              <button class="btn-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                Print
+              </button>
+            </div>
+            
             <div id="content" class="table-container">
               <table id="csvTable"></table>
             </div>
-            <div class="scroll-hint">Swipe or scroll horizontally to view all columns</div>
+            <div class="scroll-hint">
+              <i class="fas fa-arrows-left-right"></i>
+              Swipe or scroll horizontally to view all columns
+            </div>
             <pre id="rawCSV"></pre>
             <script>
               // Get CSV data from opener's sessionStorage
