@@ -1117,12 +1117,24 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 }
 
                 function toggleView() {
-                  document.getElementById('content').classList.toggle('show-raw');
+                  const content = document.getElementById('content');
+                  const rawCSV = document.getElementById('rawCSV');
                   const toggleText = document.getElementById('toggleText');
-                  if (document.getElementById('content').classList.contains('show-raw')) {
-                    toggleText.textContent = 'Table View';
-                  } else {
+                  const scrollHint = document.querySelector('.scroll-hint');
+                  
+                  // Toggle visibility
+                  if (content.style.display === 'none') {
+                    // Show table view
+                    content.style.display = 'block';
+                    rawCSV.style.display = 'none';
+                    if (scrollHint) scrollHint.style.display = 'block';
                     toggleText.textContent = 'Raw View';
+                  } else {
+                    // Show raw view
+                    content.style.display = 'none';
+                    rawCSV.style.display = 'block';
+                    if (scrollHint) scrollHint.style.display = 'none';
+                    toggleText.textContent = 'Table View';
                   }
                 }
                 
