@@ -935,30 +935,131 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               
               /* Print styles */
               @media print {
-                body {
-                  background: white;
-                  color: black;
-                  padding: 0;
+                @page {
+                  size: landscape;
+                  margin: 0.5cm;
                 }
                 
-                .controls, .scroll-hint {
-                  display: none;
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                body {
+                  background: white !important;
+                  color: black !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                  font-size: 7pt !important;
+                }
+                
+                .header {
+                  background: #10b981 !important;
+                  padding: 10px !important;
+                  margin-bottom: 10px !important;
+                  page-break-after: avoid;
+                }
+                
+                .header h1 {
+                  font-size: 14pt !important;
+                  color: white !important;
+                }
+                
+                .subtitle {
+                  font-size: 9pt !important;
+                  color: white !important;
+                }
+                
+                .stats-grid {
+                  display: flex !important;
+                  justify-content: space-between !important;
+                  margin-bottom: 10px !important;
+                  page-break-after: avoid;
+                  page-break-inside: avoid;
+                }
+                
+                .stat-card {
+                  border: 1px solid #ccc !important;
+                  padding: 5px 10px !important;
+                  background: #f8f9fa !important;
+                  flex: 1;
+                  margin: 0 5px !important;
+                }
+                
+                .stat-value {
+                  font-size: 12pt !important;
+                  color: #10b981 !important;
+                }
+                
+                .stat-label {
+                  font-size: 8pt !important;
+                  color: #333 !important;
+                }
+                
+                .controls, .scroll-hint, .search-bar, #rawCSV {
+                  display: none !important;
                 }
                 
                 .table-container {
-                  max-height: none;
-                  box-shadow: none;
+                  max-height: none !important;
+                  overflow: visible !important;
+                  box-shadow: none !important;
+                  background: white !important;
+                  border: none !important;
                 }
                 
                 table {
-                  font-size: 10pt;
+                  width: 100% !important;
+                  min-width: 100% !important;
+                  font-size: 6pt !important;
+                  border-collapse: collapse !important;
+                  page-break-inside: auto;
+                }
+                
+                thead {
+                  display: table-header-group;
+                  page-break-inside: avoid;
+                  page-break-after: avoid;
+                }
+                
+                tbody {
+                  display: table-row-group;
+                }
+                
+                tr {
+                  page-break-inside: avoid;
+                  page-break-after: auto;
                 }
                 
                 th {
-                  background: #f1f5f9 !important;
-                  color: black !important;
-                  -webkit-print-color-adjust: exact;
-                  print-color-adjust: exact;
+                  background: #e5e7eb !important;
+                  color: #000 !important;
+                  font-weight: bold !important;
+                  padding: 4px 2px !important;
+                  border: 1px solid #999 !important;
+                  font-size: 6pt !important;
+                  text-align: left !important;
+                  white-space: nowrap !important;
+                  position: static !important;
+                }
+                
+                td {
+                  padding: 3px 2px !important;
+                  border: 1px solid #ddd !important;
+                  font-size: 6pt !important;
+                  color: #000 !important;
+                  white-space: nowrap !important;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 150px;
+                }
+                
+                tbody tr:nth-child(even) {
+                  background: #f9fafb !important;
+                }
+                
+                tbody tr:nth-child(odd) {
+                  background: white !important;
                 }
               }
             </style>
