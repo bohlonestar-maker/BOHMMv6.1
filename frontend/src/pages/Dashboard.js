@@ -1329,14 +1329,14 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="max-w-md mx-auto max-h-[80vh] flex flex-col">
-            <DialogHeader className="flex-shrink-0">
-              <DialogTitle>Archive Member</DialogTitle>
+          <DialogContent className="max-w-sm mx-4 my-8 max-h-[70vh]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Archive Member</DialogTitle>
             </DialogHeader>
             {memberToDelete && (
-              <div className="flex flex-col flex-1 min-h-0">
-                <div className="flex-1 overflow-y-auto space-y-4 py-4">
-                  <p className="text-slate-200">
+              <>
+                <div className="space-y-3 py-2">
+                  <p className="text-slate-200 text-sm">
                     You are about to archive <span className="font-semibold">{memberToDelete.handle} - {memberToDelete.name}</span>. 
                     This action will move the member to the archived records.
                   </p>
@@ -1345,31 +1345,31 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                     <Textarea
                       value={deleteReason}
                       onChange={(e) => setDeleteReason(e.target.value)}
-                      placeholder="Enter reason for archiving..."
+                      placeholder="Enter reason..."
                       rows={2}
                       required
-                      className="mt-1"
+                      className="mt-1 text-sm"
                     />
                   </div>
                 </div>
-                <div className="flex gap-3 justify-end border-t pt-4 flex-shrink-0 bg-slate-950">
+                <div className="flex gap-2 justify-end pt-2 border-t">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setDeleteDialogOpen(false)}
-                    className="min-w-20"
+                    size="sm"
                   >
                     Cancel
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={handleConfirmDelete}
-                    className="min-w-24"
+                    size="sm"
                   >
-                    Archive Member
+                    Archive
                   </Button>
                 </div>
-              </div>
+              </>
             )}
           </DialogContent>
         </Dialog>
