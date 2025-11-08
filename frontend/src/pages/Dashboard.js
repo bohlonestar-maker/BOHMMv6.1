@@ -1146,7 +1146,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                     <i class="fas fa-info-circle"></i> One-Click Export
                   </div>
                   <div style="color: white; font-size: 0.8rem; line-height: 1.5;">
-                    Click the button below to copy all <span id="modalMemberCount">${csvData.length - 1}</span> members with all <span id="modalColumnCount">${csvData[0].length}</span> columns to clipboard and open Google Sheets.
+                    Click the button below to copy all <span id="modalMemberCount">0</span> members with all <span id="modalColumnCount">0</span> columns to clipboard and open Google Sheets.
                   </div>
                 </div>
                 
