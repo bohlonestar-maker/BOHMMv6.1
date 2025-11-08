@@ -5776,12 +5776,215 @@ class BOHDirectoryAPITester:
             "all_results": self.test_results
         }
 
+    def test_csv_export_data_fetch_issue(self):
+        """Test CSV Export Endpoint - Data Fetch Issue (PRIORITY TEST)"""
+        print(f"\n📊 Testing CSV Export Endpoint - Data Fetch Issue...")
+        
+        # Step 1: Login as testadmin/testpass123 to get auth token
+        success, admin_login = self.run_test(
+            "Login as testadmin for CSV Export Test",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testadmin", "password": "testpass123"}
+        )
+        
+        if not success or 'token' not in admin_login:
+            print("❌ Cannot continue - testadmin login failed")
+            return False
+        
+        self.token = admin_login['token']
+        print(f"   ✅ Successfully logged in as testadmin")
+        
+        # Step 2: Create test members to ensure we have data to export
+        test_members = []
+        for i in range(3):
+            member_data = {
+                "chapter": "National" if i == 0 else "AD",
+                "title": "Prez" if i == 0 else "Member",
+                "handle": f"CSVTestRider{i+1}",
+                "name": f"CSV Test Member {i+1}",
+                "email": f"csvtest{i+1}@example.com",
+                "phone": f"555-000{i+1}",
+                "address": f"12{i+1} CSV Test Street, Test City, TC 1234{i+1}",
+                "meeting_attendance": {
+                    "2025": [
+                        {"status": 1, "note": "Present"} if j % 3 == 0 else 
+                        {"status": 2, "note": "Doctor appointment"} if j % 3 == 1 else 
+                        {"status": 0, "note": "Missed without notice"}
+                        for j in range(24)
+                    ]
+                }
+            }
+            
+            success, created_member = self.run_test(
+                f"Create Test Member {i+1} for CSV Export",
+                "POST",
+                "members",
+                201,
+                data=member_data
+            )
+            
+            if success and 'id' in created_member:
+                test_members.append(created_member['id'])
+                print(f"   ✅ Created test member {i+1}: {created_member['id']}")
+        
+        # Step 3: Call GET /api/members/export/csv endpoint with auth token
+        print(f"\n   📋 Testing CSV Export Endpoint...")
+        
+        # Make the CSV export request
+        url = f"{self.base_url}/members/export/csv"
+        headers = {
+            'Authorization': f'Bearer {self.token}',
+            'Accept': 'text/csv'
+        }
+        
+        try:
+            import requests
+            response = requests.get(url, headers=headers, verify=False)
+            
+            # Step 4: Verify response has proper status and headers
+            if response.status_code == 200:
+                self.log_test("CSV Export - Status Code", True, "Status: 200 OK")
+            else:
+                self.log_test("CSV Export - Status Code", False, f"Status: {response.status_code} (Expected: 200)")
+                return False
+            
+            # Step 5: Check Content-Type header
+            content_type = response.headers.get('Content-Type', '')
+            if 'text/csv' in content_type:
+                self.log_test("CSV Export - Content-Type Header", True, f"Content-Type: {content_type}")
+            else:
+                self.log_test("CSV Export - Content-Type Header", False, f"Content-Type: {content_type} (Expected: text/csv)")
+            
+            # Step 6: Verify CSV data with member information
+            csv_content = response.text
+            
+            # Check for BOM header
+            if csv_content.startswith('\ufeff'):
+                self.log_test("CSV Export - BOM Header Present", True, "UTF-8 BOM found")
+                csv_content = csv_content[1:]  # Remove BOM for processing
+            else:
+                self.log_test("CSV Export - BOM Header Present", False, "No UTF-8 BOM found")
+            
+            # Split into lines
+            csv_lines = csv_content.strip().split('\n')
+            
+            # Step 7: Verify CSV has header row + data rows
+            if len(csv_lines) >= 2:  # At least header + 1 data row
+                self.log_test("CSV Export - Has Header and Data Rows", True, f"Found {len(csv_lines)} lines (1 header + {len(csv_lines)-1} data rows)")
+            else:
+                self.log_test("CSV Export - Has Header and Data Rows", False, f"Only {len(csv_lines)} lines found")
+                return False
+            
+            # Step 8: Check column headers
+            header_line = csv_lines[0]
+            expected_headers = [
+                'Chapter', 'Title', 'Member Handle', 'Name', 'Email', 'Phone', 'Address',
+                'Dues Year', 'Attendance Year'
+            ]
+            
+            missing_headers = []
+            for header in expected_headers:
+                if header not in header_line:
+                    missing_headers.append(header)
+            
+            if not missing_headers:
+                self.log_test("CSV Export - Required Column Headers", True, f"All required headers found: {expected_headers}")
+            else:
+                self.log_test("CSV Export - Required Column Headers", False, f"Missing headers: {missing_headers}")
+            
+            # Step 9: Check for meeting attendance columns
+            meeting_columns = ['Jan-1st', 'Jan-3rd', 'Feb-1st', 'Feb-3rd', 'Mar-1st', 'Mar-3rd']
+            found_meeting_columns = [col for col in meeting_columns if col in header_line]
+            
+            if len(found_meeting_columns) >= 6:
+                self.log_test("CSV Export - Meeting Attendance Columns", True, f"Found meeting columns: {found_meeting_columns}")
+            else:
+                self.log_test("CSV Export - Meeting Attendance Columns", False, f"Expected meeting columns, found: {found_meeting_columns}")
+            
+            # Step 10: Verify member data is populated
+            data_rows = csv_lines[1:]  # Skip header
+            member_data_found = 0
+            
+            for row in data_rows:
+                if row.strip():  # Skip empty rows
+                    # Check if row contains actual member data (not just commas)
+                    row_parts = row.split(',')
+                    if len(row_parts) >= 4 and any(part.strip() for part in row_parts[:4]):
+                        member_data_found += 1
+            
+            if member_data_found >= len(test_members):
+                self.log_test("CSV Export - Member Data Populated", True, f"Found {member_data_found} members with data")
+            else:
+                self.log_test("CSV Export - Member Data Populated", False, f"Expected at least {len(test_members)} members, found {member_data_found}")
+            
+            # Step 11: Check specific test member data
+            test_member_found = False
+            for row in data_rows:
+                if 'CSVTestRider1' in row:
+                    test_member_found = True
+                    # Verify the row contains expected data
+                    if 'CSV Test Member 1' in row and 'csvtest1@example.com' in row:
+                        self.log_test("CSV Export - Test Member Data Correct", True, "Test member data found with correct details")
+                    else:
+                        self.log_test("CSV Export - Test Member Data Correct", False, "Test member found but data incomplete")
+                    break
+            
+            if not test_member_found:
+                self.log_test("CSV Export - Test Member Found", False, "Test member CSVTestRider1 not found in CSV")
+            
+            # Step 12: Check meeting attendance data in CSV
+            attendance_data_found = False
+            for row in data_rows:
+                if 'CSVTestRider1' in row:
+                    # Check if row contains meeting attendance status (Present, Absent, Excused)
+                    if 'Present' in row or 'Absent' in row or 'Excused' in row:
+                        attendance_data_found = True
+                        self.log_test("CSV Export - Meeting Attendance Data", True, "Meeting attendance data found in CSV")
+                    else:
+                        self.log_test("CSV Export - Meeting Attendance Data", False, "No meeting attendance data found in CSV")
+                    break
+            
+            if not attendance_data_found and test_member_found:
+                self.log_test("CSV Export - Meeting Attendance Data", False, "Test member found but no attendance data")
+            
+            print(f"   📊 CSV Export Test Summary:")
+            print(f"      - Total CSV lines: {len(csv_lines)}")
+            print(f"      - Header columns: {len(header_line.split(','))}")
+            print(f"      - Data rows with content: {member_data_found}")
+            print(f"      - CSV content length: {len(csv_content)} characters")
+            
+            # Show first few lines for debugging
+            print(f"   📋 CSV Content Preview:")
+            for i, line in enumerate(csv_lines[:3]):
+                print(f"      Line {i+1}: {line[:100]}{'...' if len(line) > 100 else ''}")
+            
+        except Exception as e:
+            self.log_test("CSV Export - Request Exception", False, f"Exception: {str(e)}")
+            return False
+        
+        # Cleanup: Delete test members
+        print(f"\n   🧹 Cleaning up test members...")
+        for i, member_id in enumerate(test_members):
+            if member_id:
+                success, response = self.run_test(
+                    f"Delete CSV Test Member {i+1}",
+                    "DELETE",
+                    f"members/{member_id}",
+                    200
+                )
+        
+        print(f"   📊 CSV Export Data Fetch Test completed")
+        return True
+
 def main():
     tester = BOHDirectoryAPITester()
-    results = tester.run_all_tests()
+    # Run the specific CSV export test as requested
+    tester.test_csv_export_data_fetch_issue()
     
     # Return appropriate exit code
-    return 0 if results["success_rate"] == 100 else 1
+    return 0 if tester.tests_passed == tester.tests_run else 1
 
 if __name__ == "__main__":
     sys.exit(main())
