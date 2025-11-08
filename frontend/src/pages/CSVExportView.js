@@ -130,23 +130,17 @@ export default function CSVExportView() {
         case 'dues_first_half':
           // Handle and first 6 months (Jan-Jun)
           if (h.includes('handle') || h.includes('dues year') ||
-              h.includes('january') || h.includes('february') || h.includes('march') || 
-              h.includes('april') || h.includes('may') || h.includes('june')) {
-            // Exclude meeting-related columns
-            if (!h.includes('meeting') && !h.includes('note') && !h.includes('attendance')) {
-              indices.push(index);
-            }
+              (h.includes('dues') && (h.includes('january') || h.includes('february') || 
+               h.includes('march') || h.includes('april') || h.includes('may') || h.includes('june')))) {
+            indices.push(index);
           }
           break;
         case 'dues_second_half':
           // Handle and second 6 months (Jul-Dec)
           if (h.includes('handle') || h.includes('dues year') ||
-              h.includes('july') || h.includes('august') || h.includes('september') || 
-              h.includes('october') || h.includes('november') || h.includes('december')) {
-            // Exclude meeting-related columns
-            if (!h.includes('meeting') && !h.includes('note') && !h.includes('attendance')) {
-              indices.push(index);
-            }
+              (h.includes('dues') && (h.includes('july') || h.includes('august') || 
+               h.includes('september') || h.includes('october') || h.includes('november') || h.includes('december')))) {
+            indices.push(index);
           }
           break;
         case 'meetings':
