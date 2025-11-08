@@ -1851,9 +1851,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 window.selectPreset = selectPreset;
                 window.printSelectedColumns = printSelectedColumns;
               }
-        `;
-        csvWindow.document.body.appendChild(script);
-      });
+      `;
+      csvWindow.document.body.appendChild(script);
       
       toast.success("CSV opened in new window");
     } catch (error) {
