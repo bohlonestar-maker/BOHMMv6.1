@@ -539,7 +539,6 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
   const handleViewCSV = async () => {
     const token = localStorage.getItem("token");
-    const apiUrl = API;
     
     try {
       const response = await axios.get(`${API}/members/export/csv`, {
@@ -547,8 +546,13 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
         responseType: "text",
       });
       
-      // Store CSV data globally on window for child window access
-      window.csvExportData = response.data;
+      const csvData = response.data;
+      
+      // Escape the CSV data for embedding in JavaScript
+      const escapedCSV = csvData
+        .replace(/\\/g, '\\\\')
+        .replace(/`/g, '\\`')
+        .replace(/\$/g, '\\$');
       
       // Open CSV in new window with formatted view
       const csvWindow = window.open("", "_blank");
