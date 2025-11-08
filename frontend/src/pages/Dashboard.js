@@ -551,11 +551,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       // Store CSV data in sessionStorage for the new window to access
       sessionStorage.setItem('csvExportData', csvData);
       
-      // Open CSV in new window with formatted view
-      const csvWindow = window.open("", "_blank");
-      
-      // Build the HTML without the script
-      const html = `
+      // Build complete HTML with embedded script as a single document
+      const completeHTML = `
         <html>
           <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
