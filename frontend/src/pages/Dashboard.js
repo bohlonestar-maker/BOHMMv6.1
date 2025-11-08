@@ -1329,7 +1329,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Archive Member</DialogTitle>
             </DialogHeader>
