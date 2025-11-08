@@ -8,6 +8,24 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.2.3",
+      date: "November 8, 2025",
+      changes: [
+        "CSV Export Overhaul: Complete redesign as dedicated React page component (/export-view route)",
+        "Print Custom Feature: New customizable print functionality with column selection",
+        "Quick Presets: Added 4 preset options - All Fields, Contact Info, Dues Tracking, Meeting Attendance",
+        "Export View UI: Modern responsive interface with stats display (members, columns, filtered count)",
+        "Search & Filter: Real-time search across all member data in export view",
+        "View Toggle: Switch between formatted table view and raw CSV text view",
+        "Export Options: Download CSV, Print All, Print Custom, and Google Sheets export",
+        "Google Sheets Integration: One-click copy to clipboard and auto-open Google Sheets",
+        "Print Optimization: Landscape orientation with proper column sizing for all print outputs",
+        "Browser Security Fix: Resolved dynamic script execution issues by using proper React routing",
+        "Performance Improvement: Eliminated window.open() security blocks with native React components",
+        "Backend Verified: CSV API endpoint confirmed working with all 24 members and 69 columns"
+      ]
+    },
+    {
       version: "v.2.2",
       date: "November 5, 2025",
       changes: [
