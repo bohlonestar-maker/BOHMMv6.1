@@ -1213,7 +1213,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             <pre id="rawCSV"></pre>
             <pre id="rawCSV"></pre>
             <script>
-              // CSV data is retrieved from sessionStorage
+              // CSV data is embedded directly
+              const csvText = ${JSON.stringify(csvData)};
               console.log('[CSV WINDOW] Script started');
               // CSV data is retrieved from sessionStorage
               const csvText = sessionStorage.getItem('csvExportData') || '';
