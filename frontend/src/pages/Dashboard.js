@@ -537,19 +537,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     }
   };
 
-  const handleViewCSV = async () => {
-    const token = localStorage.getItem("token");
-    
-    try {
-      const response = await axios.get(`${API}/members/export/csv`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: "text",
-      });
-      
-      const csvData = response.data;
-      
-      // Build complete HTML with CSV data embedded directly
-      const completeHTML = `
+  const handleViewCSV = () => {
+    // Navigate to the CSV export view page
+    window.open('/export-view', '_blank');
         <html>
           <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
