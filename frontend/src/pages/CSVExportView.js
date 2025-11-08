@@ -350,28 +350,28 @@ export default function CSVExportView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6">
+    <div className="min-h-screen bg-slate-900 text-white p-3 sm:p-4 md:p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-purple-400">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-400">
             <i className="fas fa-file-csv mr-2"></i>
-            Brothers of the Highway - Member Export
+            <span className="hidden sm:inline">Brothers of the Highway - </span>Member Export
           </h1>
           <button
             onClick={() => window.close()}
-            className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg"
+            className="bg-slate-700 hover:bg-slate-600 px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base whitespace-nowrap"
           >
             <i className="fas fa-arrow-left mr-2"></i>
-            Back to Dashboard
+            Back<span className="hidden sm:inline"> to Dashboard</span>
           </button>
         </div>
 
         {/* Stats */}
-        <div className="bg-slate-800 rounded-lg p-4 mb-6">
-          <div className="flex gap-6 text-sm">
+        <div className="bg-slate-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm">
             <div>
-              <span className="text-slate-400">Total Members:</span>
+              <span className="text-slate-400">Members:</span>
               <span className="ml-2 font-bold text-purple-400">{csvData.length - 1}</span>
             </div>
             <div>
@@ -386,7 +386,7 @@ export default function CSVExportView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
           <button
             onClick={handleDownload}
             className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-6 py-3 rounded-lg font-semibold"
