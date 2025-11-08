@@ -1364,6 +1364,40 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   }, 300);
                 }
                 
+                function exportToGoogleSheets() {
+                  // Show the modal
+                  const modal = document.getElementById('googleSheetsModal');
+                  modal.style.display = 'flex';
+                }
+                
+                function closeGoogleSheetsModal() {
+                  const modal = document.getElementById('googleSheetsModal');
+                  modal.style.display = 'none';
+                }
+                
+                function downloadAndOpenSheets() {
+                  // Download the CSV file
+                  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'brothers_of_highway_members_for_sheets_' + new Date().toISOString().split('T')[0] + '.csv';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  window.URL.revokeObjectURL(url);
+                  
+                  // Open Google Sheets in new tab
+                  setTimeout(() => {
+                    window.open('https://sheets.google.com/create', '_blank');
+                  }, 500);
+                  
+                  // Close modal after a delay
+                  setTimeout(() => {
+                    closeGoogleSheetsModal();
+                  }, 1000);
+                }
+                
                 // Make functions globally available
                 window.downloadFullCSV = downloadFullCSV;
                 window.toggleView = toggleView;
