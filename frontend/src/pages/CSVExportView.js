@@ -173,21 +173,35 @@ export default function CSVExportView() {
             indices.push(index);
           }
           break;
-        case 'meetings_first_half':
-          // Handle and first 6 months meetings (Jan-Jun)
+        case 'meetings_q1':
+          // Q1: January, February, March meetings
           if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('january') || h.includes('february') || 
-               h.includes('march') || h.includes('april') || h.includes('may') || h.includes('june')))) {
-            console.log('  Matched meetings first half:', header);
+              (h.includes('meeting') && (h.includes('january') || h.includes('february') || h.includes('march')))) {
+            console.log('  Matched meetings Q1:', header);
             indices.push(index);
           }
           break;
-        case 'meetings_second_half':
-          // Handle and second 6 months meetings (Jul-Dec)
+        case 'meetings_q2':
+          // Q2: April, May, June meetings
           if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('july') || h.includes('august') || 
-               h.includes('september') || h.includes('october') || h.includes('november') || h.includes('december')))) {
-            console.log('  Matched meetings second half:', header);
+              (h.includes('meeting') && (h.includes('april') || h.includes('may') || h.includes('june')))) {
+            console.log('  Matched meetings Q2:', header);
+            indices.push(index);
+          }
+          break;
+        case 'meetings_q3':
+          // Q3: July, August, September meetings
+          if (h.includes('handle') ||
+              (h.includes('meeting') && (h.includes('july') || h.includes('august') || h.includes('september')))) {
+            console.log('  Matched meetings Q3:', header);
+            indices.push(index);
+          }
+          break;
+        case 'meetings_q4':
+          // Q4: October, November, December meetings
+          if (h.includes('handle') ||
+              (h.includes('meeting') && (h.includes('october') || h.includes('november') || h.includes('december')))) {
+            console.log('  Matched meetings Q4:', header);
             indices.push(index);
           }
           break;
