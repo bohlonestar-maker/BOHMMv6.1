@@ -216,8 +216,24 @@ export default function CSVExportView() {
       selectedColumns.map(index => row[index])
     );
 
+    // Get user info
+    const username = localStorage.getItem('username') || 'Unknown User';
+    
+    // Get current time in CST
+    const now = new Date();
+    const cstTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).format(now);
+
     const printWindow = window.open('', '_blank');
-    const html = generatePrintHTML(filteredData);
+    const html = generatePrintHTML(filteredData, selectedPreset, username, cstTime);
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(() => printWindow.print(), 500);
