@@ -1458,11 +1458,17 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   }, 3000);
                 }
                 
+                function openGoogleSheetsModal() {
+                  const modal = document.getElementById('googleSheetsModal');
+                  modal.style.display = 'flex';
+                }
+                
                 // Make functions globally available
                 window.downloadFullCSV = downloadFullCSV;
                 window.toggleView = toggleView;
                 window.filterTable = filterTable;
                 window.preparePrint = preparePrint;
+                window.openGoogleSheetsModal = openGoogleSheetsModal;
                 window.exportToGoogleSheets = exportToGoogleSheets;
                 window.closeGoogleSheetsModal = closeGoogleSheetsModal;
                 window.downloadAndOpenSheets = downloadAndOpenSheets;
