@@ -109,6 +109,9 @@ export default function CSVExportView() {
     const headers = csvData[0];
     const indices = [];
     
+    console.log('selectPreset called with:', preset);
+    console.log('Total headers:', headers.length);
+    
     headers.forEach((header, index) => {
       const h = header.toLowerCase();
       
