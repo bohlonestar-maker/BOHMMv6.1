@@ -1698,6 +1698,17 @@ export default function UserManagement({ onLogout }) {
                 <p className="text-slate-400 text-sm sm:text-base">No archived prospects</p>
               )}
             </div>
+            
+            {/* Back Button */}
+            <div className="mt-6 pt-4 border-t border-slate-700">
+              <Button
+                onClick={() => setArchivedDialogOpen(false)}
+                className="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-white px-6 py-3"
+              >
+                <i className="fas fa-arrow-left mr-2"></i>
+                Back to User Management
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
