@@ -1220,7 +1220,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             <pre id="rawCSV"></pre>
             <script>
               // CSV data is embedded directly
-              const csvText = \`${escapedCSV}\`.replace(/\\\\n/g, '\\n').replace(/\\\\t/g, '\\t');
+              const csvText = ${JSON.stringify(csvData)};
               
               console.log('CSV data loaded, length:', csvText.length);
               
