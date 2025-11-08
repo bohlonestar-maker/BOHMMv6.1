@@ -1351,31 +1351,31 @@ export default function UserManagement({ onLogout }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Chapter</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Created At</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-white">Username</TableHead>
+                    <TableHead className="text-white">Email</TableHead>
+                    <TableHead className="text-white">Role</TableHead>
+                    <TableHead className="text-white">Chapter</TableHead>
+                    <TableHead className="text-white">Title</TableHead>
+                    <TableHead className="text-white">Created At</TableHead>
+                    <TableHead className="text-right text-white">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id} data-testid={`user-row-${user.id}`}>
-                      <TableCell className="font-medium">{user.username}</TableCell>
-                      <TableCell>{user.email || "-"}</TableCell>
+                      <TableCell className="font-medium text-white">{user.username}</TableCell>
+                      <TableCell className="text-white">{user.email || "-"}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {user.role === "admin" && (
-                            <Shield className="w-4 h-4 text-slate-600" />
+                            <Shield className="w-4 h-4 text-slate-400" />
                           )}
-                          <span className="capitalize">{user.role}</span>
+                          <span className="capitalize text-white">{user.role}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{user.chapter || "-"}</TableCell>
-                      <TableCell>{user.title || "-"}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-white">{user.chapter || "-"}</TableCell>
+                      <TableCell className="text-white">{user.title || "-"}</TableCell>
+                      <TableCell className="text-white">
                         {new Date(user.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
