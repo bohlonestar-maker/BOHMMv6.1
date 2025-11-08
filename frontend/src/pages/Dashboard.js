@@ -1340,13 +1340,14 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   This action will move the member to the archived records.
                 </p>
                 <div>
-                  <Label>Reason for Archiving *</Label>
+                  <Label className="text-sm">Reason for Archiving *</Label>
                   <Textarea
                     value={deleteReason}
                     onChange={(e) => setDeleteReason(e.target.value)}
                     placeholder="Enter reason for archiving..."
-                    rows={3}
+                    rows={2}
                     required
+                    className="mt-1"
                   />
                 </div>
                 <div className="flex gap-3 justify-end mt-6">
