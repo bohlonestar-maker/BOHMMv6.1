@@ -1122,6 +1122,41 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               <strong>Print Tips:</strong> Set to Landscape orientation for best results. All columns will be printed.
             </div>
             
+            <div id="googleSheetsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+              <div style="background: #1e293b; padding: 30px; border-radius: 12px; max-width: 600px; margin: 20px; border: 2px solid #10b981;">
+                <h2 style="color: #10b981; margin: 0 0 20px 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                  <i class="fab fa-google" style="color: #34a853;"></i>
+                  Export to Google Sheets
+                </h2>
+                
+                <div style="background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                  <div style="font-size: 0.875rem; line-height: 1.6;">
+                    <p style="margin: 0 0 15px 0;"><strong>Step 1:</strong> File will download automatically</p>
+                    <p style="margin: 0 0 15px 0;"><strong>Step 2:</strong> Go to <a href="https://sheets.google.com" target="_blank" style="color: #10b981; text-decoration: underline;">Google Sheets</a></p>
+                    <p style="margin: 0 0 15px 0;"><strong>Step 3:</strong> Click <strong>File → Import</strong></p>
+                    <p style="margin: 0 0 15px 0;"><strong>Step 4:</strong> Click <strong>Upload</strong> tab and select the downloaded file</p>
+                    <p style="margin: 0;"><strong>Step 5:</strong> Click <strong>Import data</strong></p>
+                  </div>
+                </div>
+                
+                <div style="background: #059669; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                  <div style="font-size: 0.75rem; color: white; margin-bottom: 8px;">Quick Import Link</div>
+                  <a href="https://sheets.google.com/create" target="_blank" style="color: white; font-weight: 600; text-decoration: underline; font-size: 1rem;">
+                    Open Google Sheets Now →
+                  </a>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                  <button onclick="closeGoogleSheetsModal()" style="background: #475569; padding: 10px 20px; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
+                    Close
+                  </button>
+                  <button onclick="downloadAndOpenSheets()" style="background: linear-gradient(135deg, #34a853 0%, #1e8e3e 100%); padding: 10px 20px; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(52, 168, 83, 0.3);">
+                    Download & Open Sheets
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             <div id="content" class="table-container">
               <table id="csvTable"></table>
             </div>
