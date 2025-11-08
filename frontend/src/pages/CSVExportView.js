@@ -130,11 +130,6 @@ export default function CSVExportView() {
             indices.push(index);
           }
           break;
-        case 'dues':
-          if (h.includes('handle') || h.includes('dues') || h.includes('paid') || h.includes('balance')) {
-            indices.push(index);
-          }
-          break;
         case 'dues_q1':
           // Q1: January, February, March
           if (h.includes('handle') || h.includes('dues year') ||
