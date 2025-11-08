@@ -418,24 +418,24 @@ export default function CSVExportView() {
         </div>
 
         {/* Search */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <input
             type="text"
             placeholder="Search members..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500"
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:border-purple-500"
           />
         </div>
 
         {/* Content */}
         {view === 'table' ? (
-          <div className="bg-slate-800 rounded-lg overflow-auto" style={{ maxHeight: '70vh' }}>
-            <table className="w-full">
+          <div className="bg-slate-800 rounded-lg overflow-x-auto -mx-3 sm:mx-0" style={{ maxHeight: '70vh' }}>
+            <table className="w-full min-w-max">
               <thead className="bg-gradient-to-r from-purple-600 to-purple-700 sticky top-0">
                 <tr>
                   {csvData[0]?.map((header, i) => (
-                    <th key={i} className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap">
+                    <th key={i} className="px-2 sm:px-3 md:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
                       {header}
                     </th>
                   ))}
@@ -445,7 +445,7 @@ export default function CSVExportView() {
                 {filteredData.slice(1).map((row, i) => (
                   <tr key={i} className="border-b border-slate-700 hover:bg-slate-700">
                     {row.map((cell, j) => (
-                      <td key={j} className="px-4 py-2 text-sm whitespace-nowrap">
+                      <td key={j} className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap">
                         {cell}
                       </td>
                     ))}
@@ -455,7 +455,7 @@ export default function CSVExportView() {
             </table>
           </div>
         ) : (
-          <pre className="bg-slate-800 p-6 rounded-lg overflow-auto text-sm" style={{ maxHeight: '70vh' }}>
+          <pre className="bg-slate-800 p-3 sm:p-4 md:p-6 rounded-lg overflow-auto text-xs sm:text-sm" style={{ maxHeight: '70vh' }}>
             {csvText}
           </pre>
         )}
