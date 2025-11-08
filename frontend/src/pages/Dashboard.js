@@ -1225,9 +1225,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       csvWindow.document.write(html);
       csvWindow.document.close();
       
-      // Create and inject script element AFTER document.close()
-      const script = csvWindow.document.createElement('script');
-      script.textContent = `
+      // Execute script directly in the new window context
+      // Wrap in a function to avoid template literal issues
+      const executeInNewWindow = function() {
               console.log('[CSV WINDOW] Script started');
               // CSV data is retrieved from sessionStorage
               const csvText = sessionStorage.getItem('csvExportData') || '';
