@@ -328,17 +328,10 @@ export default function CSVExportView() {
             Download CSV
           </button>
           <button
-            onClick={handlePrint}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-6 py-3 rounded-lg font-semibold"
-          >
-            <i className="fas fa-print mr-2"></i>
-            Print All
-          </button>
-          <button
             onClick={handleCustomPrint}
             className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 px-6 py-3 rounded-lg font-semibold"
           >
-            <i className="fas fa-cog mr-2"></i>
+            <i className="fas fa-print mr-2"></i>
             Print Custom
           </button>
           <button
