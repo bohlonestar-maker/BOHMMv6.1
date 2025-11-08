@@ -1049,19 +1049,19 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 <TableBody>
                   {sortedFilteredMembers.map((member) => (
                     <TableRow key={member.id} data-testid={`member-row-${member.id}`}>
-                      <TableCell className="font-medium">{member.chapter}</TableCell>
-                      <TableCell>{member.title}</TableCell>
-                      <TableCell>{member.handle}</TableCell>
-                      <TableCell>{member.name}</TableCell>
+                      <TableCell className="font-medium text-white">{member.chapter}</TableCell>
+                      <TableCell className="text-white">{member.title}</TableCell>
+                      <TableCell className="text-white">{member.handle}</TableCell>
+                      <TableCell className="text-white">{member.name}</TableCell>
                       {hasPermission('email') && (
                         <TableCell>
                           <a
                             href={`mailto:${member.email}`}
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline text-sm"
                             data-testid={`email-link-${member.id}`}
                           >
                             <Mail className="w-3 h-3" />
-                            {member.email}
+                            <span className="text-white">{member.email}</span>
                           </a>
                         </TableCell>
                       )}
@@ -1069,11 +1069,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         <TableCell>
                           <a
                             href={`tel:${member.phone}`}
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline text-sm"
                             data-testid={`phone-link-${member.id}`}
                           >
                             <Phone className="w-3 h-3" />
-                            {member.phone}
+                            <span className="text-white">{member.phone}</span>
                           </a>
                         </TableCell>
                       )}
@@ -1085,11 +1085,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline text-sm"
                             data-testid={`address-link-${member.id}`}
                           >
                             <MapPin className="w-3 h-3" />
-                            {member.address}
+                            <span className="text-white">{member.address}</span>
                           </a>
                         </TableCell>
                       )}
