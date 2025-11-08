@@ -523,7 +523,7 @@ export default function Prospects({ onLogout, userRole }) {
                 placeholder="Search by name or handle..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 py-4 sm:py-6 text-sm sm:text-base bg-slate-900 border-2 border-slate-700 text-slate-100 focus:border-slate-600 rounded-lg placeholder:text-slate-400"
+                className="w-full pl-10 py-4 sm:py-6 text-sm sm:text-base bg-slate-900 border-2 border-slate-700 text-slate-100 focus:border-slate-600 rounded-lg placeholder:text-white"
               />
             </div>
           </div>
