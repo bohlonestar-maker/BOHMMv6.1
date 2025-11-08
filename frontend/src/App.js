@@ -12,6 +12,7 @@ import Messages from "@/pages/Messages";
 import UpdateLog from "@/pages/UpdateLog";
 import MessageMonitor from "@/pages/MessageMonitor";
 import EventCalendar from "@/pages/EventCalendar";
+import CSVExportView from "@/pages/CSVExportView";
 import ChatBot from "@/components/ChatBot";
 import { Toaster } from "@/components/ui/sonner";
 
