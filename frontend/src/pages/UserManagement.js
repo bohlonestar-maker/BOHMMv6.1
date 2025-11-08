@@ -277,6 +277,38 @@ export default function UserManagement({ onLogout }) {
     }
   };
 
+  const handleDeleteArchivedMember = async (memberId, memberName) => {
+    if (!window.confirm(`⚠️ PERMANENT DELETION\n\nAre you sure you want to PERMANENTLY delete ${memberName} from archived members?\n\nThis action CANNOT be undone!`)) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/archived/members/${memberId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Archived member permanently deleted");
+      // Refresh archived list
+      handleViewArchived();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to delete archived member");
+    }
+  };
+
+  const handleDeleteArchivedProspect = async (prospectId, prospectName) => {
+    if (!window.confirm(`⚠️ PERMANENT DELETION\n\nAre you sure you want to PERMANENTLY delete ${prospectName} from archived prospects?\n\nThis action CANNOT be undone!`)) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API}/archived/prospects/${prospectId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Archived prospect permanently deleted");
+      // Refresh archived list
+      handleViewArchived();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to delete archived prospect");
+    }
+  };
+
   const handleExportArchivedMembers = async () => {
     const token = localStorage.getItem("token");
     try {
