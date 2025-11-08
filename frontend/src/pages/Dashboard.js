@@ -1170,17 +1170,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
             </div>
             <pre id="rawCSV"></pre>
             <script>
-              // Get CSV data from opener window
-              let csvText = '';
+              // CSV data is embedded directly
+              const csvText = \`${escapedCSV}\`;
               
-              if (window.opener && window.opener.csvExportData) {
-                csvText = window.opener.csvExportData;
-                console.log('CSV data retrieved, length:', csvText.length);
-              } else {
-                console.error('Could not access CSV data from opener window');
-              }
+              console.log('CSV data loaded, length:', csvText.length);
               
-              if (!csvText) {
+              if (!csvText || csvText.length === 0) {
                 document.body.innerHTML = '<div style="padding: 40px; text-align: center;"><h1 style="color: #ef4444; font-size: 2rem; margin-bottom: 20px;"><i class="fas fa-exclamation-triangle"></i> Error Loading Data</h1><p style="color: #94a3b8; font-size: 1.2rem;">CSV data could not be loaded. Please try again.</p><button onclick="window.close()" style="margin-top: 20px; background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;">Close Window</button></div>';
               } else {
                 // Set raw CSV
