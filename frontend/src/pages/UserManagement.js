@@ -1424,11 +1424,11 @@ export default function UserManagement({ onLogout }) {
       
       {/* Activity Log Dialog */}
       <Dialog open={logsDialogOpen} onOpenChange={setLogsDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl lg:max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg md:text-xl">Archived Records</DialogTitle>
+            <DialogTitle>Activity Log</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 sm:space-y-6 mt-3 sm:mt-4">
+          <div className="space-y-4 mt-4">
             {/* Archived Members */}
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3">
