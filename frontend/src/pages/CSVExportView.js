@@ -162,12 +162,6 @@ export default function CSVExportView() {
             indices.push(index);
           }
           break;
-        case 'meetings':
-          if (h.includes('handle') || h.includes('meeting') || h.includes('attendance') || 
-              h.match(/\d{2}\/\d{2}/)) {
-            indices.push(index);
-          }
-          break;
         case 'meetings_q1':
           // Q1: January, February, March meetings
           if (h.includes('handle') ||
