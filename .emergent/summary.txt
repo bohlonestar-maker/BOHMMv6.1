@@ -1,109 +1,69 @@
 <analysis>
-The previous AI engineer significantly enhanced the Brothers of the Highway Member Directory application. Initial work involved resolving a Pydantic validation regression ( TLD issue) for restricted admin contact info during a resend invite feature implementation, which was successfully fixed. Subsequently, the engineer developed a comprehensive AI chatbot, integrating extensive BOH organizational knowledge from PDFs, DOCX files, and images, and implemented role-based context for it (admin vs. general user). Messaging functionalities were refined, allowing all users to private message each other, and a global pop-up notification system for new messages was added. The dedicated Support Message Center was removed due to persistent SMTP email issues, replaced by a simple mailto link. Meeting attendance status indicators were updated to a red/orange/green scheme. Most recently, a 3-role system (Admin, Member, Prospect) was introduced, requiring backend role migrations, UI updates for user management, and fine-grained access controls for Prospects, including restricted contact viewing (no names), limited private messaging to specific HA officers, and the introduction of phone/address privacy options. The trajectory concluded during the implementation of these privacy options.
+The AI engineer's work primarily focused on resolving critical deployment issues, enhancing existing features, and implementing new functionalities for the Brothers of the Highway Member Management application. Initial efforts centered on debugging and fixing the  for Discord event notifications, which involved addressing event loop conflicts, MongoDB client initialization in threads, and robust logging. Following this, a major blocker arose with repeated deployment failures (520 status, Kaniko job failure, no pod logs). This led to extensive debugging, including lazy MongoDB connection, reordering logger initialization, adding verbose  statements, and a file-based log. The root cause was eventually traced to a missing  field in the default admin user creation, resolving the . Subsequent tasks included refining admin permissions, re-implementing member privacy (visible only to National Chapter admins), fixing a  import error in the password change function, and updating the application's change log. The final phase involved significant enhancements to the CSV export feature, adding a View Export screen with advanced UI/UX, responsiveness, search, direct Google Sheets integration, and print optimization. The trajectory concluded with the user requesting customizable print options for the export.
 </analysis>
 
 <product_requirements>
-The Brothers of the Highway Member Directory application provides a secure platform for managing member and prospect data, featuring secure login, role-based access, and granular permissions for core data (Chapter, Title, Handle, Name, Email, Phone, Address). Key features include clickable contact info, permission-aware CSV export, 3-state annual dues tracking (Paid, Unpaid, Late with note), detailed meeting attendance, and search. Admin functionalities cover user/invite management and activity logs, alongside a Hangarounds/Prospects list. UI/UX standards demand a Professional Corporate look, responsive design, a custom logo, dark theme, and visible version number (currently v.1.8). User-to-user private messaging with global notifications and an in-app Change Log are present. Sensitive data uses 256-bit encryption, with hash-based duplicate prevention. National chapter contact info is restricted to admins, and token expiration is handled. Recent updates include a resend invite function, a globally accessible AI chatbot for BOH knowledge, and a 3-role system (Admin, Member, Prospect) with customized access.
+The Brothers of the Highway Member Management application provides secure member and prospect management with role-based access. It features secure login (v2.2), user/invite management (with Chapter, Title, Email fields), and bulk prospect promotion. Key data, including contact info and financial/attendance records, is managed with encryption and permission-aware CSV export. The CSV export now includes improved formatting, UTF-8 BOM, direct Google Sheets integration, and print optimization, with customizable columns pending. Member phone and address privacy is reinstated, visible only to National Chapter admins. An event calendar with Discord notifications (fixed and working, v2.2) is integrated. The app features a Professional Corporate look, responsive design (including the chatbot and CSV viewer), dark theme, an in-app change log (v2.2), and a responsive AI chatbot. Password change functionality is now fixed (v2.2).
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack:** React, FastAPI, MongoDB.
--   **Security:** JWT authentication, RBAC,  for password hashing, 256-bit Fernet encryption, SHA256 hashing for duplicate detection.
+-   **Security:** JWT authentication (now includes ), RBAC,  (fixed usage), Fernet encryption.
 -   **UI/UX:** Shadcn UI, Tailwind CSS, Responsive Design.
--   **Data Validation:** Pydantic models.
--   **Email Services:**  (SMTP issues encountered).
--   **AI Integration:** Emergentintegrations library, Emergent LLM Key, knowledge extraction from PDFs/DOCX/images, context management for chatbot.
+-   **Data Validation:** Pydantic models (fixed validation).
+-   **Utilities:**  (fixed, fault-tolerant),  (lazy connection),  (debug logging).
+-   **External Integration:** Discord Webhooks, Google Sheets (direct export).
 </key_technical_concepts>
 
 <code_architecture>
 
-
 -   
-    -   **Importance:** Core backend logic, API endpoints, database interactions, authentication, and security.
-    -   **Changes:**
-        -   Fixed Pydantic validation issue for restricted national chapter contacts (changed  to ).
-        -   Added  endpoint.
-        -   Added  endpoint for Lonestar message monitoring.
-        -   Added  (accessible to all authenticated users) for general user listing.
-        -   Added  endpoint for changing user passwords.
-        -   Modified  and  to filter/hide names for prospect roles.
-        -   Updated  model with  and .
-        -   Modified  to filter users for prospect role (only HA chapter officers).
-        -   Added validation to  to prevent prospects from messaging non-HA officers.
-        -   Integrated AI chatbot endpoints ().
-        -   Implemented role-based context switching for the chatbot ().
-        -   Updated  for .
-        -   Reverted SMTP settings to original for .
+    -   **Importance**: Central for all API logic, data models, authentication, and background tasks.
+    -   **Changes**:
+        -   **Scheduler**: Initialization and shutdown moved to FastAPI's startup/shutdown events.  now creates an isolated  to prevent event loop conflicts. Added  for fault tolerance.
+        -   **Logging**: Reordered  setup to occur before any usage. Added extensive  statements and file-based logging () for deployment debugging.
+        -   **MongoDB**:  initialization made lazy and given a timeout ().
+        -   **Default Admin**: Added required  field and  permission during default admin creation.
+        -   **JWT**:  field added to the JWT payload in  for login and invite.
+        -   **Privacy**: Member phone/address masking logic updated to allow National chapter admins to view full details.
+        -   **Password Change**: Fixed  to correctly use  instead of an undefined  call.
+        -   **CSV Export**: Modified header generation for readability (removed symbols, descriptive names), and added UTF-8 BOM to ensure correct encoding interpretation by external tools.
 -   
-    -   **Importance:** Manages main application routing and global components.
-    -   **Changes:**
-        -   Added route for .
-        -   Removed route for .
-        -   Integrated global message notification system ( component logic).
-        -   Integrated floating  component.
+    -   **Importance**: Handles user login and displays application version.
+    -   **Changes**: Updated version number to .
 -   
-    -   **Importance:** User authentication and initial app access.
-    -   **Changes:**
-        -   Version updated to .
-        -   Removed 256-bit Encryption badge.
-        -   Replaced Support dialog/button with a simple  link.
+    -   **Importance**: Displays member data, and controls export/viewing features.
+    -   **Changes**:
+        -   **Export UI**: Reworked buttons for View Export and Download CSV (download now fetches fresh data from API).
+        -   **CSV Viewer**: Extensive UI/UX improvements for responsiveness (smartphone, tablet, laptop), added search functionality, enhanced visual design (padding, fonts, sticky header), removed symbols from viewer.
+        -   **Toggle**: Fixed Raw View and Table View toggle functionality.
+        -   **Print**: Optimized print functionality for all data to fit in landscape, added a Print Optimized View button, and improved error handling for .
+        -   **Google Sheets**: Implemented direct export to Google Sheets via a specially crafted URL.
 -   
-    -   **Importance:** Main member directory and navigation hub.
-    -   **Changes:**
-        -   Manage Users button renamed to Admin.
-        -   Added Message Monitor navigation button (Lonestar only).
-        -   Removed Support Center navigation button and related unread count logic.
-        -   Updated meeting attendance colors: Excused to Orange, Unexcused to Red.
-        -   Removed logic for private message notifications (moved to ).
--   
-    -   **Importance:** Admin interface for user and invite management.
-    -   **Changes:**
-        -   Added Resend button for invites.
-        -   Updated Add User dialog to support Admin, Member, and Prospect roles.
-        -   Implemented password change dialog and handler.
-        -   Updated invite and edit user role selection to include new roles.
--   
-    -   **Importance:** Management of prospect data.
-    -   **Changes:** Updated meeting attendance colors: Excused to Orange, Unexcused to Red.
--   
-    -   **Importance:** Displays application version history and changes.
-    -   **Changes:** Updated with , , , , , , ,  entries, reflecting various feature additions and bug fixes.
--   
-    -   **Importance:** User-to-user private messaging.
-    -   **Changes:** Modified  to use  endpoint instead of restricting to admins.
--    (NEW FILE - now unused)
-    -   **Importance:** Lonestar-only interface for managing support messages.
-    -   **Changes:** Decryption logic fixed for displaying messages. Functionality removed/replaced.
--    (NEW FILE)
-    -   **Importance:** Lonestar-only interface for monitoring all private messages.
-    -   **Changes:** Created to display all user private messages for admins.
--   
-    -   **Importance:** Backend environment variables.
-    -   **Changes:**  added,  added,  and  were changed multiple times and then reverted to original values.
--    (NEW FILE)
-    -   **Importance:** Frontend component for the AI chatbot.
-    -   **Changes:** Created to render a floating chat interface and interact with the  endpoint.
+    -   **Importance**: Provides a historical record of application updates.
+    -   **Changes**: New  entry documenting all recent fixes and enhancements.
 </code_architecture>
 
 <pending_tasks>
--   Complete the frontend UI implementation for making phone numbers and addresses private when creating/editing contacts.
 -   Thoroughly test the new 3-role system (Admin, Member, Prospect) end-to-end, especially Prospect access restrictions.
--   Test the new password change feature.
--   Update the change log with the latest privacy feature.
+-   Conduct end-to-end testing for the bulk promotion functionality.
+-   Re-evaluate and fix the deployment issue, specifically the Kaniko build failure that reappeared.
+-   Implement customizable print options for the export data, allowing selection of specific fields.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was implementing privacy options for contact information. The user requested the ability to make phone numbers and addresses private when creating/editing members.
+Immediately prior to this summary, the AI engineer was working on enhancing the Print All functionality for the exported member data within the CSV viewer. The user's explicit request was to make the printed output customizable, allowing them to select specific columns to print, such as member Name, Handle, Title, and contact info or Handle and Dues Tracking info or Handle and Meeting info.
 
-On the backend ():
-1.  The  Pydantic model was updated to include two new optional boolean fields:
-    
-2.  The  endpoint was modified to respect these privacy settings, preventing non-admin users from viewing private phone numbers and addresses.
+The AI engineer's most recent actions involved:
+1.  **Investigating **: The  function in  (lines 1330-1365) was examined.
+2.  **Debugging**: Console logging was added within  to aid in diagnosing issues.
+3.  **Verification**: Confirmed that  was globally exported () and that the Print All button's  handler was correctly configured to call this function.
+4.  **Error Handling**: Enhanced error handling was added to the printing process.
+5.  **Local Test**: The frontend was restarted, and a local test confirmed that the Print All button successfully triggered the print dialog and that the added diagnostic logs were visible.
 
-The trajectory ended after these backend model and API changes were made, and before the corresponding frontend UI modifications or thorough testing could begin. The next step was indicated to be updating the change log, which is related to the completion of this feature.
+The current work concluded with the confirmation that the existing Print All button is functional and logs appropriately, but the core requirement of customizable column selection for printing is yet to be implemented.
 </current_work>
 
 <optional_next_step>
-Update the change log to reflect the new phone and address privacy features.
+Implement customizable print options for the export data to allow users to select specific member fields for printing.
 </optional_next_step>
-
