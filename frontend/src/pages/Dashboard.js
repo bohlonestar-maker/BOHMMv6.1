@@ -1289,10 +1289,47 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   }
                 }
                 
+                function preparePrint() {
+                  // Show print note
+                  const printNote = document.getElementById('printNote');
+                  printNote.style.display = 'block';
+                  
+                  // Make sure we're in table view
+                  const content = document.getElementById('content');
+                  const rawCSV = document.getElementById('rawCSV');
+                  if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    rawCSV.style.display = 'none';
+                  }
+                  
+                  // Remove any search filters for printing
+                  const searchInput = document.getElementById('searchInput');
+                  if (searchInput.value) {
+                    const confirmClear = confirm('Clear search filter to print all members?');
+                    if (confirmClear) {
+                      searchInput.value = '';
+                      filterTable();
+                    } else {
+                      printNote.style.display = 'none';
+                      return;
+                    }
+                  }
+                  
+                  // Show print dialog after a brief delay
+                  setTimeout(() => {
+                    window.print();
+                    // Hide print note after printing
+                    setTimeout(() => {
+                      printNote.style.display = 'none';
+                    }, 500);
+                  }, 300);
+                }
+                
                 // Make functions globally available
                 window.downloadFullCSV = downloadFullCSV;
                 window.toggleView = toggleView;
                 window.filterTable = filterTable;
+                window.preparePrint = preparePrint;
               }
             </script>
           </body>
