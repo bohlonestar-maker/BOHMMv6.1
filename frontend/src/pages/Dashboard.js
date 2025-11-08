@@ -1329,47 +1329,45 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="max-w-sm mx-4 my-8 max-h-[70vh]">
+          <DialogContent className="max-w-sm mx-4 p-6">
             <DialogHeader>
               <DialogTitle className="text-lg">Archive Member</DialogTitle>
             </DialogHeader>
             {memberToDelete && (
-              <>
-                <div className="space-y-3 py-2">
-                  <p className="text-slate-200 text-sm">
-                    You are about to archive <span className="font-semibold">{memberToDelete.handle} - {memberToDelete.name}</span>. 
-                    This action will move the member to the archived records.
-                  </p>
-                  <div>
-                    <Label className="text-sm">Reason for Archiving *</Label>
-                    <Textarea
-                      value={deleteReason}
-                      onChange={(e) => setDeleteReason(e.target.value)}
-                      placeholder="Enter reason..."
-                      rows={2}
-                      required
-                      className="mt-1 text-sm"
-                    />
-                  </div>
+              <div className="space-y-4">
+                <p className="text-slate-200 text-sm">
+                  You are about to archive <span className="font-semibold">{memberToDelete.handle} - {memberToDelete.name}</span>. 
+                  This action will move the member to the archived records.
+                </p>
+                <div>
+                  <Label className="text-sm">Reason for Archiving *</Label>
+                  <Textarea
+                    value={deleteReason}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    placeholder="Enter reason..."
+                    rows={2}
+                    required
+                    className="mt-1 text-sm"
+                  />
                 </div>
-                <div className="flex gap-2 justify-end pt-2 border-t">
+                <div className="flex gap-3 justify-end border-t pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setDeleteDialogOpen(false)}
-                    size="sm"
+                    className="px-4 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={handleConfirmDelete}
-                    size="sm"
+                    className="px-4 py-2"
                   >
                     Archive
                   </Button>
                 </div>
-              </>
+              </div>
             )}
           </DialogContent>
         </Dialog>
