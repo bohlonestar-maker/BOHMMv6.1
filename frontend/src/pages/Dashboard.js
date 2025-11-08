@@ -1329,7 +1329,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md mx-auto max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Archive Member</DialogTitle>
             </DialogHeader>
@@ -1349,7 +1349,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                     required
                   />
                 </div>
-                <div className="flex gap-3 justify-end">
+                <div className="flex gap-3 justify-end mt-6">
                   <Button
                     type="button"
                     variant="outline"
