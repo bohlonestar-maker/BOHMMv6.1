@@ -548,10 +548,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       
       const csvData = response.data;
       
-      // Store CSV data in sessionStorage for the new window to access
-      sessionStorage.setItem('csvExportData', csvData);
-      
-      // Build complete HTML with embedded script as a single document
+      // Build complete HTML with CSV data embedded directly
       const completeHTML = `
         <html>
           <head>
