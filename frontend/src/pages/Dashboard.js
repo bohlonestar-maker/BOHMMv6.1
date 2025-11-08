@@ -1273,40 +1273,42 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   <h3 className="text-lg font-semibold text-slate-100 mb-3">Add New Action</h3>
                   <form onSubmit={handleAddAction} className="space-y-4">
                     <div>
-                      <Label>Type</Label>
+                      <Label className="text-white">Type</Label>
                       <Select
                         value={actionForm.type}
                         onValueChange={(value) => setActionForm({ ...actionForm, type: value })}
                       >
-                        <SelectTrigger>
-                          <SelectValue />
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                          <SelectValue className="text-white" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="merit">Merit</SelectItem>
-                          <SelectItem value="promotion">Promotion</SelectItem>
-                          <SelectItem value="disciplinary">Disciplinary</SelectItem>
+                        <SelectContent className="bg-slate-700 border-slate-600">
+                          <SelectItem value="merit" className="text-white hover:bg-slate-600">Merit</SelectItem>
+                          <SelectItem value="promotion" className="text-white hover:bg-slate-600">Promotion</SelectItem>
+                          <SelectItem value="disciplinary" className="text-white hover:bg-slate-600">Disciplinary</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
-                      <Label>Date</Label>
+                      <Label className="text-white">Date</Label>
                       <Input
                         type="date"
                         value={actionForm.date}
                         onChange={(e) => setActionForm({ ...actionForm, date: e.target.value })}
                         required
+                        className="bg-slate-700 border-slate-600 text-white"
                       />
                     </div>
 
                     <div>
-                      <Label>Description</Label>
+                      <Label className="text-white">Description</Label>
                       <Textarea
                         value={actionForm.description}
                         onChange={(e) => setActionForm({ ...actionForm, description: e.target.value })}
                         placeholder="Enter action details..."
                         rows={4}
                         required
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
                       />
                     </div>
 
@@ -1315,10 +1317,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         type="button"
                         variant="outline"
                         onClick={() => setActionsDialogOpen(false)}
+                        className="border-slate-600 text-white hover:bg-slate-700"
                       >
                         Close
                       </Button>
-                      <Button type="submit">Add Action</Button>
+                      <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Add Action</Button>
                     </div>
                   </form>
                 </div>
