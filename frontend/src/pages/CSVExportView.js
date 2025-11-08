@@ -287,7 +287,7 @@ export default function CSVExportView() {
             Brothers of the Highway - Member Export
           </h1>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => window.close()}
             className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg"
           >
             <i className="fas fa-arrow-left mr-2"></i>
