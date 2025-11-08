@@ -1114,9 +1114,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 <i class="fas fa-code"></i>
                 <span id="toggleText">Raw View</span>
               </button>
-              <button class="btn-secondary" onclick="preparePrint()">
+              <button class="btn-secondary" onclick="openPrintOptions()">
                 <i class="fas fa-print"></i>
-                Print All
+                Print Custom
               </button>
             </div>
             
