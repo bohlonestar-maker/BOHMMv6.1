@@ -1161,6 +1161,55 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               </div>
             </div>
             
+            <div id="printOptionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;" onclick="if(event.target.id === 'printOptionsModal') closePrintOptionsModal()">
+              <div style="background: #1e293b; padding: 30px; border-radius: 12px; max-width: 700px; width: 100%; margin: auto; border: 2px solid #8b5cf6; box-shadow: 0 20px 60px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto;">
+                <h2 style="color: #8b5cf6; margin: 0 0 20px 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                  <i class="fas fa-print"></i>
+                  Customize Print Columns
+                </h2>
+                
+                <div style="background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                  <div style="font-size: 0.875rem; line-height: 1.6; color: #cbd5e1;">
+                    <p style="margin: 0 0 10px 0;">Select which columns to include in your print output:</p>
+                  </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                  <h3 style="color: #a78bfa; font-size: 1rem; margin: 0 0 10px 0;">Quick Presets:</h3>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button onclick="selectPreset('all')" style="background: #6366f1; padding: 8px 16px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                      All Fields
+                    </button>
+                    <button onclick="selectPreset('contact')" style="background: #8b5cf6; padding: 8px 16px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                      Contact Info
+                    </button>
+                    <button onclick="selectPreset('dues')" style="background: #a855f7; padding: 8px 16px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                      Dues Tracking
+                    </button>
+                    <button onclick="selectPreset('meetings')" style="background: #c084fc; padding: 8px 16px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                      Meeting Attendance
+                    </button>
+                    <button onclick="selectPreset('none')" style="background: #64748b; padding: 8px 16px; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                
+                <div id="columnCheckboxes" style="background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 20px; max-height: 300px; overflow-y: auto;">
+                  <!-- Checkboxes will be populated by JavaScript -->
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                  <button onclick="closePrintOptionsModal()" style="background: #475569; padding: 10px 20px; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
+                    Cancel
+                  </button>
+                  <button onclick="printSelectedColumns()" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 12px 24px; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3); font-size: 1rem;">
+                    <i class="fas fa-print"></i> Print Selected
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             <div id="content" class="table-container">
               <table id="csvTable"></table>
             </div>
