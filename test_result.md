@@ -295,13 +295,16 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "CSV EXPORT COMPREHENSIVE TESTING COMPLETED ❌ CRITICAL ISSUES IDENTIFIED: Comprehensive testing of GET /api/members/export/csv endpoint revealed multiple critical issues with meeting attendance export functionality. ✅ WORKING CORRECTLY: 1) CSV Export Response - Status 200, Content-Type text/csv, Content-Disposition header with members.csv ✅ 2) CSV Structure - All 69 columns present including basic info (Chapter, Title, Member Handle, Name, Email, Phone, Address), Dues Year + 12 month columns, Attendance Year column ✅ 3) Basic Data Export - Chapter, Title, Handle, Name all exported correctly ✅ 4) Phone Formatting - Phone numbers properly formatted as (555) 123-4567 ✅ 5) Dues Tracking Export - Dues year (2025), Jan=Paid, Feb=Unpaid, Mar=Late (Payment delayed) all exported correctly with 3-state system ❌ CRITICAL ISSUES: 1) Meeting Attendance Columns - Only 12 meeting-related columns found instead of expected 48 (24 meetings × 2 for status+note) 2) Meeting Attendance Data - Test member created with Jan-1st=Present, Jan-3rd=Excused with 'Doctor appointment' note, but CSV shows Jan-1st=Absent, Jan-3rd=Absent, empty notes 3) Meeting Attendance Structure - Backend not properly handling the 24-meeting attendance structure in CSV export. ROOT CAUSE: CSV export logic for meeting attendance appears to have issues with the meeting attendance data structure conversion and column generation. IMPACT: Meeting attendance data is not being exported correctly, making the CSV export incomplete for attendance tracking purposes. 15/19 comprehensive tests passed (78.9% success rate)."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL CSV EXPORT WINDOW BUG CONFIRMED ❌ PROGRAMMATIC SCRIPT INJECTION NOT WORKING: Comprehensive testing of the CSV export window fix revealed that the programmatic script injection is still failing. ✅ WORKING CORRECTLY: 1) CSV window opens successfully 2) SessionStorage data present (9897 characters of CSV data) 3) Script tag exists in DOM 4) Manual script execution works perfectly (parsed 22 CSV lines, 69 headers, populated table correctly) ❌ CRITICAL ISSUE: The injected script is NOT executing automatically - no '[CSV WINDOW] Script started' console message appears, table remains empty (0 rows), Print Custom button non-functional. ROOT CAUSE: createElement('script') + appendChild() method is not causing automatic script execution in the new window. The script code is injected but browser doesn't execute it. FIX NEEDED: Alternative script execution method required - the current programmatic injection approach is fundamentally broken. IMPACT: CSV export window completely non-functional for end users despite having all necessary data and code present."
 
   - task: "Bulk promotion of prospects to members"
     implemented: true
