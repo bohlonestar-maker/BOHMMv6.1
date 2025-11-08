@@ -1851,29 +1851,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 window.selectPreset = selectPreset;
                 window.printSelectedColumns = printSelectedColumns;
               }
-            </script>
-          </body>
-        </html>
       `;
       
-      csvWindow.document.write(html);
-      csvWindow.document.close();
-      
-      // Wait for window to be ready, then inject the script
-      csvWindow.addEventListener('load', () => {
-        const script = csvWindow.document.createElement('script');
-        
-        // Inject all the CSV window JavaScript here
-        script.textContent = `
-          console.log('[CSV WINDOW] Script started');
-          // CSV data is retrieved from sessionStorage
-          const csvText = sessionStorage.getItem('csvExportData') || '';
-          
-          console.log('[CSV WINDOW] CSV data loaded, length:', csvText.length);
-        `;
-        
-        csvWindow.document.body.appendChild(script);
-      });
+      // Append the script to the document body
+      csvWindow.document.body.appendChild(script);
       
       toast.success("CSV opened in new window");
     } catch (error) {
