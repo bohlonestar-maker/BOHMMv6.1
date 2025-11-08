@@ -1648,7 +1648,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   });
                   
                   // Generate HTML for print
-                  let printHTML = \`
+                  let printHTML = \\\`
 <!DOCTYPE html>
 <html>
 <head>
