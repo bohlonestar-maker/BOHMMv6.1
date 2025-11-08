@@ -127,6 +127,22 @@ export default function CSVExportView() {
             indices.push(index);
           }
           break;
+        case 'dues_first_half':
+          // Handle and first 6 months (Jan-Jun)
+          if (h.includes('handle') || h.includes('dues year') ||
+              h.includes('jan ') || h.includes('feb ') || h.includes('mar ') || 
+              h.includes('apr ') || h.includes('may ') || h.includes('jun ')) {
+            indices.push(index);
+          }
+          break;
+        case 'dues_second_half':
+          // Handle and second 6 months (Jul-Dec)
+          if (h.includes('handle') || h.includes('dues year') ||
+              h.includes('jul ') || h.includes('aug ') || h.includes('sep ') || 
+              h.includes('oct ') || h.includes('nov ') || h.includes('dec ')) {
+            indices.push(index);
+          }
+          break;
         case 'meetings':
           if (h.includes('handle') || h.includes('meeting') || h.includes('attendance') || 
               h.match(/\d{2}\/\d{2}/)) {
