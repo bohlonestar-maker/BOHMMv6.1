@@ -1524,6 +1524,305 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   modal.style.display = 'flex';
                 }
                 
+                function openPrintOptions() {
+                  const modal = document.getElementById('printOptionsModal');
+                  const checkboxContainer = document.getElementById('columnCheckboxes');
+                  
+                  // Clear previous checkboxes
+                  checkboxContainer.innerHTML = '';
+                  
+                  // Get all column headers
+                  const headers = csvData[0];
+                  
+                  // Create checkboxes for each column
+                  headers.forEach((header, index) => {
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; transition: background 0.2s;';
+                    checkboxDiv.onmouseenter = function() { this.style.background = '#475569'; };
+                    checkboxDiv.onmouseleave = function() { this.style.background = 'transparent'; };
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = 'col_' + index;
+                    checkbox.value = index;
+                    checkbox.checked = true; // All selected by default
+                    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #8b5cf6;';
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = 'col_' + index;
+                    label.textContent = header;
+                    label.style.cssText = 'cursor: pointer; color: #e2e8f0; font-size: 0.875rem; flex: 1;';
+                    
+                    checkboxDiv.appendChild(checkbox);
+                    checkboxDiv.appendChild(label);
+                    checkboxContainer.appendChild(checkboxDiv);
+                  });
+                  
+                  modal.style.display = 'flex';
+                }
+                
+                function closePrintOptionsModal() {
+                  const modal = document.getElementById('printOptionsModal');
+                  modal.style.display = 'none';
+                }
+                
+                function selectPreset(preset) {
+                  const headers = csvData[0];
+                  const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]');
+                  
+                  checkboxes.forEach((checkbox, index) => {
+                    const header = headers[index].toLowerCase();
+                    
+                    switch(preset) {
+                      case 'all':
+                        checkbox.checked = true;
+                        break;
+                      case 'none':
+                        checkbox.checked = false;
+                        break;
+                      case 'contact':
+                        // Select: Name, Handle, Chapter, Title, Email, Phone, Address
+                        checkbox.checked = header.includes('name') || 
+                                          header.includes('handle') || 
+                                          header.includes('chapter') || 
+                                          header.includes('title') || 
+                                          header.includes('email') || 
+                                          header.includes('phone') || 
+                                          header.includes('address');
+                        break;
+                      case 'dues':
+                        // Select: Handle and anything with "dues" or "$"
+                        checkbox.checked = header.includes('handle') || 
+                                          header.includes('dues') || 
+                                          header.includes('paid') ||
+                                          header.includes('balance');
+                        break;
+                      case 'meetings':
+                        // Select: Handle and meeting attendance dates
+                        checkbox.checked = header.includes('handle') || 
+                                          header.includes('meeting') || 
+                                          header.includes('attendance') ||
+                                          (header.match(/\d{2}\/\d{2}/) !== null); // Match date patterns like 01/01
+                        break;
+                    }
+                  });
+                }
+                
+                function printSelectedColumns() {
+                  const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]');
+                  const selectedIndices = [];
+                  
+                  checkboxes.forEach((checkbox) => {
+                    if (checkbox.checked) {
+                      selectedIndices.push(parseInt(checkbox.value));
+                    }
+                  });
+                  
+                  if (selectedIndices.length === 0) {
+                    alert('Please select at least one column to print.');
+                    return;
+                  }
+                  
+                  // Close the modal
+                  closePrintOptionsModal();
+                  
+                  // Create a new window for custom print
+                  const printWindow = window.open('', '_blank');
+                  
+                  // Filter CSV data to include only selected columns
+                  const filteredData = csvData.map(row => {
+                    return selectedIndices.map(index => row[index]);
+                  });
+                  
+                  // Generate HTML for print
+                  let printHTML = \`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Brothers of the Highway - Custom Print</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @media print {
+      @page {
+        size: landscape;
+        margin: 0.5cm;
+      }
+      body {
+        margin: 0;
+        padding: 10px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #8b5cf6;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+      margin: 0 5px;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e293b;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    th {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    th:last-child {
+      border-right: none;
+    }
+    
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #334155;
+      border-right: 1px solid #334155;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+    }
+    
+    td:last-child {
+      border-right: none;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tbody tr:hover {
+      background: #334155;
+    }
+    
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      
+      h1 {
+        color: #7c3aed;
+      }
+      
+      table {
+        background: white;
+        box-shadow: none;
+      }
+      
+      th {
+        background: #8b5cf6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: white !important;
+      }
+      
+      td {
+        color: black;
+        border-color: #ddd;
+      }
+      
+      tbody tr:nth-child(even) {
+        background: #f5f5f5;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls no-print">
+    <button onclick="window.print()">
+      <i class="fas fa-print"></i> Print
+    </button>
+    <button onclick="window.close()" style="background: #64748b;">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+  
+  <h1>
+    <i class="fas fa-users"></i> Brothers of the Highway - Custom Export
+  </h1>
+  
+  <table>
+    <thead>
+      <tr>
+\`;
+                  
+                  // Add headers
+                  filteredData[0].forEach(header => {
+                    printHTML += \`        <th>\${header}</th>\n\`;
+                  });
+                  
+                  printHTML += \`      </tr>
+    </thead>
+    <tbody>
+\`;
+                  
+                  // Add data rows
+                  for (let i = 1; i < filteredData.length; i++) {
+                    printHTML += \`      <tr>\n\`;
+                    filteredData[i].forEach(cell => {
+                      printHTML += \`        <td>\${cell}</td>\n\`;
+                    });
+                    printHTML += \`      </tr>\n\`;
+                  }
+                  
+                  printHTML += \`    </tbody>
+  </table>
+</body>
+</html>
+\`;
+                  
+                  printWindow.document.write(printHTML);
+                  printWindow.document.close();
+                  
+                  // Automatically trigger print dialog after a short delay
+                  setTimeout(() => {
+                    printWindow.print();
+                  }, 500);
+                }
+                
                 // Make functions globally available
                 window.downloadFullCSV = downloadFullCSV;
                 window.toggleView = toggleView;
