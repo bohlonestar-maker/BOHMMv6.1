@@ -204,6 +204,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/export-view"
+            element={
+              isAuthenticated ? (
+                <CSVExportView />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
         </Routes>
         {isAuthenticated && <MessageNotifier />}
         {isAuthenticated && <ChatBot />}
