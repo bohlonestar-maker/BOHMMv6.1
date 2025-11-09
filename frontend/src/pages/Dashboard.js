@@ -1324,10 +1324,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   )}
                 </div>
 
-                {/* Add New Action Form */}
+                {/* Add/Edit Action Form */}
                 <div className="border-t border-slate-700 pt-6">
-                  <h3 className="text-lg font-semibold text-slate-100 mb-3">Add New Action</h3>
-                  <form onSubmit={handleAddAction} className="space-y-4">
+                  <h3 className="text-lg font-semibold text-slate-100 mb-3">
+                    {editingAction ? 'Edit Action' : 'Add New Action'}
+                  </h3>
+                  <form onSubmit={editingAction ? handleUpdateAction : handleAddAction} className="space-y-4">
                     <div>
                       <Label className="text-white">Type</Label>
                       <Select
@@ -1372,12 +1374,14 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setActionsDialogOpen(false)}
+                        onClick={editingAction ? handleCancelEdit : () => setActionsDialogOpen(false)}
                         className="border-slate-600 text-white hover:bg-slate-700"
                       >
-                        Close
+                        {editingAction ? 'Cancel' : 'Close'}
                       </Button>
-                      <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Add Action</Button>
+                      <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                        {editingAction ? 'Update Action' : 'Add Action'}
+                      </Button>
                     </div>
                   </form>
                 </div>
