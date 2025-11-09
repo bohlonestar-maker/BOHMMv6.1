@@ -3325,7 +3325,7 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
         end_date = datetime.now(timezone.utc).date()
         start_date = end_date - timedelta(days=days)
         
-        # Get voice activity stats
+        # Get voice activity stats (most active)
         voice_pipeline = [
             {"$match": {"date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}}},
             {"$group": {
@@ -3338,7 +3338,7 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
             {"$limit": 10}
         ]
         
-        # Get text activity stats
+        # Get text activity stats (most active)
         text_pipeline = [
             {"$match": {"date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}}},
             {"$group": {
@@ -3369,18 +3369,66 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
         # Get total members count
         total_members = await db.discord_members.count_documents({})
         
-        # Enhance with usernames from discord_members collection
-        member_map = {}
-        all_members = await db.discord_members.find({}, {"discord_id": 1, "username": 1, "_id": 0}).to_list(None)
-        for member in all_members:
-            member_map[member["discord_id"]] = member["username"]
+        # Get all Discord members for least active analysis
+        all_members = await db.discord_members.find({}, {"discord_id": 1, "username": 1, "display_name": 1, "is_bot": 1, "_id": 0}).to_list(None)
         
-        # Add usernames to stats
+        # Create member map for username resolution
+        member_map = {}
+        for member in all_members:
+            member_map[member["discord_id"]] = {
+                "username": member["username"],
+                "display_name": member.get("display_name"),
+                "is_bot": member.get("is_bot", False)
+            }
+        
+        # Get all users who had voice activity
+        voice_active_users = {stat["_id"] for stat in voice_stats}
+        all_voice_users = await db.discord_voice_activity.distinct("discord_user_id", {
+            "date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}
+        })
+        voice_active_users.update(all_voice_users)
+        
+        # Get all users who had text activity  
+        text_active_users = {stat["_id"] for stat in text_stats}
+        all_text_users = await db.discord_text_activity.distinct("discord_user_id", {
+            "date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}
+        })
+        text_active_users.update(all_text_users)
+        
+        # Find least active members (no voice AND no text activity)
+        least_active_members = []
+        for member in all_members:
+            if member.get("is_bot"):
+                continue  # Skip bots
+                
+            discord_id = member["discord_id"]
+            has_voice_activity = discord_id in voice_active_users
+            has_text_activity = discord_id in text_active_users
+            
+            if not has_voice_activity and not has_text_activity:
+                least_active_members.append({
+                    "discord_id": discord_id,
+                    "username": member["username"],
+                    "display_name": member.get("display_name") or member["username"],
+                    "voice_activity": False,
+                    "text_activity": False,
+                    "activity_score": 0
+                })
+        
+        # Sort least active by username for consistency
+        least_active_members.sort(key=lambda x: x["username"].lower())
+        
+        # Limit to top 15 least active to avoid overwhelming the UI
+        least_active_members = least_active_members[:15]
+        
+        # Add usernames to most active stats
         for stat in voice_stats:
-            stat["username"] = member_map.get(stat["_id"], f"User {stat['_id'][:8]}")
+            member_info = member_map.get(stat["_id"], {})
+            stat["username"] = member_info.get("display_name") or member_info.get("username") or f"User {stat['_id'][:8]}"
         
         for stat in text_stats:
-            stat["username"] = member_map.get(stat["_id"], f"User {stat['_id'][:8]}")
+            member_info = member_map.get(stat["_id"], {})
+            stat["username"] = member_info.get("display_name") or member_info.get("username") or f"User {stat['_id'][:8]}"
         
         analytics = DiscordAnalytics(
             total_members=total_members,
@@ -3391,7 +3439,18 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
             daily_activity=daily_activity
         )
         
-        return analytics.model_dump()
+        # Add least active members to response
+        analytics_dict = analytics.model_dump()
+        analytics_dict["least_active_members"] = least_active_members
+        analytics_dict["engagement_stats"] = {
+            "total_members": total_members,
+            "voice_active_members": len(voice_active_users),
+            "text_active_members": len(text_active_users),
+            "inactive_members": len(least_active_members),
+            "engagement_rate": round(((len(voice_active_users) + len(text_active_users)) / total_members * 100), 1) if total_members > 0 else 0
+        }
+        
+        return analytics_dict
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
