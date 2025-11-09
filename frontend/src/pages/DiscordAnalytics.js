@@ -1,0 +1,361 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { ArrowLeft, Download, RefreshCw, Users, Volume2, MessageSquare, TrendingUp, Clock, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+export default function DiscordAnalytics() {
+  const [analytics, setAnalytics] = useState(null);
+  const [discordMembers, setDiscordMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchDiscordAnalytics();
+    fetchDiscordMembers();
+  }, []);
+
+  const fetchDiscordAnalytics = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(`${API}/discord/analytics?days=90`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAnalytics(response.data);
+    } catch (error) {
+      toast.error("Failed to load Discord analytics");
+      console.error("Analytics error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDiscordMembers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      setRefreshing(true);
+      const response = await axios.get(`${API}/discord/members`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setDiscordMembers(response.data);
+      toast.success("Discord members refreshed");
+    } catch (error) {
+      toast.error("Failed to load Discord members");
+      console.error("Members error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleImportMembers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      setImporting(true);
+      const response = await axios.post(`${API}/discord/import-members`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(response.data.message);
+      await fetchDiscordMembers(); // Refresh the list
+    } catch (error) {
+      toast.error("Failed to import Discord members");
+      console.error("Import error:", error);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const formatDuration = (seconds) => {
+    if (!seconds) return "0m";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p>Loading Discord Analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => navigate("/users")}
+                variant="ghost"
+                size="sm"
+                className="text-slate-300 hover:text-white"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to User Management
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Discord Analytics</h1>
+                <p className="text-slate-400">90-day activity overview</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={fetchDiscordMembers}
+                variant="outline"
+                size="sm"
+                disabled={refreshing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                onClick={handleImportMembers}
+                variant="default"
+                size="sm"
+                disabled={importing}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <Users className="w-4 h-4" />
+                {importing ? "Importing..." : "Import & Link Members"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Total Members
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">
+                  {analytics?.total_members || 0}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Volume2 className="w-4 h-4" />
+                  Voice Sessions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">
+                  {analytics?.voice_stats?.total_sessions || 0}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Text Messages
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">
+                  {analytics?.text_stats?.total_messages || 0}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Daily Average
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">
+                  {analytics?.daily_activity ? Math.round(analytics.daily_activity.length / 90) : 0}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Analytics Content */}
+        <Tabs defaultValue="voice" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+            <TabsTrigger value="voice" className="data-[state=active]:bg-slate-700 text-white">
+              Voice Activity
+            </TabsTrigger>
+            <TabsTrigger value="text" className="data-[state=active]:bg-slate-700 text-white">
+              Text Activity
+            </TabsTrigger>
+            <TabsTrigger value="members" className="data-[state=active]:bg-slate-700 text-white">
+              Members
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Voice Activity Tab */}
+          <TabsContent value="voice" className="space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Volume2 className="w-5 h-5" />
+                  Top Voice Chat Users (90 days)
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Most active members in voice channels
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {analytics?.top_voice_users?.length > 0 ? (
+                  <div className="space-y-3">
+                    {analytics.top_voice_users.map((user, index) => (
+                      <div key={user._id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-white">{user.username}</p>
+                            <p className="text-sm text-slate-400">{user.total_sessions} sessions</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-white">{formatDuration(user.total_duration)}</p>
+                          <p className="text-sm text-slate-400">total time</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-center py-8">No voice activity recorded yet</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Text Activity Tab */}
+          <TabsContent value="text" className="space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  Top Text Chat Users (90 days)
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Most active members in text channels
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {analytics?.top_text_users?.length > 0 ? (
+                  <div className="space-y-3">
+                    {analytics.top_text_users.map((user, index) => (
+                      <div key={user._id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-white">{user.username}</p>
+                            <p className="text-sm text-slate-400">User ID: {user._id.substring(0, 8)}...</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-white">{user.total_messages}</p>
+                          <p className="text-sm text-slate-400">messages</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-center py-8">No text activity recorded yet</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Members Tab */}
+          <TabsContent value="members" className="space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Discord Members ({discordMembers.length})
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Server members and their connection status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {discordMembers.length > 0 ? (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {discordMembers.map((member) => (
+                      <div key={member.discord_id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {member.avatar_url ? (
+                            <img 
+                              src={member.avatar_url} 
+                              alt={member.username}
+                              className="w-8 h-8 rounded-full"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
+                              <Users className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium text-white">
+                              {member.display_name || member.username}
+                            </p>
+                            <p className="text-sm text-slate-400">@{member.username}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {member.member_id ? (
+                            <span className="px-2 py-1 bg-green-600 text-white text-xs rounded">
+                              Linked
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 bg-slate-600 text-slate-300 text-xs rounded">
+                              Unlinked
+                            </span>
+                          )}
+                          {member.is_bot && (
+                            <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
+                              Bot
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-center py-8">No Discord members found. Click "Refresh" to load members.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
