@@ -6641,6 +6641,222 @@ def test_discord_activity_tracking():
     
     return tester.tests_passed == tester.tests_run
 
+def test_discord_members_data_structure():
+    """Test Discord members endpoints to understand data structure and identify connection status issue"""
+    print(f"\n🎮 Testing Discord Members Data Structure (Review Request)...")
+    
+    tester = BOHDirectoryAPITester()
+    
+    # Test 1: Login with testadmin/testpass123 as requested
+    success, login_response = tester.run_test(
+        "Login with testadmin/testpass123",
+        "POST",
+        "auth/login",
+        200,
+        data={"username": "testadmin", "password": "testpass123"}
+    )
+    
+    if not success:
+        print("❌ Cannot continue - testadmin login failed")
+        return
+    
+    tester.token = login_response['token']
+    print(f"   ✅ Successfully logged in as testadmin")
+    
+    # Test 2: GET /api/discord/members endpoint - Check data structure
+    success, discord_members = tester.run_test(
+        "GET /api/discord/members - Fetch Discord Members",
+        "GET",
+        "discord/members",
+        200
+    )
+    
+    if not success:
+        print("❌ Failed to fetch Discord members")
+        return
+    
+    # Analyze the data structure
+    if isinstance(discord_members, list):
+        total_members = len(discord_members)
+        print(f"   📊 Total Discord members found: {total_members}")
+        
+        # Count members with member_id field (linked)
+        linked_members = [m for m in discord_members if m.get('member_id') is not None]
+        unlinked_members = [m for m in discord_members if m.get('member_id') is None]
+        
+        linked_count = len(linked_members)
+        unlinked_count = len(unlinked_members)
+        
+        print(f"   🔗 Members with member_id (Linked): {linked_count}")
+        print(f"   🔓 Members without member_id (Unlinked): {unlinked_count}")
+        
+        # Check for duplicate discord_id entries
+        discord_ids = [m.get('discord_id') for m in discord_members if m.get('discord_id')]
+        unique_discord_ids = set(discord_ids)
+        duplicate_count = len(discord_ids) - len(unique_discord_ids)
+        
+        if duplicate_count > 0:
+            tester.log_test("Check for Duplicate Discord IDs", False, f"Found {duplicate_count} duplicate discord_id entries")
+            # Find and show duplicates
+            from collections import Counter
+            id_counts = Counter(discord_ids)
+            duplicates = [discord_id for discord_id, count in id_counts.items() if count > 1]
+            print(f"   ⚠️  Duplicate Discord IDs: {duplicates}")
+        else:
+            tester.log_test("Check for Duplicate Discord IDs", True, "No duplicate discord_id entries found")
+        
+        # Show sample members with their full data structure
+        print(f"\n   📋 Sample Discord Members Data Structure:")
+        sample_count = min(3, len(discord_members))
+        for i in range(sample_count):
+            member = discord_members[i]
+            print(f"   Sample {i+1}:")
+            print(f"     Discord ID: {member.get('discord_id', 'N/A')}")
+            print(f"     Username: {member.get('username', 'N/A')}")
+            print(f"     Display Name: {member.get('display_name', 'N/A')}")
+            print(f"     Member ID (Link): {member.get('member_id', 'NULL/UNLINKED')}")
+            print(f"     Joined At: {member.get('joined_at', 'N/A')}")
+            print(f"     Roles: {len(member.get('roles', []))} roles")
+            print(f"     Is Bot: {member.get('is_bot', False)}")
+            print(f"     Full Structure: {list(member.keys())}")
+            print()
+        
+        # Log detailed analysis
+        tester.log_test("Discord Members Data Structure Analysis", True, 
+                     f"Total: {total_members}, Linked: {linked_count}, Unlinked: {unlinked_count}, Duplicates: {duplicate_count}")
+        
+        # Check if the issue is 67 Linked + 67 Unlinked as reported
+        if total_members == 67:
+            if linked_count == 67 and unlinked_count == 0:
+                tester.log_test("Connection Status Issue Analysis", False, 
+                             "All 67 members show as linked - frontend may be showing incorrect unlinked count")
+            elif linked_count == 0 and unlinked_count == 67:
+                tester.log_test("Connection Status Issue Analysis", False, 
+                             "All 67 members show as unlinked - frontend may be showing incorrect linked count")
+            elif linked_count + unlinked_count == 67:
+                tester.log_test("Connection Status Issue Analysis", True, 
+                             f"Correct data: {linked_count} linked + {unlinked_count} unlinked = {total_members} total")
+            else:
+                tester.log_test("Connection Status Issue Analysis", False, 
+                             f"Data inconsistency: {linked_count} + {unlinked_count} ≠ {total_members}")
+        else:
+            tester.log_test("Member Count Verification", False, 
+                         f"Expected ~67 members as reported, found {total_members}")
+    else:
+        tester.log_test("Discord Members Response Format", False, "Response is not a list")
+        return
+    
+    # Test 3: POST /api/discord/import-members endpoint
+    print(f"\n   🔄 Testing Discord Import Members...")
+    
+    success, import_response = tester.run_test(
+        "POST /api/discord/import-members - Run Import",
+        "POST",
+        "discord/import-members",
+        200
+    )
+    
+    if success:
+        print(f"   📥 Import Response: {import_response}")
+        
+        # Check response message for matching information
+        if 'message' in import_response:
+            message = import_response['message']
+            print(f"   📝 Import Message: {message}")
+            
+            # Extract numbers from message if possible
+            import re
+            numbers = re.findall(r'\d+', message)
+            if numbers:
+                print(f"   🔢 Numbers found in message: {numbers}")
+        
+        # Re-fetch Discord members to see updated link status
+        print(f"\n   🔄 Re-fetching Discord members after import...")
+        
+        success, updated_discord_members = tester.run_test(
+            "GET /api/discord/members - After Import",
+            "GET",
+            "discord/members",
+            200
+        )
+        
+        if success and isinstance(updated_discord_members, list):
+            # Count linked vs unlinked after import
+            updated_linked = [m for m in updated_discord_members if m.get('member_id') is not None]
+            updated_unlinked = [m for m in updated_discord_members if m.get('member_id') is None]
+            
+            updated_linked_count = len(updated_linked)
+            updated_unlinked_count = len(updated_unlinked)
+            
+            print(f"   🔗 After Import - Linked: {updated_linked_count}")
+            print(f"   🔓 After Import - Unlinked: {updated_unlinked_count}")
+            
+            # Compare before and after
+            linked_change = updated_linked_count - linked_count
+            unlinked_change = updated_unlinked_count - unlinked_count
+            
+            if linked_change > 0:
+                tester.log_test("Import Members - Linking Success", True, 
+                             f"Import linked {linked_change} additional members")
+            elif linked_change == 0:
+                tester.log_test("Import Members - No New Links", True, 
+                             "Import completed but no new members were linked (may already be linked)")
+            else:
+                tester.log_test("Import Members - Unexpected Result", False, 
+                             f"Linked count decreased by {abs(linked_change)}")
+            
+            # Show examples of newly linked members if any
+            if linked_change > 0:
+                print(f"\n   🆕 Examples of newly linked members:")
+                newly_linked = []
+                for member in updated_discord_members:
+                    if member.get('member_id') is not None:
+                        # Check if this member was unlinked before
+                        was_unlinked = True
+                        for old_member in discord_members:
+                            if (old_member.get('discord_id') == member.get('discord_id') and 
+                                old_member.get('member_id') is not None):
+                                was_unlinked = False
+                                break
+                        
+                        if was_unlinked:
+                            newly_linked.append(member)
+                
+                for i, member in enumerate(newly_linked[:3]):  # Show up to 3 examples
+                    print(f"     Example {i+1}: {member.get('username')} -> Member ID: {member.get('member_id')}")
+    
+    # Test 4: Provide detailed analysis for debugging
+    print(f"\n   🔍 DETAILED ANALYSIS FOR DEBUGGING:")
+    print(f"   =====================================")
+    print(f"   Issue Reported: Dashboard shows 67 Linked + 67 Unlinked simultaneously")
+    print(f"   Backend Data Found:")
+    print(f"     - Total Discord Members: {total_members}")
+    print(f"     - Members with member_id (Linked): {linked_count}")
+    print(f"     - Members without member_id (Unlinked): {unlinked_count}")
+    print(f"     - Duplicate Discord IDs: {duplicate_count}")
+    print(f"   ")
+    print(f"   Possible Root Causes:")
+    if total_members == 67 and linked_count + unlinked_count == 67:
+        print(f"     ✅ Backend data is correct - issue likely in frontend logic")
+        print(f"     🔍 Frontend may be counting incorrectly or showing cached data")
+    elif duplicate_count > 0:
+        print(f"     ⚠️  Duplicate Discord IDs found - may cause double counting")
+    elif total_members != 67:
+        print(f"     ⚠️  Member count mismatch - expected ~67, found {total_members}")
+    else:
+        print(f"     ❓ Data structure appears normal - need frontend investigation")
+    
+    print(f"\n   🎮 Discord Members Data Structure Testing Completed")
+    
+    # Print test summary
+    print(f"\n📊 Discord Test Summary:")
+    print(f"   Total Tests: {tester.tests_run}")
+    print(f"   Passed: {tester.tests_passed}")
+    print(f"   Failed: {tester.tests_run - tester.tests_passed}")
+    print(f"   Success Rate: {(tester.tests_passed / tester.tests_run * 100):.1f}%")
+    
+    return total_members, linked_count, unlinked_count, duplicate_count
+
 if __name__ == "__main__":
-    # Run Discord activity tracking tests as requested
-    test_discord_activity_tracking()
+    # Run the specific Discord members data structure test as requested
+    test_discord_members_data_structure()
