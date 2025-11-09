@@ -3143,16 +3143,77 @@ async def test_discord_activity(current_user: dict = Depends(verify_admin)):
             "last_message_at": {"$gte": yesterday}
         }).limit(5).to_list(None)
         
+        # Check bot status and guild info
+        bot_info = {
+            "connected": discord_bot is not None,
+            "guilds": len(discord_bot.guilds) if discord_bot else 0,
+            "guild_info": []
+        }
+        
+        if discord_bot:
+            for guild in discord_bot.guilds:
+                bot_info["guild_info"].append({
+                    "name": guild.name,
+                    "id": str(guild.id), 
+                    "member_count": guild.member_count,
+                    "voice_channels": len(guild.voice_channels),
+                    "text_channels": len(guild.text_channels),
+                    "bot_permissions": guild.me.guild_permissions.value
+                })
+        
         return {
             "bot_status": "running" if discord_bot else "not_running",
+            "bot_info": bot_info,
             "total_voice_records": voice_count,
             "total_text_records": text_count,
             "recent_voice_activity": len(recent_voice),
             "recent_text_activity": len(recent_text),
+            "recent_voice_records": recent_voice,
+            "recent_text_records": recent_text,
             "message": f"Bot is {'active' if discord_bot else 'inactive'}. Voice: {voice_count} records, Text: {text_count} records"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Test error: {str(e)}")
+
+@api_router.post("/discord/simulate-activity")
+async def simulate_discord_activity(current_user: dict = Depends(verify_admin)):
+    """Simulate Discord activity for testing purposes"""
+    try:
+        # Create sample voice activity
+        voice_activity = {
+            'id': str(uuid.uuid4()),
+            'discord_user_id': '12345678901234567890',  # Test user ID
+            'channel_id': '98765432109876543210',
+            'channel_name': 'General Voice',
+            'joined_at': datetime.now(timezone.utc) - timedelta(minutes=30),
+            'left_at': datetime.now(timezone.utc),
+            'duration_seconds': 1800,  # 30 minutes
+            'date': datetime.now(timezone.utc).date().isoformat()
+        }
+        
+        # Create sample text activity
+        text_activity = {
+            'id': str(uuid.uuid4()),
+            'discord_user_id': '12345678901234567890',  # Test user ID
+            'channel_id': '11111111111111111111',
+            'channel_name': 'general',
+            'message_count': 5,
+            'date': datetime.now(timezone.utc).date().isoformat(),
+            'last_message_at': datetime.now(timezone.utc)
+        }
+        
+        # Insert test data
+        await db.discord_voice_activity.insert_one(voice_activity)
+        await db.discord_text_activity.insert_one(text_activity)
+        
+        return {
+            "message": "Test activity created successfully",
+            "voice_activity": voice_activity,
+            "text_activity": text_activity
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Simulation error: {str(e)}")
 
 @api_router.get("/discord/members")
 async def get_discord_members(current_user: dict = Depends(verify_admin)):
