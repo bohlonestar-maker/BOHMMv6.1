@@ -3457,40 +3457,147 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
 
 @api_router.post("/discord/import-members")
 async def import_discord_members(current_user: dict = Depends(verify_admin)):
-    """Import Discord members and link to existing members"""
+    """Import Discord members and link to existing members using enhanced fuzzy matching"""
     try:
-        # This endpoint will be called manually to import Discord members
-        # It will fetch the member list and try to match with existing database members
+        from rapidfuzz import fuzz, process
         
+        # Fetch Discord members and database members
         discord_members = await db.discord_members.find({}, {"_id": 0}).to_list(None)
         database_members = await db.members.find({}, {"_id": 0, "id": 1, "handle": 1, "name": 1}).to_list(None)
         
         matched_count = 0
+        match_details = []
+        
+        # Create lookup dictionaries for database members
+        handle_to_member = {m.get("handle", "").lower(): m for m in database_members if m.get("handle")}
+        name_to_member = {m.get("name", "").lower(): m for m in database_members if m.get("name")}
         
         for discord_member in discord_members:
-            # Try to match by handle or name
-            username = (discord_member.get("username") or "").lower()
-            display_name = (discord_member.get("display_name") or "").lower()
+            username = (discord_member.get("username") or "").strip()
+            display_name = (discord_member.get("display_name") or "").strip()
             
-            for db_member in database_members:
-                handle = (db_member.get("handle") or "").lower()
-                name = (db_member.get("name") or "").lower()
-                
-                # Simple matching logic - can be enhanced
-                if (username == handle or display_name == handle or 
-                    username == name or display_name == name):
+            if not username:
+                continue
+            
+            best_match = None
+            best_score = 0
+            match_type = ""
+            
+            # Strategy 1: Exact case-insensitive match on username/display_name with handle/name
+            username_lower = username.lower()
+            display_name_lower = display_name.lower() if display_name else ""
+            
+            if username_lower in handle_to_member:
+                best_match = handle_to_member[username_lower]
+                best_score = 100
+                match_type = "exact_handle"
+            elif display_name_lower and display_name_lower in handle_to_member:
+                best_match = handle_to_member[display_name_lower]
+                best_score = 100
+                match_type = "exact_display_handle"
+            elif username_lower in name_to_member:
+                best_match = name_to_member[username_lower]
+                best_score = 100
+                match_type = "exact_name"
+            elif display_name_lower and display_name_lower in name_to_member:
+                best_match = name_to_member[display_name_lower]
+                best_score = 100
+                match_type = "exact_display_name"
+            
+            # Strategy 2: Partial contains matching (e.g., "lonestar379" contains "lonestar")
+            if not best_match:
+                for db_member in database_members:
+                    handle = (db_member.get("handle") or "").lower()
+                    name = (db_member.get("name") or "").lower()
                     
-                    # Link the accounts
-                    await db.discord_members.update_one(
-                        {"discord_id": discord_member["discord_id"]},
-                        {"$set": {"member_id": db_member["id"]}}
-                    )
-                    matched_count += 1
-                    break
+                    # Check if handle/name is contained in username or display_name
+                    if handle and len(handle) >= 3:
+                        if handle in username_lower or handle in display_name_lower:
+                            score = 85
+                            if score > best_score:
+                                best_match = db_member
+                                best_score = score
+                                match_type = "partial_handle"
+                    
+                    # Check if username/display_name is contained in handle/name
+                    if username_lower and len(username_lower) >= 3:
+                        if username_lower in handle or username_lower in name:
+                            score = 85
+                            if score > best_score:
+                                best_match = db_member
+                                best_score = score
+                                match_type = "partial_username"
+            
+            # Strategy 3: Fuzzy matching with threshold
+            if not best_match or best_score < 90:
+                # Build list of all possible matches
+                match_candidates = []
+                for db_member in database_members:
+                    handle = db_member.get("handle", "")
+                    name = db_member.get("name", "")
+                    if handle:
+                        match_candidates.append((handle, db_member, "handle"))
+                    if name:
+                        match_candidates.append((name, db_member, "name"))
+                
+                # Try fuzzy matching with username
+                if username and match_candidates:
+                    for candidate_str, db_member, field_type in match_candidates:
+                        # Use token_sort_ratio for better matching with different word orders
+                        score1 = fuzz.token_sort_ratio(username.lower(), candidate_str.lower())
+                        score2 = fuzz.ratio(username.lower(), candidate_str.lower())
+                        score = max(score1, score2)
+                        
+                        if score > best_score and score >= 80:  # 80% similarity threshold
+                            best_match = db_member
+                            best_score = score
+                            match_type = f"fuzzy_{field_type}"
+                
+                # Try fuzzy matching with display_name
+                if display_name and match_candidates:
+                    for candidate_str, db_member, field_type in match_candidates:
+                        score1 = fuzz.token_sort_ratio(display_name.lower(), candidate_str.lower())
+                        score2 = fuzz.ratio(display_name.lower(), candidate_str.lower())
+                        score = max(score1, score2)
+                        
+                        if score > best_score and score >= 80:
+                            best_match = db_member
+                            best_score = score
+                            match_type = f"fuzzy_display_{field_type}"
+            
+            # Link if we found a good match (score >= 80)
+            if best_match and best_score >= 80:
+                await db.discord_members.update_one(
+                    {"discord_id": discord_member["discord_id"]},
+                    {"$set": {"member_id": best_match["id"]}}
+                )
+                matched_count += 1
+                match_details.append({
+                    "discord_user": username,
+                    "discord_display": display_name,
+                    "matched_handle": best_match.get("handle"),
+                    "matched_name": best_match.get("name"),
+                    "score": round(best_score, 1),
+                    "method": match_type
+                })
         
-        return {"message": f"Imported Discord members. Matched {matched_count} with existing members."}
+        # Log the activity
+        await log_activity(
+            current_user['username'],
+            "discord_import",
+            f"Imported Discord members with enhanced matching. Matched {matched_count} members."
+        )
+        
+        return {
+            "message": f"Imported Discord members. Matched {matched_count} with existing members.",
+            "matched_count": matched_count,
+            "total_discord_members": len(discord_members),
+            "match_details": match_details[:10]  # Return first 10 matches for review
+        }
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
 
 
