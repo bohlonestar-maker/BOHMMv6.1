@@ -381,6 +381,18 @@ backend:
         agent: "testing"
         comment: "PASSWORD CHANGE FUNCTIONALITY COMPREHENSIVE TESTING COMPLETE ✅ ALL 22 TESTS PASSED: ✅ ADMIN CHANGES USER PASSWORD: Successfully tested PUT /api/users/{user_id}/password endpoint with proper response message 'Password changed successfully' ✅ OLD PASSWORD VALIDATION: Confirmed old password no longer works after change (401 Unauthorized) ✅ NEW PASSWORD VALIDATION: Verified new password works correctly for login and token verification ✅ PASSWORD VALIDATION: Short passwords (<8 characters) correctly rejected with 400 error and message 'Password must be at least 8 characters' ✅ ACCESS CONTROL: Non-admin users cannot change passwords (403 Forbidden) ✅ INVALID USER ID: Non-existent user IDs return 404 'User not found' ✅ ACTIVITY LOGGING: Password changes properly logged in audit logs with correct action 'password_change' and details ✅ SECURITY: Password hashes not exposed in API responses, passwords not stored as plain text ✅ END-TO-END FLOW: Complete password change workflow from admin action → old password invalidation → new password activation → user login verification. The password change feature is production-ready and working as designed."
 
+  - task: "Discord Analytics API endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "DISCORD ANALYTICS API ENDPOINTS TESTING COMPLETE ✅ REVIEW REQUEST FULLY TESTED: Comprehensive testing of Discord Analytics API endpoints as requested. ✅ AUTHENTICATION: Successfully logged in with testadmin/testpass123 credentials as specified. ✅ GET /api/discord/members ENDPOINT: Successfully fetches Discord server members (67 members found, matching expected ~67), proper response format (list), correct data structure with all required fields (discord_id, username, display_name, joined_at, roles, is_bot), sample member data verified (Discord ID: 127638717115400192, Username: t101slicer, Display Name: HAB Goat Roper, 6 roles). ✅ GET /api/discord/analytics ENDPOINT: Returns proper analytics data with required fields (total_members: 67, voice_stats: dict, text_stats: dict), correct data types validated, member count reasonable (67 matches expected). ✅ POST /api/discord/import-members ENDPOINT: Successfully imports and links Discord members, proper response format with message 'Imported Discord members. Matched 0 with existing members', endpoint working correctly. ✅ PARAMETER SUPPORT: Analytics endpoint accepts days parameter (tested with ?days=30). ✅ AUTHORIZATION TESTING: All endpoints properly require admin authentication (403 Forbidden without token). ✅ DISCORD CONFIGURATION VERIFIED: Bot token working correctly, Guild ID 991898490743574628 accessible as expected. ✅ BUG FIX APPLIED: Fixed NoneType.lower() error in import-members endpoint where display_name could be None. ✅ COMPREHENSIVE RESULTS: 20/20 tests passed (100% success rate). All Discord Analytics API endpoints are production-ready and working exactly as specified in the review request."
+
 
 frontend:
   - task: "Display meeting dates (1st and 3rd Wednesday) in attendance UI"
