@@ -3137,11 +3137,11 @@ async def test_discord_activity(current_user: dict = Depends(verify_admin)):
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         recent_voice = await db.discord_voice_activity.find({
             "joined_at": {"$gte": yesterday}
-        }).limit(5).to_list(None)
+        }, {"_id": 0}).limit(5).to_list(None)
         
         recent_text = await db.discord_text_activity.find({
             "last_message_at": {"$gte": yesterday}
-        }).limit(5).to_list(None)
+        }, {"_id": 0}).limit(5).to_list(None)
         
         # Check bot status and guild info
         bot_info = {
