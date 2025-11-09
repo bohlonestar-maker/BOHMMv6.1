@@ -237,6 +237,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/discord-analytics"
+            element={
+              isAuthenticated && (userRole === 'admin' || userPermissions?.admin_actions) ? (
+                <DiscordAnalytics />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
         {isAuthenticated && <MessageNotifier />}
         {isAuthenticated && <ChatBot />}
