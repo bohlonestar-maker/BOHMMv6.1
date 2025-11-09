@@ -162,41 +162,83 @@ async def start_discord_bot():
                 sys.stderr.write(f"   After: {after.channel.name if after.channel else None}\n")
                 sys.stderr.flush()
                 
-                # User joined voice channel
-                if before.channel is None and after.channel is not None:
-                    sys.stderr.write(f"🎤 [DISCORD] {member.display_name} JOINED voice channel: {after.channel.name}\n")
-                    sys.stderr.flush()
-                    
-                    self.voice_sessions[user_id] = {
-                        'joined_at': now,
-                        'channel_id': str(after.channel.id),
-                        'channel_name': after.channel.name
-                    }
-                    
-                # User left voice channel
-                elif before.channel is not None and after.channel is None:
-                    sys.stderr.write(f"🎤 [DISCORD] {member.display_name} LEFT voice channel: {before.channel.name}\n")
-                    sys.stderr.flush()
-                    
-                    if user_id in self.voice_sessions:
-                        session = self.voice_sessions[user_id]
-                        duration = (now - session['joined_at']).total_seconds()
+                try:
+                    # User joined voice channel
+                    if before.channel is None and after.channel is not None:
+                        sys.stderr.write(f"🎤 [DISCORD] {member.display_name} JOINED voice channel: {after.channel.name}\n")
+                        sys.stderr.flush()
                         
-                        voice_activity = {
-                            'id': str(uuid.uuid4()),
-                            'discord_user_id': user_id,
-                            'channel_id': session['channel_id'],
-                            'channel_name': session['channel_name'],
-                            'joined_at': session['joined_at'],
-                            'left_at': now,
-                            'duration_seconds': int(duration),
-                            'date': now.date().isoformat()
+                        self.voice_sessions[user_id] = {
+                            'joined_at': now,
+                            'channel_id': str(after.channel.id),
+                            'channel_name': after.channel.name
                         }
                         
-                        await db.discord_voice_activity.insert_one(voice_activity)
-                        sys.stderr.write(f"💾 [DISCORD] Saved voice session: {duration/60:.1f} minutes\n")
+                    # User left voice channel
+                    elif before.channel is not None and after.channel is None:
+                        sys.stderr.write(f"🎤 [DISCORD] {member.display_name} LEFT voice channel: {before.channel.name}\n")
                         sys.stderr.flush()
-                        del self.voice_sessions[user_id]
+                        
+                        if user_id in self.voice_sessions:
+                            session = self.voice_sessions[user_id]
+                            duration = (now - session['joined_at']).total_seconds()
+                            
+                            voice_activity = {
+                                'id': str(uuid.uuid4()),
+                                'discord_user_id': user_id,
+                                'channel_id': session['channel_id'],
+                                'channel_name': session['channel_name'],
+                                'joined_at': session['joined_at'],
+                                'left_at': now,
+                                'duration_seconds': int(duration),
+                                'date': now.date().isoformat()
+                            }
+                            
+                            await db.discord_voice_activity.insert_one(voice_activity)
+                            sys.stderr.write(f"💾 [DISCORD] Saved voice session for {member.display_name}: {duration/60:.1f} minutes\n")
+                            sys.stderr.flush()
+                            del self.voice_sessions[user_id]
+                        else:
+                            sys.stderr.write(f"⚠️  [DISCORD] No active session found for {member.display_name} when leaving\n")
+                            sys.stderr.flush()
+                            
+                    # User moved between voice channels
+                    elif before.channel is not None and after.channel is not None and before.channel != after.channel:
+                        sys.stderr.write(f"🎤 [DISCORD] {member.display_name} MOVED from {before.channel.name} to {after.channel.name}\n")
+                        sys.stderr.flush()
+                        
+                        # End previous session
+                        if user_id in self.voice_sessions:
+                            session = self.voice_sessions[user_id]
+                            duration = (now - session['joined_at']).total_seconds()
+                            
+                            voice_activity = {
+                                'id': str(uuid.uuid4()),
+                                'discord_user_id': user_id,
+                                'channel_id': session['channel_id'],
+                                'channel_name': session['channel_name'],
+                                'joined_at': session['joined_at'],
+                                'left_at': now,
+                                'duration_seconds': int(duration),
+                                'date': now.date().isoformat()
+                            }
+                            
+                            await db.discord_voice_activity.insert_one(voice_activity)
+                            sys.stderr.write(f"💾 [DISCORD] Saved voice session for {member.display_name}: {duration/60:.1f} minutes\n")
+                            sys.stderr.flush()
+                        
+                        # Start new session
+                        self.voice_sessions[user_id] = {
+                            'joined_at': now,
+                            'channel_id': str(after.channel.id),
+                            'channel_name': after.channel.name
+                        }
+                        sys.stderr.write(f"🎤 [DISCORD] Started new session for {member.display_name} in {after.channel.name}\n")
+                        sys.stderr.flush()
+                
+                except Exception as e:
+                    sys.stderr.write(f"❌ [DISCORD] Error processing voice event for {member.display_name}: {str(e)}\n")
+                    sys.stderr.flush()
                         
             async def on_message(self, message):
                 if message.author.bot or not message.guild:
