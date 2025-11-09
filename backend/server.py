@@ -3216,9 +3216,9 @@ async def simulate_discord_activity(current_user: dict = Depends(verify_admin)):
             'last_message_at': now
         }
         
-        # Insert test data
-        await db.discord_voice_activity.insert_one(voice_activity)
-        await db.discord_text_activity.insert_one(text_activity)
+        # Insert test data (MongoDB will add _id automatically)
+        voice_result = await db.discord_voice_activity.insert_one(voice_activity)
+        text_result = await db.discord_text_activity.insert_one(text_activity)
         
         # Convert datetime objects to ISO strings for JSON serialization
         voice_activity_response = voice_activity.copy()
