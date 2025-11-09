@@ -102,6 +102,16 @@ cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 sys.stderr.write("✅ [INIT] Encryption configured\n")
 sys.stderr.flush()
 
+# Discord configuration
+sys.stderr.write("🔧 [INIT] Setting up Discord...\n")
+sys.stderr.flush()
+DISCORD_BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
+DISCORD_CLIENT_ID = os.environ.get('DISCORD_CLIENT_ID')
+DISCORD_CLIENT_SECRET = os.environ.get('DISCORD_CLIENT_SECRET')
+DISCORD_PUBLIC_KEY = os.environ.get('DISCORD_PUBLIC_KEY')
+sys.stderr.write("✅ [INIT] Discord configuration loaded\n")
+sys.stderr.flush()
+
 # Configure logging (must be early so it's available throughout the module)
 logging.basicConfig(
     level=logging.INFO,
