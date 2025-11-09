@@ -5898,6 +5898,188 @@ class BOHDirectoryAPITester:
                     
             else:
                 self.log_test("Discord Activity - Response Structure", False, f"Missing fields: {missing_fields}")
+
+    def test_current_discord_activity_data(self):
+        """Test current Discord activity data in database - REVIEW REQUEST"""
+        print(f"\n🔍 Testing Current Discord Activity Data (Review Request)...")
+        
+        # Test 1: Check current activity status with testadmin credentials
+        print(f"\n   📊 Step 1: Testing GET /api/discord/test-activity with testadmin...")
+        success, activity_response = self.run_test(
+            "GET Discord Test Activity (testadmin)",
+            "GET",
+            "discord/test-activity",
+            200
+        )
+        
+        if success:
+            # Extract current counts
+            voice_count = activity_response.get('total_voice_records', 0)
+            text_count = activity_response.get('total_text_records', 0)
+            recent_voice = activity_response.get('recent_voice_activity', 0)
+            recent_text = activity_response.get('recent_text_activity', 0)
+            bot_status = activity_response.get('bot_status', 'unknown')
+            
+            print(f"      📈 Current Activity Status:")
+            print(f"         Bot Status: {bot_status}")
+            print(f"         Total Voice Records: {voice_count}")
+            print(f"         Total Text Records: {text_count}")
+            print(f"         Recent Voice Activity: {recent_voice}")
+            print(f"         Recent Text Activity: {recent_text}")
+            
+            # Check for real activity from specific users mentioned in logs
+            if voice_count > 0:
+                self.log_test("Real Voice Activity Detected", True, f"Found {voice_count} voice activity records")
+                print(f"         ✅ Voice activity detected - bot is recording real Discord voice events")
+            else:
+                self.log_test("Real Voice Activity Detected", False, "No voice activity records found")
+                print(f"         ⚠️  No voice activity - may indicate bot just started or no voice channel usage")
+            
+            if text_count > 0:
+                self.log_test("Real Text Activity Detected", True, f"Found {text_count} text activity records")
+                print(f"         ✅ Text activity detected - bot is recording real Discord messages")
+            else:
+                self.log_test("Real Text Activity Detected", False, "No text activity records found")
+                print(f"         ⚠️  No text activity - may indicate bot just started or no channel messages")
+            
+            # Overall activity assessment
+            total_activity = voice_count + text_count
+            if total_activity > 0:
+                self.log_test("Discord Activity Database Has Data", True, f"Total activity records: {total_activity}")
+                print(f"         🎯 SUCCESS: Database contains {total_activity} total activity records")
+            else:
+                self.log_test("Discord Activity Database Has Data", False, "No activity records in database")
+                print(f"         ❌ No activity data found - check bot connection and Discord server activity")
+        
+        # Test 2: Check detailed analytics
+        print(f"\n   📈 Step 2: Testing GET /api/discord/analytics with testadmin...")
+        success, analytics_response = self.run_test(
+            "GET Discord Analytics (testadmin)",
+            "GET",
+            "discord/analytics",
+            200
+        )
+        
+        if success:
+            # Extract analytics data
+            total_members = analytics_response.get('total_members', 0)
+            voice_stats = analytics_response.get('voice_stats', {})
+            text_stats = analytics_response.get('text_stats', {})
+            top_voice_users = analytics_response.get('top_voice_users', [])
+            top_text_users = analytics_response.get('top_text_users', [])
+            daily_activity = analytics_response.get('daily_activity', [])
+            
+            print(f"      📊 Analytics Summary:")
+            print(f"         Total Discord Members: {total_members}")
+            print(f"         Voice Stats: {voice_stats}")
+            print(f"         Text Stats: {text_stats}")
+            print(f"         Top Voice Users: {len(top_voice_users)} users")
+            print(f"         Top Text Users: {len(top_text_users)} users")
+            print(f"         Daily Activity Records: {len(daily_activity)} days")
+            
+            # Check for specific users mentioned in backend logs
+            expected_users = ["NSEC Lonestar", "HAB Goat Roper"]
+            found_users = []
+            
+            # Check voice users
+            for user in top_voice_users:
+                if isinstance(user, dict) and 'display_name' in user:
+                    display_name = user['display_name']
+                    if any(expected_user in display_name for expected_user in expected_users):
+                        found_users.append(f"Voice: {display_name}")
+            
+            # Check text users  
+            for user in top_text_users:
+                if isinstance(user, dict) and 'display_name' in user:
+                    display_name = user['display_name']
+                    if any(expected_user in display_name for expected_user in expected_users):
+                        found_users.append(f"Text: {display_name}")
+            
+            if found_users:
+                self.log_test("Expected Discord Users Found in Analytics", True, f"Found: {', '.join(found_users)}")
+                print(f"         🎯 SUCCESS: Found expected users in analytics: {', '.join(found_users)}")
+            else:
+                self.log_test("Expected Discord Users Found in Analytics", False, f"Expected users not found in analytics")
+                print(f"         ⚠️  Expected users (NSEC Lonestar, HAB Goat Roper) not found in top users")
+            
+            # Check if analytics show real activity
+            voice_total_time = voice_stats.get('total_time_minutes', 0) if isinstance(voice_stats, dict) else 0
+            text_total_messages = text_stats.get('total_messages', 0) if isinstance(text_stats, dict) else 0
+            
+            if voice_total_time > 0:
+                self.log_test("Voice Analytics Show Real Activity", True, f"Total voice time: {voice_total_time} minutes")
+                print(f"         ✅ Voice analytics show {voice_total_time} minutes of activity")
+            else:
+                self.log_test("Voice Analytics Show Real Activity", False, "No voice time recorded in analytics")
+            
+            if text_total_messages > 0:
+                self.log_test("Text Analytics Show Real Activity", True, f"Total messages: {text_total_messages}")
+                print(f"         ✅ Text analytics show {text_total_messages} messages")
+            else:
+                self.log_test("Text Analytics Show Real Activity", False, "No messages recorded in analytics")
+            
+            # Check daily activity for recent data
+            if daily_activity and len(daily_activity) > 0:
+                recent_day = daily_activity[0] if isinstance(daily_activity, list) else {}
+                if isinstance(recent_day, dict):
+                    day_voice = recent_day.get('voice_minutes', 0)
+                    day_messages = recent_day.get('message_count', 0)
+                    day_date = recent_day.get('date', 'unknown')
+                    
+                    if day_voice > 0 or day_messages > 0:
+                        self.log_test("Recent Daily Activity Found", True, f"Date: {day_date}, Voice: {day_voice}min, Messages: {day_messages}")
+                        print(f"         ✅ Recent activity on {day_date}: {day_voice} voice minutes, {day_messages} messages")
+                    else:
+                        self.log_test("Recent Daily Activity Found", False, f"No activity on most recent day: {day_date}")
+                else:
+                    self.log_test("Recent Daily Activity Found", False, "Daily activity data format issue")
+            else:
+                self.log_test("Recent Daily Activity Found", False, "No daily activity records")
+        
+        # Test 3: Verify activity is properly stored and returned
+        print(f"\n   💾 Step 3: Verifying Activity Storage and Retrieval...")
+        
+        # Check if we have both endpoints working and returning consistent data
+        if success and activity_response:
+            test_activity_voice = activity_response.get('total_voice_records', 0)
+            test_activity_text = activity_response.get('total_text_records', 0)
+            
+            analytics_voice_records = 0
+            analytics_text_records = 0
+            
+            # Try to extract record counts from analytics
+            if isinstance(voice_stats, dict):
+                analytics_voice_records = voice_stats.get('total_sessions', 0)
+            if isinstance(text_stats, dict):
+                analytics_text_records = text_stats.get('total_messages', 0)
+            
+            print(f"      🔄 Data Consistency Check:")
+            print(f"         Test Activity Endpoint - Voice: {test_activity_voice}, Text: {test_activity_text}")
+            print(f"         Analytics Endpoint - Voice Sessions: {analytics_voice_records}, Text Messages: {analytics_text_records}")
+            
+            # Check if data is being properly stored and retrieved
+            if test_activity_voice > 0 and analytics_voice_records >= 0:
+                self.log_test("Voice Data Consistency", True, f"Both endpoints show voice activity data")
+            elif test_activity_voice == 0 and analytics_voice_records == 0:
+                self.log_test("Voice Data Consistency", True, f"Both endpoints consistently show no voice data")
+            else:
+                self.log_test("Voice Data Consistency", False, f"Inconsistent voice data between endpoints")
+            
+            if test_activity_text > 0 and analytics_text_records >= 0:
+                self.log_test("Text Data Consistency", True, f"Both endpoints show text activity data")
+            elif test_activity_text == 0 and analytics_text_records == 0:
+                self.log_test("Text Data Consistency", True, f"Both endpoints consistently show no text data")
+            else:
+                self.log_test("Text Data Consistency", False, f"Inconsistent text data between endpoints")
+        
+        print(f"\n   🎯 Discord Activity Data Review Summary:")
+        print(f"      - Bot Status: {bot_status if 'bot_status' in locals() else 'Unknown'}")
+        print(f"      - Voice Records: {voice_count if 'voice_count' in locals() else 'Unknown'}")
+        print(f"      - Text Records: {text_count if 'text_count' in locals() else 'Unknown'}")
+        print(f"      - Total Members: {total_members if 'total_members' in locals() else 'Unknown'}")
+        print(f"      - Expected Users Found: {len(found_users) if 'found_users' in locals() else 0}")
+        
+        return activity_response, analytics_response
         
         # Test unauthorized access (should fail without admin token)
         original_token = self.token
