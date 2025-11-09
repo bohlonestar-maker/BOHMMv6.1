@@ -494,7 +494,7 @@ class DiscordAnalyticsInvestigator:
         """Investigate the aggregation pipeline logic"""
         print(f"\n🔧 STEP 4: Investigating Aggregation Pipeline Logic...")
         
-        if not self.db:
+        if self.db is None:
             self.log_test("Aggregation Pipeline Investigation", False, "No database connection available")
             return
         
