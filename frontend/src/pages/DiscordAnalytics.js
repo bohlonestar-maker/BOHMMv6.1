@@ -418,20 +418,27 @@ export default function DiscordAnalytics() {
                             <p className="text-sm text-slate-400">@{member.username}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {member.member_id ? (
-                            <span className="px-2 py-1 bg-green-600 text-white text-xs rounded">
-                              Linked
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 bg-slate-600 text-slate-300 text-xs rounded">
-                              Unlinked
-                            </span>
-                          )}
-                          {member.is_bot && (
-                            <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
-                              Bot
-                            </span>
+                        <div className="flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-2">
+                            {member.member_id ? (
+                              <span className="px-2 py-1 bg-green-600 text-white text-xs rounded">
+                                Linked
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 bg-slate-600 text-slate-300 text-xs rounded">
+                                Unlinked
+                              </span>
+                            )}
+                            {member.is_bot && (
+                              <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
+                                Bot
+                              </span>
+                            )}
+                          </div>
+                          {member.linked_member && (
+                            <p className="text-xs text-green-400">
+                              → {member.linked_member.handle} ({member.linked_member.name})
+                            </p>
                           )}
                         </div>
                       </div>
