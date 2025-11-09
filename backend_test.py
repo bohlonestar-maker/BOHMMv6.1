@@ -5892,6 +5892,9 @@ class BOHDirectoryAPITester:
         # NEW: CSV Export Comprehensive Testing (Review Request)
         self.test_csv_export_comprehensive()
         
+        # REVIEW REQUEST: Discord Analytics API Endpoints Testing
+        self.test_discord_analytics_endpoints()
+        
         # Test member operations
         self.test_member_operations()
         
