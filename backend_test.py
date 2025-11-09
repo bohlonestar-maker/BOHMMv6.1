@@ -6242,5 +6242,220 @@ def main():
     # Return appropriate exit code
     return 0 if tester.tests_passed == tester.tests_run else 1
 
+def test_discord_activity_tracking():
+    """Test Discord activity tracking with enhanced debug endpoints"""
+    print(f"\n🎮 Testing Discord Activity Tracking...")
+    
+    tester = BOHDirectoryAPITester()
+    
+    # Test authentication first
+    success, response = tester.test_login()
+    if not success:
+        print("❌ Authentication failed - cannot continue Discord tests")
+        return False
+    
+    # Test 1: Bot status endpoint
+    success, bot_status = tester.run_test(
+        "Get Discord Bot Status and Activity",
+        "GET",
+        "discord/test-activity",
+        200
+    )
+    
+    if success:
+        # Verify response structure
+        expected_fields = ['bot_status', 'bot_info', 'total_voice_records', 'total_text_records', 'message']
+        missing_fields = [field for field in expected_fields if field not in bot_status]
+        
+        if not missing_fields:
+            tester.log_test("Bot Status Response Structure", True, f"All required fields present: {expected_fields}")
+            
+            # Check bot status
+            if bot_status.get('bot_status') == 'running':
+                tester.log_test("Discord Bot Status", True, "Bot is running and connected")
+            else:
+                tester.log_test("Discord Bot Status", False, f"Bot status: {bot_status.get('bot_status')}")
+            
+            # Check bot info
+            bot_info = bot_status.get('bot_info', {})
+            if bot_info.get('connected'):
+                tester.log_test("Bot Connection Status", True, f"Bot connected to {bot_info.get('guilds', 0)} guilds")
+                
+                # Check guild information
+                guild_info = bot_info.get('guild_info', [])
+                if guild_info:
+                    for guild in guild_info:
+                        guild_name = guild.get('name', 'Unknown')
+                        member_count = guild.get('member_count', 0)
+                        voice_channels = guild.get('voice_channels', 0)
+                        text_channels = guild.get('text_channels', 0)
+                        permissions = guild.get('bot_permissions', 0)
+                        
+                        tester.log_test(f"Guild Info - {guild_name}", True, 
+                                    f"Members: {member_count}, Voice: {voice_channels}, Text: {text_channels}, Permissions: {permissions}")
+                else:
+                    tester.log_test("Guild Information", False, "No guild information available")
+            else:
+                tester.log_test("Bot Connection Status", False, "Bot not connected")
+            
+            # Check activity counts
+            voice_count = bot_status.get('total_voice_records', 0)
+            text_count = bot_status.get('total_text_records', 0)
+            tester.log_test("Activity Records Count", True, f"Voice: {voice_count}, Text: {text_count}")
+            
+        else:
+            tester.log_test("Bot Status Response Structure", False, f"Missing fields: {missing_fields}")
+    
+    # Test 2: Simulate test activity
+    success, simulate_response = tester.run_test(
+        "Simulate Discord Activity",
+        "POST",
+        "discord/simulate-activity",
+        200
+    )
+    
+    if success:
+        # Verify simulation response
+        expected_fields = ['message', 'voice_activity', 'text_activity']
+        missing_fields = [field for field in expected_fields if field not in simulate_response]
+        
+        if not missing_fields:
+            tester.log_test("Activity Simulation Response", True, "Simulation created test activity records")
+            
+            # Verify voice activity structure
+            voice_activity = simulate_response.get('voice_activity', {})
+            voice_fields = ['id', 'discord_user_id', 'channel_id', 'channel_name', 'duration_seconds']
+            voice_missing = [field for field in voice_fields if field not in voice_activity]
+            
+            if not voice_missing:
+                tester.log_test("Voice Activity Structure", True, f"All voice fields present: {voice_fields}")
+            else:
+                tester.log_test("Voice Activity Structure", False, f"Missing voice fields: {voice_missing}")
+            
+            # Verify text activity structure
+            text_activity = simulate_response.get('text_activity', {})
+            text_fields = ['id', 'discord_user_id', 'channel_id', 'channel_name', 'message_count']
+            text_missing = [field for field in text_fields if field not in text_activity]
+            
+            if not text_missing:
+                tester.log_test("Text Activity Structure", True, f"All text fields present: {text_fields}")
+            else:
+                tester.log_test("Text Activity Structure", False, f"Missing text fields: {text_missing}")
+                
+        else:
+            tester.log_test("Activity Simulation Response", False, f"Missing fields: {missing_fields}")
+    
+    # Test 3: Verify activity was recorded (check again after simulation)
+    success, updated_status = tester.run_test(
+        "Verify Activity Recorded After Simulation",
+        "GET",
+        "discord/test-activity",
+        200
+    )
+    
+    if success and bot_status:
+        # Compare counts before and after simulation
+        old_voice_count = bot_status.get('total_voice_records', 0)
+        old_text_count = bot_status.get('total_text_records', 0)
+        new_voice_count = updated_status.get('total_voice_records', 0)
+        new_text_count = updated_status.get('total_text_records', 0)
+        
+        if new_voice_count > old_voice_count:
+            tester.log_test("Voice Activity Recorded", True, f"Voice records increased from {old_voice_count} to {new_voice_count}")
+        else:
+            tester.log_test("Voice Activity Recorded", False, f"Voice records did not increase: {old_voice_count} -> {new_voice_count}")
+        
+        if new_text_count > old_text_count:
+            tester.log_test("Text Activity Recorded", True, f"Text records increased from {old_text_count} to {new_text_count}")
+        else:
+            tester.log_test("Text Activity Recorded", False, f"Text records did not increase: {old_text_count} -> {new_text_count}")
+    
+    # Test 4: Test analytics endpoint
+    success, analytics = tester.run_test(
+        "Get Discord Analytics",
+        "GET",
+        "discord/analytics",
+        200
+    )
+    
+    if success:
+        # Verify analytics structure
+        expected_fields = ['total_members', 'voice_stats', 'text_stats', 'top_voice_users', 'top_text_users', 'daily_activity']
+        missing_fields = [field for field in expected_fields if field not in analytics]
+        
+        if not missing_fields:
+            tester.log_test("Analytics Response Structure", True, f"All analytics fields present: {expected_fields}")
+            
+            # Check analytics data
+            total_members = analytics.get('total_members', 0)
+            voice_stats = analytics.get('voice_stats', {})
+            text_stats = analytics.get('text_stats', {})
+            
+            tester.log_test("Analytics Data Available", True, 
+                        f"Members: {total_members}, Voice stats: {len(voice_stats)}, Text stats: {len(text_stats)}")
+            
+            # Check if simulated activity appears in analytics
+            top_voice_users = analytics.get('top_voice_users', [])
+            top_text_users = analytics.get('top_text_users', [])
+            
+            if top_voice_users or top_text_users:
+                tester.log_test("Simulated Activity in Analytics", True, 
+                            f"Voice users: {len(top_voice_users)}, Text users: {len(top_text_users)}")
+            else:
+                tester.log_test("Simulated Activity in Analytics", False, "No activity data found in analytics")
+                
+        else:
+            tester.log_test("Analytics Response Structure", False, f"Missing analytics fields: {missing_fields}")
+    
+    # Test 5: Test Discord members endpoint
+    success, members = tester.run_test(
+        "Get Discord Members",
+        "GET",
+        "discord/members",
+        200
+    )
+    
+    if success and isinstance(members, list):
+        tester.log_test("Discord Members Endpoint", True, f"Retrieved {len(members)} Discord members")
+        
+        if members:
+            # Check member structure
+            sample_member = members[0]
+            member_fields = ['discord_id', 'username', 'joined_at', 'roles', 'is_bot']
+            member_missing = [field for field in member_fields if field not in sample_member]
+            
+            if not member_missing:
+                tester.log_test("Discord Member Structure", True, f"All member fields present: {member_fields}")
+            else:
+                tester.log_test("Discord Member Structure", False, f"Missing member fields: {member_missing}")
+    else:
+        tester.log_test("Discord Members Endpoint", False, "Failed to retrieve Discord members or invalid response")
+    
+    # Test 6: Test import members endpoint
+    success, import_response = tester.run_test(
+        "Import Discord Members",
+        "POST",
+        "discord/import-members",
+        200
+    )
+    
+    if success:
+        if 'message' in import_response:
+            tester.log_test("Import Discord Members", True, f"Import response: {import_response.get('message')}")
+        else:
+            tester.log_test("Import Discord Members", False, "No message in import response")
+    
+    print(f"   🎮 Discord activity tracking testing completed")
+    
+    # Print final results
+    print(f"\n📊 Discord Activity Test Results:")
+    print(f"   Total Tests: {tester.tests_run}")
+    print(f"   Passed: {tester.tests_passed}")
+    print(f"   Failed: {tester.tests_run - tester.tests_passed}")
+    print(f"   Success Rate: {(tester.tests_passed/tester.tests_run*100):.1f}%")
+    
+    return tester.tests_passed == tester.tests_run
+
 if __name__ == "__main__":
-    sys.exit(main())
+    # Run Discord activity tracking tests as requested
+    test_discord_activity_tracking()
