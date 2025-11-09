@@ -279,6 +279,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const handleOpenActions = (member) => {
     setSelectedMember(member);
     setActionForm({ type: "merit", date: new Date().toISOString().split('T')[0], description: "" });
+    setEditingAction(null); // Reset editing state
     setActionsDialogOpen(true);
   };
 
