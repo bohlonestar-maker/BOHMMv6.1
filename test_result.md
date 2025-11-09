@@ -629,7 +629,6 @@ test_plan:
   current_focus:
     - "Members CSV export functionality"
     - "Contact privacy options (phone and address)"
-    - "Scheduled Discord event notifications monitoring"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
