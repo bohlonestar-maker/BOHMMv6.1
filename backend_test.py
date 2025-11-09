@@ -7714,4 +7714,9 @@ def test_discord_members_data_structure():
 if __name__ == "__main__":
     # Run the Discord voice activity investigation specifically
     tester = BOHDirectoryAPITester()
-    tester.test_discord_voice_activity_investigation()
+    # Login first, then run the investigation
+    success, response = tester.test_login()
+    if success:
+        tester.test_discord_voice_activity_investigation()
+    else:
+        print("❌ Login failed - cannot run Discord voice activity investigation")
