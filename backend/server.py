@@ -207,6 +207,9 @@ async def start_discord_bot():
                 channel_name = message.channel.name
                 today = datetime.now(timezone.utc).date().isoformat()
                 
+                sys.stderr.write(f"💬 [DISCORD] Message from {message.author.display_name} in #{channel_name}: {message.content[:50]}...\n")
+                sys.stderr.flush()
+                
                 # Check existing record
                 existing_record = await db.discord_text_activity.find_one({
                     'discord_user_id': user_id,
@@ -222,6 +225,8 @@ async def start_discord_bot():
                             '$set': {'last_message_at': datetime.now(timezone.utc)}
                         }
                     )
+                    sys.stderr.write(f"📊 [DISCORD] Updated message count for {message.author.display_name}\n")
+                    sys.stderr.flush()
                 else:
                     text_activity = {
                         'id': str(uuid.uuid4()),
@@ -233,6 +238,8 @@ async def start_discord_bot():
                         'last_message_at': datetime.now(timezone.utc)
                     }
                     await db.discord_text_activity.insert_one(text_activity)
+                    sys.stderr.write(f"💾 [DISCORD] Created new text activity record for {message.author.display_name}\n")
+                    sys.stderr.flush()
         
         # Start the bot
         discord_bot = DiscordActivityBot()
