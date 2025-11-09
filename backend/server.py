@@ -3314,8 +3314,23 @@ async def get_discord_members(current_user: dict = Depends(verify_admin)):
                             upsert=True
                         )
                     
-                    # Return stored members
+                    # Return stored members with linked member information
                     stored_members = await db.discord_members.find({}, {"_id": 0}).to_list(1000)
+                    
+                    # Enrich with linked member information
+                    for discord_member in stored_members:
+                        if discord_member.get("member_id"):
+                            # Fetch the linked database member
+                            db_member = await db.members.find_one(
+                                {"id": discord_member["member_id"]},
+                                {"_id": 0, "handle": 1, "name": 1}
+                            )
+                            if db_member:
+                                discord_member["linked_member"] = {
+                                    "handle": db_member.get("handle"),
+                                    "name": db_member.get("name")
+                                }
+                    
                     return stored_members
                 else:
                     raise HTTPException(status_code=resp.status, detail="Failed to fetch Discord members")
