@@ -1291,14 +1291,26 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                               </span>
                               <span className="text-slate-400 text-sm">{action.date}</span>
                             </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:text-red-700"
-                              onClick={() => handleDeleteAction(action.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-blue-600 hover:text-blue-700"
+                                onClick={() => handleEditAction(action)}
+                                title="Edit Action"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => handleDeleteAction(action.id)}
+                                title="Delete Action"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                           <p className="text-slate-200 text-sm mb-2">{action.description}</p>
                           <p className="text-slate-500 text-xs">
