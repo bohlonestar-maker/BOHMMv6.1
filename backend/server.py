@@ -3106,12 +3106,12 @@ async def import_discord_members(current_user: dict = Depends(verify_admin)):
         
         for discord_member in discord_members:
             # Try to match by handle or name
-            username = discord_member.get("username", "").lower()
-            display_name = discord_member.get("display_name", "").lower()
+            username = (discord_member.get("username") or "").lower()
+            display_name = (discord_member.get("display_name") or "").lower()
             
             for db_member in database_members:
-                handle = db_member.get("handle", "").lower()
-                name = db_member.get("name", "").lower()
+                handle = (db_member.get("handle") or "").lower()
+                name = (db_member.get("name") or "").lower()
                 
                 # Simple matching logic - can be enhanced
                 if (username == handle or display_name == handle or 
