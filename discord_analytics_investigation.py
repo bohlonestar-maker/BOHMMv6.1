@@ -106,7 +106,7 @@ class DiscordAnalyticsInvestigator:
 
     def query_database_direct(self, collection_name, query=None, limit=None):
         """Query MongoDB database directly"""
-        if not self.db:
+        if self.db is None:
             return None, "No database connection"
         
         try:
