@@ -201,12 +201,15 @@ export default function DiscordAnalytics() {
 
         {/* Analytics Content */}
         <Tabs defaultValue="voice" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+          <TabsList className="grid w-full grid-cols-4 bg-slate-800">
             <TabsTrigger value="voice" className="data-[state=active]:bg-slate-700 text-white">
               Voice Activity
             </TabsTrigger>
             <TabsTrigger value="text" className="data-[state=active]:bg-slate-700 text-white">
               Text Activity
+            </TabsTrigger>
+            <TabsTrigger value="inactive" className="data-[state=active]:bg-slate-700 text-white">
+              Least Active
             </TabsTrigger>
             <TabsTrigger value="members" className="data-[state=active]:bg-slate-700 text-white">
               Members
