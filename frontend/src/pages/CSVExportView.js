@@ -354,23 +354,12 @@ export default function CSVExportView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-3 sm:p-4 md:p-6">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-400">
-            <i className="fas fa-file-csv mr-2"></i>
-            <span className="hidden sm:inline">Brothers of the Highway - </span>Member Export
-          </h1>
-          <button
-            onClick={() => window.close()}
-            className="bg-slate-700 hover:bg-slate-600 px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base whitespace-nowrap"
-          >
-            <i className="fas fa-arrow-left mr-2"></i>
-            Back<span className="hidden sm:inline"> to Dashboard</span>
-          </button>
-        </div>
-
+    <PageLayout
+      title="Member Export"
+      icon={FileSpreadsheet}
+      backTo="/"
+      backLabel="Back"
+    >
         {/* Stats */}
         <div className="bg-slate-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
           <div className="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm">
