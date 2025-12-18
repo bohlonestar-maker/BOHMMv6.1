@@ -1282,6 +1282,7 @@ export default function UserManagement({ onLogout }) {
             </div>
           )}
         </div>
+        </div>
 
       {/* Manage Invites Dialog */}
       <Dialog open={invitesDialogOpen} onOpenChange={setInvitesDialogOpen}>
