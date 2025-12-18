@@ -457,53 +457,42 @@ export default function Prospects({ onLogout, userRole }) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <nav className="bg-slate-800 border-b border-slate-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">Hangarounds/Prospects</h1>
-            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-              <span className="text-xs sm:text-sm text-slate-300">
-                {localStorage.getItem("username")} ({userRole})
-              </span>
-              <Button
-                onClick={() => navigate("/")}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-              >
-                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Members</span>
-                <span className="sm:hidden">Members</span>
-              </Button>
-              {userRole === 'admin' && (
-                <Button
-                  onClick={() => navigate("/users")}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                >
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Admin</span>
-                  <span className="sm:hidden">Admin</span>
-                </Button>
-              )}
-              <Button
-                onClick={onLogout}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+  const headerActions = (
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-xs sm:text-sm text-slate-300">
+        {localStorage.getItem("username")} ({userRole})
+      </span>
+      {userRole === 'admin' && (
+        <Button
+          onClick={() => navigate("/users")}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+        >
+          <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Admin</span>
+        </Button>
+      )}
+      <Button
+        onClick={onLogout}
+        variant="outline"
+        size="sm"
+        className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+      >
+        <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+        Logout
+      </Button>
+    </div>
+  );
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+  return (
+    <PageLayout
+      title="Hangarounds/Prospects"
+      icon={UserCheck}
+      backTo="/"
+      backLabel="Members"
+      actions={headerActions}
+    >
         <div className="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
             <div className="relative max-w-2xl">
