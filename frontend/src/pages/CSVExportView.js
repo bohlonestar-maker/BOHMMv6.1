@@ -452,7 +452,6 @@ export default function CSVExportView() {
             {csvText}
           </pre>
         )}
-      </div>
 
       {/* Print Custom Modal */}
       {showPrintModal && (
