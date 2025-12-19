@@ -107,8 +107,10 @@ export default function DiscordAnalytics() {
     return !m.is_bot &&  // Filter out Discord bots
            !displayName.includes('bot') && 
            !displayName.includes('tv') && 
+           !displayName.includes('testdummy') &&
            !username.includes('bot') && 
            !username.includes('tv') &&
+           !username.includes('testdummy') &&
            !displayName.startsWith('aoh') &&
            !username.startsWith('aoh') &&
            displayName !== 'craig' &&
