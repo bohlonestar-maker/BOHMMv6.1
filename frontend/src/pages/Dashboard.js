@@ -454,6 +454,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       join_date: "",
       phone_private: false,
       address_private: false,
+      email_private: false,
       dues: {
         [currentYear]: Array(12).fill(false)
       },
