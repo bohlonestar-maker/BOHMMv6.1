@@ -603,7 +603,7 @@ class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
-    email: EmailStr  # Required email field
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails  # Required email field
     password_hash: str
     role: str = "member"  # admin, member, or prospect
     chapter: Optional[str] = None  # National, AD, HA, HS
@@ -621,7 +621,7 @@ class User(BaseModel):
 
 class UserCreate(BaseModel):
     username: str
-    email: EmailStr  # Required email field
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails  # Required email field
     password: str
     role: str = "member"
     chapter: Optional[str] = None
@@ -649,7 +649,7 @@ class UserResponse(BaseModel):
 class Invite(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     role: str
     chapter: Optional[str] = None
     title: Optional[str] = None
@@ -660,7 +660,7 @@ class Invite(BaseModel):
     used: bool = False
 
 class InviteCreate(BaseModel):
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     role: str
     chapter: Optional[str] = None
     title: Optional[str] = None
@@ -735,7 +735,7 @@ class Member(BaseModel):
     title: str  # Prez, VP, S@A, ENF, SEC, T, CD, CC, CCLC, MD, PM
     handle: str
     name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     phone: str
     address: str
     dob: Optional[str] = None  # Date of Birth (YYYY-MM-DD format)
@@ -760,7 +760,7 @@ class MemberCreate(BaseModel):
     title: str
     handle: str
     name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     phone: str
     address: str
     dob: Optional[str] = None
@@ -792,7 +792,7 @@ class Prospect(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     handle: str
     name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     phone: str
     address: str
     dob: Optional[str] = None  # Date of Birth (YYYY-MM-DD format)
@@ -807,7 +807,7 @@ class Prospect(BaseModel):
 class ProspectCreate(BaseModel):
     handle: str
     name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow "Private" for hidden emails
     phone: str
     address: str
     dob: Optional[str] = None
