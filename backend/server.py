@@ -781,6 +781,7 @@ class MemberUpdate(BaseModel):
     join_date: Optional[str] = None
     phone_private: Optional[bool] = None
     address_private: Optional[bool] = None
+    email_private: Optional[bool] = None
     dues: Optional[dict] = None
     meeting_attendance: Optional[dict] = None
 
