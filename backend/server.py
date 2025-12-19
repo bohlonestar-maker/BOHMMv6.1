@@ -766,6 +766,7 @@ class MemberCreate(BaseModel):
     join_date: Optional[str] = None
     phone_private: bool = False
     address_private: bool = False
+    email_private: bool = False
     dues: Optional[dict] = None
 
 class MemberUpdate(BaseModel):
