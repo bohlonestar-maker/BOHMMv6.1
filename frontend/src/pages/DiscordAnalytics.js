@@ -475,7 +475,7 @@ export default function DiscordAnalytics() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Discord Members ({discordMembers.length})
+                  Discord Members ({filteredDiscordMembers.length})
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   Server members and their connection status. Click Link/Unlink to manage connections.
