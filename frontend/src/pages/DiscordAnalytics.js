@@ -29,7 +29,76 @@ export default function DiscordAnalytics() {
   useEffect(() => {
     fetchDiscordAnalytics();
     fetchDiscordMembers();
+    fetchDatabaseMembers();
   }, []);
+
+  const fetchDatabaseMembers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(`${API}/members`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setDatabaseMembers(response.data);
+    } catch (error) {
+      console.error("Error fetching database members:", error);
+    }
+  };
+
+  const handleLinkMember = async () => {
+    if (!selectedDiscordMember || !selectedMemberId) {
+      toast.error("Please select a member to link");
+      return;
+    }
+    
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(`${API}/discord/link`, {
+        discord_id: selectedDiscordMember.discord_id,
+        member_id: selectedMemberId
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success("Member linked successfully");
+      setLinkDialogOpen(false);
+      setSelectedDiscordMember(null);
+      setSelectedMemberId("");
+      setMemberSearch("");
+      fetchDiscordMembers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to link member");
+    }
+  };
+
+  const handleUnlinkMember = async (discordId) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(`${API}/discord/unlink/${discordId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success("Member unlinked successfully");
+      fetchDiscordMembers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to unlink member");
+    }
+  };
+
+  const openLinkDialog = (discordMember) => {
+    setSelectedDiscordMember(discordMember);
+    setSelectedMemberId("");
+    setMemberSearch("");
+    setLinkDialogOpen(true);
+  };
+
+  const filteredDatabaseMembers = databaseMembers.filter(m => {
+    const search = memberSearch.toLowerCase();
+    return (
+      m.handle?.toLowerCase().includes(search) ||
+      m.name?.toLowerCase().includes(search) ||
+      m.chapter?.toLowerCase().includes(search)
+    );
+  });
 
   const fetchDiscordAnalytics = async () => {
     const token = localStorage.getItem("token");
