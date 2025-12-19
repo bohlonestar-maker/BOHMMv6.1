@@ -3405,6 +3405,82 @@ async def get_discord_members(current_user: dict = Depends(verify_admin)):
         except Exception as inner_e:
             raise HTTPException(status_code=500, detail=f"Discord API error: {str(e)}")
 
+
+class DiscordLinkRequest(BaseModel):
+    discord_id: str
+    member_id: str
+
+
+@api_router.post("/discord/link")
+async def link_discord_member(request: DiscordLinkRequest, current_user: dict = Depends(verify_admin)):
+    """Link a Discord member to a database member"""
+    try:
+        # Verify the database member exists
+        db_member = await db.members.find_one({"id": request.member_id}, {"_id": 0, "handle": 1, "name": 1})
+        if not db_member:
+            raise HTTPException(status_code=404, detail="Database member not found")
+        
+        # Verify the Discord member exists
+        discord_member = await db.discord_members.find_one({"discord_id": request.discord_id})
+        if not discord_member:
+            raise HTTPException(status_code=404, detail="Discord member not found")
+        
+        # Update the Discord member with the link
+        result = await db.discord_members.update_one(
+            {"discord_id": request.discord_id},
+            {"$set": {
+                "member_id": request.member_id,
+                "linked_member_handle": db_member.get("handle"),
+                "linked_member_name": db_member.get("name")
+            }}
+        )
+        
+        return {
+            "message": f"Discord member linked to {db_member.get('handle')}",
+            "discord_id": request.discord_id,
+            "member_id": request.member_id,
+            "linked_to": {
+                "handle": db_member.get("handle"),
+                "name": db_member.get("name")
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error linking member: {str(e)}")
+
+
+@api_router.post("/discord/unlink/{discord_id}")
+async def unlink_discord_member(discord_id: str, current_user: dict = Depends(verify_admin)):
+    """Unlink a Discord member from their database member"""
+    try:
+        # Verify the Discord member exists
+        discord_member = await db.discord_members.find_one({"discord_id": discord_id})
+        if not discord_member:
+            raise HTTPException(status_code=404, detail="Discord member not found")
+        
+        # Remove the link
+        result = await db.discord_members.update_one(
+            {"discord_id": discord_id},
+            {"$unset": {
+                "member_id": "",
+                "linked_member_handle": "",
+                "linked_member_name": ""
+            }}
+        )
+        
+        return {
+            "message": "Discord member unlinked successfully",
+            "discord_id": discord_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error unlinking member: {str(e)}")
+
+
 @api_router.get("/discord/analytics")
 async def get_discord_analytics(days: int = 90, current_user: dict = Depends(verify_admin)):
     """Get Discord analytics for specified number of days"""
