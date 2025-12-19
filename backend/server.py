@@ -629,7 +629,7 @@ class UserCreate(BaseModel):
     permissions: Optional[dict] = None
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None  # Allow email updates
+    email: Optional[str] = None  # Allow email updates - Changed from EmailStr to allow "Private"
     password: Optional[str] = None
     role: Optional[str] = None
     chapter: Optional[str] = None
