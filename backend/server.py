@@ -1054,6 +1054,9 @@ async def get_members(current_user: dict = Depends(verify_token)):
     is_officer = user_title in officer_titles
     can_see_private_emails = is_national_member or is_officer
     
+    # Debug logging
+    print(f"[EMAIL PRIVACY DEBUG] User: chapter={user_chapter}, title={user_title}, is_national={is_national_member}, is_officer={is_officer}, can_see_private={can_see_private_emails}")
+    
     # For phone/address privacy, only National Chapter admins can see
     is_national_admin = user_role == 'admin' and user_chapter == 'National'
     
