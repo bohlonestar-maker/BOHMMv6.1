@@ -6973,6 +6973,9 @@ class BOHDirectoryAPITester:
         # REVIEW REQUEST: Current Discord Activity Data Testing
         self.test_current_discord_activity_data()
         
+        # NEW FEATURE TEST: Birthday Notifications
+        self.test_birthday_notifications()
+        
         # Test member operations
         self.test_member_operations()
         
