@@ -4336,6 +4336,182 @@ def run_notification_check():
         import traceback
         traceback.print_exc(file=sys.stderr)
 
+
+# ==================== BIRTHDAY NOTIFICATIONS ====================
+
+async def send_birthday_notification(member: dict):
+    """Send Discord notification for a member's birthday"""
+    if not DISCORD_WEBHOOK_URL:
+        print("⚠️  Discord webhook URL not configured for birthday notification")
+        return False
+    
+    try:
+        # Get member details
+        member_name = member.get('name', member.get('handle', 'Brother'))
+        member_handle = member.get('handle', '')
+        member_chapter = member.get('chapter', '')
+        member_title = member.get('title', '')
+        
+        # Create a festive birthday embed
+        embed = {
+            "title": "🎂 Happy Birthday! 🎉",
+            "description": f"Today we celebrate **{member_name}**!\n\nWishing you a fantastic birthday filled with joy and great rides ahead! 🏍️",
+            "color": 0xFFD700,  # Gold color for birthday
+            "fields": [],
+            "footer": {
+                "text": "Brothers of the Highway | Birthday Wishes"
+            }
+        }
+        
+        # Add member info
+        if member_handle:
+            embed["fields"].append({
+                "name": "🏷️ Handle",
+                "value": member_handle,
+                "inline": True
+            })
+        
+        if member_chapter:
+            embed["fields"].append({
+                "name": "🏴 Chapter",
+                "value": member_chapter,
+                "inline": True
+            })
+        
+        if member_title:
+            embed["fields"].append({
+                "name": "👤 Title",
+                "value": member_title,
+                "inline": True
+            })
+        
+        # Add call to action
+        embed["fields"].append({
+            "name": "🎊 Join the Celebration!",
+            "value": "All Brothers are invited to wish them a Happy Birthday!",
+            "inline": False
+        })
+        
+        payload = {
+            "content": f"@everyone **🎂 Birthday Alert!** 🎂\n\nLet's all wish **{member_name}** a very Happy Birthday! 🎉",
+            "embeds": [embed]
+        }
+        
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        
+        if response.status_code == 204:
+            print(f"✅ Birthday notification sent for: {member_name}")
+            return True
+        else:
+            print(f"❌ Birthday notification failed: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error sending birthday notification: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+async def check_and_send_birthday_notifications():
+    """Check for members with birthdays today and send Discord notifications"""
+    import sys
+    from datetime import datetime
+    
+    try:
+        print(f"🎂 [BIRTHDAY] Checking for birthdays today...", file=sys.stderr, flush=True)
+        
+        # Get today's date in MM-DD format for comparison
+        today = datetime.now()
+        today_mm_dd = today.strftime("%m-%d")
+        
+        # Create a new MongoDB connection for this thread
+        from motor.motor_asyncio import AsyncIOMotorClient
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        db_name = os.environ.get('DB_NAME', 'test_database')
+        client = AsyncIOMotorClient(mongo_url)
+        thread_db = client[db_name]
+        
+        # Fetch all members with DOB set
+        members = await thread_db.members.find(
+            {"dob": {"$exists": True, "$ne": None, "$ne": ""}},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        print(f"🎂 [BIRTHDAY] Found {len(members)} members with DOB records", file=sys.stderr, flush=True)
+        
+        # Check today's date key to avoid duplicate notifications
+        today_key = today.strftime("%Y-%m-%d")
+        
+        birthday_count = 0
+        for member in members:
+            dob = member.get('dob', '')
+            if not dob:
+                continue
+            
+            try:
+                # DOB format: YYYY-MM-DD, extract MM-DD
+                dob_mm_dd = dob[5:10]  # Gets MM-DD portion
+                
+                if dob_mm_dd == today_mm_dd:
+                    member_id = member.get('id', member.get('handle', ''))
+                    
+                    # Check if we already sent notification today
+                    existing = await thread_db.birthday_notifications.find_one({
+                        "member_id": member_id,
+                        "notification_date": today_key
+                    })
+                    
+                    if existing:
+                        print(f"   ⏭️ Already notified for {member.get('name', member.get('handle'))}", file=sys.stderr, flush=True)
+                        continue
+                    
+                    # Send birthday notification
+                    print(f"   🎉 Birthday found: {member.get('name', member.get('handle'))} - {dob}", file=sys.stderr, flush=True)
+                    success = await send_birthday_notification(member)
+                    
+                    if success:
+                        # Record that we sent the notification
+                        await thread_db.birthday_notifications.insert_one({
+                            "member_id": member_id,
+                            "member_name": member.get('name', member.get('handle', '')),
+                            "notification_date": today_key,
+                            "sent_at": datetime.now()
+                        })
+                        birthday_count += 1
+                        
+            except Exception as e:
+                print(f"   ❌ Error processing DOB for {member.get('handle', 'unknown')}: {str(e)}", file=sys.stderr, flush=True)
+        
+        print(f"🎂 [BIRTHDAY] Sent {birthday_count} birthday notification(s) today", file=sys.stderr, flush=True)
+        client.close()
+        
+    except Exception as e:
+        print(f"❌ [BIRTHDAY] Error checking birthdays: {str(e)}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+
+
+def run_birthday_check():
+    """Wrapper to run async birthday check in sync context (called by scheduler in thread)"""
+    import asyncio
+    import sys
+    try:
+        print(f"🎂 [SCHEDULER] Starting birthday check job...", file=sys.stderr, flush=True)
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(check_and_send_birthday_notifications())
+            print(f"✅ [SCHEDULER] Birthday check job completed", file=sys.stderr, flush=True)
+        finally:
+            loop.close()
+            
+    except Exception as e:
+        print(f"❌ [SCHEDULER] Error running birthday check: {str(e)}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+
 # Initialize scheduler variable (will be started in startup event)
 import sys
 scheduler = None
