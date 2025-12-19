@@ -1001,7 +1001,8 @@ async def login(login_data: LoginRequest):
     token = create_access_token({
         "sub": user["username"], 
         "role": user["role"],
-        "chapter": user.get("chapter")  # Include chapter for privacy/access control
+        "chapter": user.get("chapter"),  # Include chapter for privacy/access control
+        "title": user.get("title")  # Include title for email privacy access control
     })
     
     # Log login activity
