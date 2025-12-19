@@ -775,7 +775,7 @@ class MemberUpdate(BaseModel):
     title: Optional[str] = None
     handle: Optional[str] = None
     name: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None  # Changed from EmailStr to allow "Private" for hidden emails
     phone: Optional[str] = None
     address: Optional[str] = None
     dob: Optional[str] = None
@@ -817,7 +817,7 @@ class ProspectCreate(BaseModel):
 class ProspectUpdate(BaseModel):
     handle: Optional[str] = None
     name: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None  # Changed from EmailStr to allow "Private" for hidden emails
     phone: Optional[str] = None
     address: Optional[str] = None
     dob: Optional[str] = None
