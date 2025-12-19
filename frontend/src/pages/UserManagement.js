@@ -483,7 +483,7 @@ export default function UserManagement({ onLogout }) {
                       <span className="sm:hidden">Invite</span>
                     </Button>
                   </DialogTrigger>
-                <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
                   <DialogHeader>
                     <DialogTitle className="text-lg sm:text-xl">Invite New User</DialogTitle>
                   </DialogHeader>
@@ -671,7 +671,7 @@ export default function UserManagement({ onLogout }) {
                     <span className="sm:hidden">Add</span>
                   </Button>
                 </DialogTrigger>
-              <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
                 <DialogHeader>
                   <DialogTitle>Add New User</DialogTitle>
                 </DialogHeader>
