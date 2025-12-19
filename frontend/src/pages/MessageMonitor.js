@@ -199,7 +199,7 @@ export default function MessageMonitor() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <Button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/")}
                 variant="outline"
                 size="sm"
                 className="border-slate-600 text-slate-200 hover:bg-slate-700"
