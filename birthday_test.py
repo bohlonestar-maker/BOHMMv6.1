@@ -403,7 +403,7 @@ class BirthdayNotificationTester:
             success, delete_response = self.run_test(
                 "Delete Birthday Test Member",
                 "DELETE",
-                f"members/{birthday_member_id}",
+                f"members/{birthday_member_id}?reason=Test cleanup",
                 200
             )
         
