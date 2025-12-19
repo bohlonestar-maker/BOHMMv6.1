@@ -100,11 +100,12 @@ export default function DiscordAnalytics() {
     );
   });
 
-  // Filter out Discord members with "bot", "tv" in their name, "aoh" at the start, or "craig" (bot)
+  // Filter out bots and specific names from Discord members
   const filteredDiscordMembers = discordMembers.filter(m => {
     const displayName = (m.display_name || '').toLowerCase();
     const username = (m.username || '').toLowerCase();
-    return !displayName.includes('bot') && 
+    return !m.is_bot &&  // Filter out Discord bots
+           !displayName.includes('bot') && 
            !displayName.includes('tv') && 
            !username.includes('bot') && 
            !username.includes('tv') &&
