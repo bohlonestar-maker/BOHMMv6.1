@@ -433,6 +433,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       join_date: member.join_date || "",
       phone_private: member.phone_private || false,
       address_private: member.address_private || false,
+      email_private: member.email_private || false,
       dues: duesData,
       meeting_attendance: attendanceData
     });
