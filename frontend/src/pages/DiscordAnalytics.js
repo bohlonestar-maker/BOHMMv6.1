@@ -3,8 +3,11 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Download, RefreshCw, Users, Volume2, MessageSquare, TrendingUp, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Users, Volume2, MessageSquare, TrendingUp, Clock, Calendar, Link, Unlink, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -13,9 +16,14 @@ const API = `${BACKEND_URL}/api`;
 export default function DiscordAnalytics() {
   const [analytics, setAnalytics] = useState(null);
   const [discordMembers, setDiscordMembers] = useState([]);
+  const [databaseMembers, setDatabaseMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [selectedDiscordMember, setSelectedDiscordMember] = useState(null);
+  const [selectedMemberId, setSelectedMemberId] = useState("");
+  const [memberSearch, setMemberSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
