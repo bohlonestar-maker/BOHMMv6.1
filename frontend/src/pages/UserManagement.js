@@ -1253,7 +1253,7 @@ export default function UserManagement({ onLogout }) {
                       <TableCell className="text-white">{user.chapter || "-"}</TableCell>
                       <TableCell className="text-white">{user.title || "-"}</TableCell>
                       <TableCell className="text-white">
-                        {new Date(user.created_at).toLocaleDateString()}
+                        {new Date(user.created_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
