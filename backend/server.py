@@ -3630,6 +3630,56 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
         ]).to_list(None)
         all_text_messages = all_text_messages_result[0]["total"] if all_text_messages_result else 0
         
+        # Get top users per voice channel
+        channel_voice_pipeline = [
+            {"$match": {"date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}}},
+            {"$group": {
+                "_id": {
+                    "channel_name": "$channel_name",
+                    "channel_id": "$channel_id",
+                    "user_id": "$discord_user_id"
+                },
+                "total_sessions": {"$sum": 1},
+                "total_duration": {"$sum": "$duration_seconds"}
+            }},
+            {"$sort": {"_id.channel_name": 1, "total_duration": -1}}
+        ]
+        
+        channel_voice_stats = await db.discord_voice_activity.aggregate(channel_voice_pipeline).to_list(None)
+        
+        # Organize by channel with top 5 users per channel
+        channels_data = {}
+        for stat in channel_voice_stats:
+            channel_name = stat["_id"]["channel_name"]
+            user_id = stat["_id"]["user_id"]
+            
+            if channel_name not in channels_data:
+                channels_data[channel_name] = {
+                    "channel_name": channel_name,
+                    "channel_id": stat["_id"]["channel_id"],
+                    "total_sessions": 0,
+                    "total_duration": 0,
+                    "top_users": []
+                }
+            
+            channels_data[channel_name]["total_sessions"] += stat["total_sessions"]
+            channels_data[channel_name]["total_duration"] += stat["total_duration"]
+            
+            # Add to top users (limit to 5 per channel)
+            if len(channels_data[channel_name]["top_users"]) < 5:
+                member_info = member_map.get(user_id, {})
+                username = member_info.get("display_name") or member_info.get("username") or f"User {user_id[:8]}"
+                channels_data[channel_name]["top_users"].append({
+                    "user_id": user_id,
+                    "username": username,
+                    "sessions": stat["total_sessions"],
+                    "duration": stat["total_duration"]
+                })
+        
+        # Convert to list and sort by total duration
+        channel_stats = list(channels_data.values())
+        channel_stats.sort(key=lambda x: x["total_duration"], reverse=True)
+        
         analytics = DiscordAnalytics(
             total_members=total_members,
             voice_stats={"total_sessions": all_voice_sessions, "top_users": voice_stats},
