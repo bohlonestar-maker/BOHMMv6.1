@@ -817,6 +817,13 @@ class Prospect(BaseModel):
     address: str
     dob: Optional[str] = None  # Date of Birth (YYYY-MM-DD format)
     join_date: Optional[str] = None  # Anniversary Date (MM/YYYY format)
+    # Military Service
+    military_service: bool = False  # If True, prospect has served in military
+    military_branch: Optional[str] = None  # Army, Navy, Air Force, Marines, Coast Guard, Space Force, National Guard
+    # First Responder Service
+    is_police: bool = False  # If True, prospect has served as Police
+    is_fire: bool = False  # If True, prospect has served as Fire/Firefighter
+    is_ems: bool = False  # If True, prospect has served as EMS/Paramedic
     actions: list = Field(default_factory=list)  # Merit, Promotion, Disciplinary actions
     meeting_attendance: dict = Field(default_factory=lambda: {
         str(datetime.now(timezone.utc).year): [{"status": 0, "note": ""} for _ in range(24)]
@@ -832,6 +839,13 @@ class ProspectCreate(BaseModel):
     address: str
     dob: Optional[str] = None
     join_date: Optional[str] = None
+    # Military Service
+    military_service: bool = False
+    military_branch: Optional[str] = None
+    # First Responder Service
+    is_police: bool = False
+    is_fire: bool = False
+    is_ems: bool = False
     meeting_attendance: Optional[dict] = None
 
 class ProspectUpdate(BaseModel):
@@ -842,6 +856,13 @@ class ProspectUpdate(BaseModel):
     address: Optional[str] = None
     dob: Optional[str] = None
     join_date: Optional[str] = None
+    # Military Service
+    military_service: Optional[bool] = None
+    military_branch: Optional[str] = None
+    # First Responder Service
+    is_police: Optional[bool] = None
+    is_fire: Optional[bool] = None
+    is_ems: Optional[bool] = None
     meeting_attendance: Optional[dict] = None
 
 class PrivateMessage(BaseModel):
