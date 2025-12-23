@@ -188,6 +188,11 @@ export default function Prospects({ onLogout, userRole }) {
       address: prospect.address,
       dob: prospect.dob || "",
       join_date: prospect.join_date || "",
+      military_service: prospect.military_service || false,
+      military_branch: prospect.military_branch || "",
+      is_police: prospect.is_police || false,
+      is_fire: prospect.is_fire || false,
+      is_ems: prospect.is_ems || false,
       meeting_attendance: {
         year: attendanceData.year || new Date().getFullYear(),
         meetings: meetings
