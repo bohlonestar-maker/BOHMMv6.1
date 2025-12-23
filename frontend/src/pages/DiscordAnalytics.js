@@ -759,6 +759,86 @@ export default function DiscordAnalytics() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Linked Members Dialog */}
+      <Dialog open={linkedMembersDialogOpen} onOpenChange={setLinkedMembersDialogOpen}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Linked Members ({linkedMembers.length})
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                value={linkedMemberSearch}
+                onChange={(e) => setLinkedMemberSearch(e.target.value)}
+                placeholder="Search by name, handle, or Discord username..."
+                className="pl-9 bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            
+            {/* Members List */}
+            <div className="flex-1 overflow-y-auto space-y-2">
+              {loadingLinkedMembers ? (
+                <div className="text-center py-8">
+                  <RefreshCw className="w-8 h-8 animate-spin text-blue-400 mx-auto mb-2" />
+                  <p className="text-slate-400">Loading linked members...</p>
+                </div>
+              ) : filteredLinkedMembers.length > 0 ? (
+                filteredLinkedMembers.map((member) => (
+                  <div key={member.discord_id} className="p-3 bg-slate-900 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {member.avatar_url ? (
+                          <img 
+                            src={member.avatar_url} 
+                            alt={member.discord_username}
+                            className="w-10 h-10 rounded-full flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Users className="w-5 h-5" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-white truncate">
+                            {member.member_handle || member.member_name}
+                          </p>
+                          <p className="text-sm text-slate-400 truncate">
+                            {member.member_chapter} • {member.member_title}
+                          </p>
+                          <p className="text-xs text-slate-500 truncate">
+                            Discord: @{member.discord_username}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-3">
+                        <p className={`text-sm font-medium ${member.last_activity ? 'text-green-400' : 'text-red-400'}`}>
+                          {formatLastActivity(member.last_activity)}
+                        </p>
+                        {member.last_activity_type && (
+                          <p className="text-xs text-slate-500">
+                            {member.last_activity_type === 'voice' ? '🎤' : '💬'} {member.last_activity_channel}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-slate-400">No linked members found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
