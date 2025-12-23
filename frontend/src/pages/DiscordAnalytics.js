@@ -178,25 +178,34 @@ export default function DiscordAnalytics() {
     const date = new Date(dateStr);
     const now = new Date();
     
-    // Check if it's today
-    const isToday = date.toDateString() === now.toDateString();
+    // Format options for Central Time
+    const timeOptions = { 
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/Chicago'
+    };
+    
+    const dateTimeOptions = { 
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/Chicago'
+    };
+    
+    // Check if it's today (in Central Time)
+    const todayCST = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago' });
+    const dateCST = date.toLocaleDateString('en-US', { timeZone: 'America/Chicago' });
+    const isToday = todayCST === dateCST;
     
     if (isToday) {
       // Today: show only time
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
+      return date.toLocaleTimeString('en-US', timeOptions);
     } else {
       // Not today: show date and time
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
+      return date.toLocaleDateString('en-US', dateTimeOptions);
     }
   };
 
