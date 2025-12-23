@@ -399,9 +399,6 @@ export default function DiscordAnalytics() {
             <TabsTrigger value="inactive" className="data-[state=active]:bg-slate-700 text-white">
               Least Active
             </TabsTrigger>
-            <TabsTrigger value="members" className="data-[state=active]:bg-slate-700 text-white">
-              Members
-            </TabsTrigger>
           </TabsList>
 
           {/* Voice Activity Tab */}
