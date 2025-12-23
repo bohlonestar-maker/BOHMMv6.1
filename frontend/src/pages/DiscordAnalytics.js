@@ -396,7 +396,7 @@ export default function DiscordAnalytics() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-orange-500" />
-                  Least Active Members (90 days)
+                  Least Active Members (30 days)
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   Members with no voice or text activity - may need engagement
