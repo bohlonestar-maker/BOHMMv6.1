@@ -119,6 +119,56 @@ export default function DiscordAnalytics() {
            username !== 'craig';
   });
 
+  const [linkedMembers, setLinkedMembers] = useState([]);
+  const [loadingLinkedMembers, setLoadingLinkedMembers] = useState(false);
+
+  const fetchLinkedMembers = async () => {
+    const token = localStorage.getItem("token");
+    setLoadingLinkedMembers(true);
+    try {
+      const response = await axios.get(`${API}/discord/linked-members`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLinkedMembers(response.data);
+    } catch (error) {
+      toast.error("Failed to load linked members");
+    } finally {
+      setLoadingLinkedMembers(false);
+    }
+  };
+
+  const openLinkedMembersDialog = () => {
+    fetchLinkedMembers();
+    setLinkedMemberSearch("");
+    setLinkedMembersDialogOpen(true);
+  };
+
+  const filteredLinkedMembers = linkedMembers.filter(m => {
+    const search = linkedMemberSearch.toLowerCase();
+    return (
+      m.member_handle?.toLowerCase().includes(search) ||
+      m.member_name?.toLowerCase().includes(search) ||
+      m.discord_display_name?.toLowerCase().includes(search) ||
+      m.discord_username?.toLowerCase().includes(search)
+    );
+  });
+
+  const formatLastActivity = (dateStr) => {
+    if (!dateStr) return "Never";
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
   const fetchDiscordAnalytics = async () => {
     const token = localStorage.getItem("token");
     try {
