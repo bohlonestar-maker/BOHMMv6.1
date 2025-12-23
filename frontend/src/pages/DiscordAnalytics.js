@@ -120,7 +120,7 @@ export default function DiscordAnalytics() {
   const fetchDiscordAnalytics = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${API}/discord/analytics?days=90`, {
+      const response = await axios.get(`${API}/discord/analytics?days=30`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnalytics(response.data);
