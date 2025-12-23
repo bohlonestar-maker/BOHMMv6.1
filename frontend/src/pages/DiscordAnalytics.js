@@ -356,7 +356,7 @@ export default function DiscordAnalytics() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  Top Text Chat Users (90 days)
+                  Top Text Chat Users (30 days)
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   Most active members in text channels
