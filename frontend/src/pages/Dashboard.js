@@ -439,6 +439,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       phone_private: member.phone_private || false,
       address_private: member.address_private || false,
       email_private: member.email_private || false,
+      military_service: member.military_service || false,
+      military_branch: member.military_branch || "",
+      is_police: member.is_police || false,
+      is_fire: member.is_fire || false,
+      is_ems: member.is_ems || false,
       dues: duesData,
       meeting_attendance: attendanceData
     });
