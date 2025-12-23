@@ -3396,6 +3396,85 @@ async def resync_discord_voice_tracking(current_user: dict = Depends(verify_admi
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Resync error: {str(e)}")
 
+
+@api_router.post("/discord/sync-members")
+async def sync_discord_members(current_user: dict = Depends(verify_admin)):
+    """Sync Discord members - remove members who left the server and update existing ones"""
+    try:
+        if not discord_bot:
+            raise HTTPException(status_code=503, detail="Discord bot is not running")
+        
+        # Get current Discord members from the bot
+        current_discord_ids = set()
+        updated_count = 0
+        added_count = 0
+        
+        for guild in discord_bot.guilds:
+            for member in guild.members:
+                discord_id = str(member.id)
+                current_discord_ids.add(discord_id)
+                
+                # Update or insert member
+                existing = await db.discord_members.find_one({"discord_id": discord_id})
+                
+                member_data = {
+                    "discord_id": discord_id,
+                    "username": member.name,
+                    "display_name": member.display_name,
+                    "avatar_url": str(member.avatar.url) if member.avatar else None,
+                    "is_bot": member.bot,
+                    "last_seen": datetime.now(timezone.utc)
+                }
+                
+                if existing:
+                    # Preserve linked member_id if exists
+                    if existing.get("member_id"):
+                        member_data["member_id"] = existing["member_id"]
+                    await db.discord_members.update_one(
+                        {"discord_id": discord_id},
+                        {"$set": member_data}
+                    )
+                    updated_count += 1
+                else:
+                    await db.discord_members.insert_one(member_data)
+                    added_count += 1
+        
+        # Remove members no longer in Discord
+        db_members = await db.discord_members.find({}, {"discord_id": 1}).to_list(None)
+        removed_count = 0
+        removed_members = []
+        
+        for db_member in db_members:
+            if db_member["discord_id"] not in current_discord_ids:
+                # Get member info before removing
+                full_member = await db.discord_members.find_one({"discord_id": db_member["discord_id"]})
+                removed_members.append({
+                    "discord_id": db_member["discord_id"],
+                    "username": full_member.get("username") if full_member else "Unknown",
+                    "display_name": full_member.get("display_name") if full_member else "Unknown"
+                })
+                await db.discord_members.delete_one({"discord_id": db_member["discord_id"]})
+                removed_count += 1
+        
+        # Get final count
+        final_count = await db.discord_members.count_documents({})
+        
+        return {
+            "success": True,
+            "discord_server_count": len(current_discord_ids),
+            "database_count": final_count,
+            "updated": updated_count,
+            "added": added_count,
+            "removed": removed_count,
+            "removed_members": removed_members,
+            "message": f"Synced members. Updated: {updated_count}, Added: {added_count}, Removed: {removed_count}"
+        }
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Sync error: {str(e)}")
+
 @api_router.post("/discord/simulate-activity")
 async def simulate_discord_activity(current_user: dict = Depends(verify_admin)):
     """Simulate Discord activity for testing purposes"""
