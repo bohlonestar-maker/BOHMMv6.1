@@ -754,6 +754,7 @@ export default function DiscordAnalytics() {
               <Users className="w-5 h-5" />
               Linked Members ({linkedMembers.length})
             </DialogTitle>
+            <p className="text-xs text-slate-400">All times shown in Central Time (CST)</p>
           </DialogHeader>
           
           <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
