@@ -249,6 +249,27 @@ export default function DiscordAnalytics() {
     }
   };
 
+  const [syncing, setSyncing] = useState(false);
+  
+  const handleSyncMembers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      setSyncing(true);
+      const response = await axios.post(`${API}/discord/sync-members`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = response.data;
+      toast.success(`Synced! Removed ${data.removed} stale members. Now ${data.database_count} members.`);
+      await fetchDiscordMembers(); // Refresh the list
+      await fetchAnalytics(); // Refresh analytics
+    } catch (error) {
+      toast.error("Failed to sync Discord members");
+      console.error("Sync error:", error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const formatDuration = (seconds) => {
     if (!seconds || seconds === 0) return "0m";
     const hours = Math.floor(seconds / 3600);
