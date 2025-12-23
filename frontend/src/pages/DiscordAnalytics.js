@@ -329,6 +329,16 @@ export default function DiscordAnalytics() {
                 Refresh
               </Button>
               <Button
+                onClick={handleSyncMembers}
+                variant="outline"
+                size="sm"
+                disabled={syncing}
+                className="flex items-center gap-2 border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? "Syncing..." : "Sync Members"}
+              </Button>
+              <Button
                 onClick={handleImportMembers}
                 variant="default"
                 size="sm"
