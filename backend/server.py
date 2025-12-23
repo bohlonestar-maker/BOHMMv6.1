@@ -1496,9 +1496,7 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
         if is_admin:
             row.append('Yes' if member.get('military_service', False) else 'No')
             row.append(member.get('military_branch', '') or '')
-            row.append('Yes' if member.get('is_police', False) else 'No')
-            row.append('Yes' if member.get('is_fire', False) else 'No')
-            row.append('Yes' if member.get('is_ems', False) else 'No')
+            row.append('Yes' if member.get('is_first_responder', False) else 'No')
         
         if is_admin or permissions.get("dues_tracking"):
             dues = member.get('dues', {})
