@@ -6904,6 +6904,258 @@ class BOHDirectoryAPITester:
         print(f"   🎂 Birthday notification feature testing completed")
         return True
 
+    def test_anniversary_date_feature(self):
+        """Test Anniversary Date Feature (MM/YYYY format) - END-TO-END TESTING"""
+        print(f"\n📅 Testing Anniversary Date Feature (MM/YYYY format)...")
+        
+        # Test 1: CREATE MEMBER WITH ANNIVERSARY DATE (MM/YYYY)
+        test_member_data = {
+            "chapter": "National",
+            "title": "Member",
+            "handle": "AnniversaryTestRider",
+            "name": "Anniversary Test Member",
+            "email": "anniversary@test.com",
+            "phone": "555-1234-5678",
+            "address": "123 Anniversary Street, Test City, TC 12345",
+            "join_date": "06/2023"  # MM/YYYY format
+        }
+        
+        success, created_member = self.run_test(
+            "Create Member with Anniversary Date (06/2023)",
+            "POST",
+            "members",
+            201,
+            data=test_member_data
+        )
+        
+        member_id = None
+        if success and 'id' in created_member:
+            member_id = created_member['id']
+            print(f"   Created member ID: {member_id}")
+            
+            # Verify join_date is stored as MM/YYYY format
+            if created_member.get('join_date') == "06/2023":
+                self.log_test("Member Created - Anniversary Date Stored Correctly", True, "join_date stored as '06/2023'")
+            else:
+                self.log_test("Member Created - Anniversary Date Stored Correctly", False, f"Expected '06/2023', got '{created_member.get('join_date')}'")
+        else:
+            print("❌ Failed to create member with anniversary date - cannot continue tests")
+            return
+        
+        # Test 2: UPDATE MEMBER ANNIVERSARY DATE
+        if member_id:
+            update_data = {
+                "join_date": "12/2020"  # Update to different MM/YYYY format
+            }
+            
+            success, updated_member = self.run_test(
+                "Update Member Anniversary Date to 12/2020",
+                "PUT",
+                f"members/{member_id}",
+                200,
+                data=update_data
+            )
+            
+            if success:
+                # Verify updated join_date
+                if updated_member.get('join_date') == "12/2020":
+                    self.log_test("Member Updated - Anniversary Date Changed", True, "join_date updated to '12/2020'")
+                else:
+                    self.log_test("Member Updated - Anniversary Date Changed", False, f"Expected '12/2020', got '{updated_member.get('join_date')}'")
+        
+        # Test 3: GET MEMBER AND VERIFY ANNIVERSARY DATE
+        if member_id:
+            success, member_detail = self.run_test(
+                "Get Member and Verify Anniversary Date",
+                "GET",
+                f"members/{member_id}",
+                200
+            )
+            
+            if success:
+                if member_detail.get('join_date') == "12/2020":
+                    self.log_test("Get Member - Anniversary Date Persisted", True, "join_date correctly retrieved as '12/2020'")
+                else:
+                    self.log_test("Get Member - Anniversary Date Persisted", False, f"Expected '12/2020', got '{member_detail.get('join_date')}'")
+        
+        # Test 4: GET ALL MEMBERS AND VERIFY ANNIVERSARY DATE
+        success, all_members = self.run_test(
+            "Get All Members and Find Anniversary Date",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success and isinstance(all_members, list):
+            # Find our test member in the list
+            test_member_found = None
+            for member in all_members:
+                if member.get('id') == member_id:
+                    test_member_found = member
+                    break
+            
+            if test_member_found:
+                if test_member_found.get('join_date') == "12/2020":
+                    self.log_test("Get All Members - Anniversary Date in List", True, "join_date found in members list as '12/2020'")
+                else:
+                    self.log_test("Get All Members - Anniversary Date in List", False, f"Expected '12/2020', got '{test_member_found.get('join_date')}'")
+            else:
+                self.log_test("Get All Members - Find Test Member", False, "Test member not found in members list")
+        
+        # Test 5: CREATE PROSPECT WITH ANNIVERSARY DATE
+        test_prospect_data = {
+            "handle": "AnniversaryProspectRider",
+            "name": "Anniversary Test Prospect",
+            "email": "anniversaryprospect@test.com",
+            "phone": "555-9876-5432",
+            "address": "456 Prospect Avenue, Test City, TC 67890",
+            "join_date": "03/2024"  # MM/YYYY format for prospect
+        }
+        
+        success, created_prospect = self.run_test(
+            "Create Prospect with Anniversary Date (03/2024)",
+            "POST",
+            "prospects",
+            201,
+            data=test_prospect_data
+        )
+        
+        prospect_id = None
+        if success and 'id' in created_prospect:
+            prospect_id = created_prospect['id']
+            print(f"   Created prospect ID: {prospect_id}")
+            
+            # Verify prospect join_date is stored correctly
+            if created_prospect.get('join_date') == "03/2024":
+                self.log_test("Prospect Created - Anniversary Date Stored Correctly", True, "prospect join_date stored as '03/2024'")
+            else:
+                self.log_test("Prospect Created - Anniversary Date Stored Correctly", False, f"Expected '03/2024', got '{created_prospect.get('join_date')}'")
+        
+        # Test 6: UPDATE PROSPECT ANNIVERSARY DATE
+        if prospect_id:
+            prospect_update_data = {
+                "join_date": "01/2022"  # Update prospect to different MM/YYYY format
+            }
+            
+            success, updated_prospect = self.run_test(
+                "Update Prospect Anniversary Date to 01/2022",
+                "PUT",
+                f"prospects/{prospect_id}",
+                200,
+                data=prospect_update_data
+            )
+            
+            if success:
+                # Verify updated prospect join_date
+                if updated_prospect.get('join_date') == "01/2022":
+                    self.log_test("Prospect Updated - Anniversary Date Changed", True, "prospect join_date updated to '01/2022'")
+                else:
+                    self.log_test("Prospect Updated - Anniversary Date Changed", False, f"Expected '01/2022', got '{updated_prospect.get('join_date')}'")
+        
+        # Test 7: EDGE CASES - Empty and Null join_date
+        
+        # Test 7a: Create member with empty join_date (should be allowed)
+        empty_join_date_member = {
+            "chapter": "AD",
+            "title": "Member",
+            "handle": "EmptyJoinDateRider",
+            "name": "Empty Join Date Member",
+            "email": "empty@test.com",
+            "phone": "555-0000-0000",
+            "address": "789 Empty Street, Test City, TC 00000",
+            "join_date": ""  # Empty string
+        }
+        
+        success, empty_member = self.run_test(
+            "Create Member with Empty Anniversary Date",
+            "POST",
+            "members",
+            201,
+            data=empty_join_date_member
+        )
+        
+        empty_member_id = None
+        if success and 'id' in empty_member:
+            empty_member_id = empty_member['id']
+            # Verify empty join_date is handled correctly
+            if empty_member.get('join_date') == "" or empty_member.get('join_date') is None:
+                self.log_test("Member with Empty Anniversary Date - Handled Correctly", True, "Empty join_date accepted")
+            else:
+                self.log_test("Member with Empty Anniversary Date - Handled Correctly", False, f"Expected empty/null, got '{empty_member.get('join_date')}'")
+        
+        # Test 7b: Create member with null join_date (should be allowed)
+        null_join_date_member = {
+            "chapter": "HA",
+            "title": "Member",
+            "handle": "NullJoinDateRider",
+            "name": "Null Join Date Member",
+            "email": "null@test.com",
+            "phone": "555-1111-1111",
+            "address": "101 Null Street, Test City, TC 11111"
+            # join_date field omitted (null)
+        }
+        
+        success, null_member = self.run_test(
+            "Create Member with Null Anniversary Date",
+            "POST",
+            "members",
+            201,
+            data=null_join_date_member
+        )
+        
+        null_member_id = None
+        if success and 'id' in null_member:
+            null_member_id = null_member['id']
+            # Verify null join_date is handled correctly
+            if null_member.get('join_date') is None or null_member.get('join_date') == "":
+                self.log_test("Member with Null Anniversary Date - Handled Correctly", True, "Null join_date accepted")
+            else:
+                self.log_test("Member with Null Anniversary Date - Handled Correctly", False, f"Expected null/empty, got '{null_member.get('join_date')}'")
+        
+        # Test 8: Verify existing members without join_date still load correctly
+        success, all_members_final = self.run_test(
+            "Verify All Members Load with Mixed Anniversary Dates",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success and isinstance(all_members_final, list):
+            # Count members with different join_date states
+            members_with_date = 0
+            members_without_date = 0
+            
+            for member in all_members_final:
+                join_date = member.get('join_date')
+                if join_date and join_date.strip():
+                    members_with_date += 1
+                else:
+                    members_without_date += 1
+            
+            self.log_test("Mixed Anniversary Dates - All Members Load", True, f"Found {members_with_date} members with dates, {members_without_date} without dates")
+        
+        # Test 9: CLEANUP - Delete test members and prospects
+        print(f"\n   🧹 Cleaning up anniversary date test data...")
+        
+        cleanup_items = [
+            (member_id, "members", "Delete Anniversary Test Member"),
+            (prospect_id, "prospects", "Delete Anniversary Test Prospect"),
+            (empty_member_id, "members", "Delete Empty Anniversary Date Member"),
+            (null_member_id, "members", "Delete Null Anniversary Date Member")
+        ]
+        
+        for item_id, endpoint, description in cleanup_items:
+            if item_id:
+                success, response = self.run_test(
+                    description,
+                    "DELETE",
+                    f"{endpoint}/{item_id}",
+                    200
+                )
+        
+        print(f"   📅 Anniversary Date feature testing completed")
+        return member_id, prospect_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
