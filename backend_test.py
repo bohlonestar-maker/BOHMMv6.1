@@ -7760,9 +7760,9 @@ class BOHDirectoryAPITester:
         email_private_member = {
             "chapter": "HA",
             "title": "Member",
-            "handle": "EmailPrivateTest",
+            "handle": f"EmailPrivate{timestamp}",
             "name": "Email Private Test",
-            "email": "emailprivate@example.com",
+            "email": f"emailprivate{timestamp}@example.com",
             "phone": "555-EMAIL",
             "address": "456 Email Street",
             "email_private": True
@@ -7783,8 +7783,8 @@ class BOHDirectoryAPITester:
         
         # Create National member (should see actual email)
         national_member_user = {
-            "username": "nationalmember",
-            "email": "national@example.com", 
+            "username": f"nationalmember{timestamp}",
+            "email": f"national{timestamp}@example.com", 
             "password": "testpass123",
             "role": "member",
             "chapter": "National",
@@ -7805,8 +7805,8 @@ class BOHDirectoryAPITester:
         
         # Create Officer (should see actual email)
         officer_user = {
-            "username": "officeruser",
-            "email": "officer@example.com",
+            "username": f"officeruser{timestamp}",
+            "email": f"officer{timestamp}@example.com",
             "password": "testpass123", 
             "role": "member",
             "chapter": "AD",
@@ -7832,7 +7832,7 @@ class BOHDirectoryAPITester:
                 "POST",
                 "auth/login",
                 200,
-                data={"username": "nationalmember", "password": "testpass123"}
+                data={"username": f"nationalmember{timestamp}", "password": "testpass123"}
             )
             
             if success and 'token' in national_login:
@@ -7847,7 +7847,7 @@ class BOHDirectoryAPITester:
                 
                 if success:
                     actual_email = email_detail.get('email')
-                    if actual_email == "emailprivate@example.com":
+                    if actual_email == f"emailprivate{timestamp}@example.com":
                         self.log_test("National member sees actual email", True, f"email='{actual_email}'")
                     else:
                         self.log_test("National member sees actual email", False, f"Expected actual email, got '{actual_email}'")
@@ -7859,7 +7859,7 @@ class BOHDirectoryAPITester:
                 "POST", 
                 "auth/login",
                 200,
-                data={"username": "officeruser", "password": "testpass123"}
+                data={"username": f"officeruser{timestamp}", "password": "testpass123"}
             )
             
             if success and 'token' in officer_login:
@@ -7874,7 +7874,7 @@ class BOHDirectoryAPITester:
                 
                 if success:
                     actual_email = email_detail.get('email')
-                    if actual_email == "emailprivate@example.com":
+                    if actual_email == f"emailprivate{timestamp}@example.com":
                         self.log_test("Officer sees actual email", True, f"email='{actual_email}'")
                     else:
                         self.log_test("Officer sees actual email", False, f"Expected actual email, got '{actual_email}'")
@@ -7886,7 +7886,7 @@ class BOHDirectoryAPITester:
                 "POST",
                 "auth/login", 
                 200,
-                data={"username": "testmember", "password": "testpass123"}
+                data={"username": f"testmember{timestamp}", "password": "testpass123"}
             )
             
             if success and 'token' in member_login:
