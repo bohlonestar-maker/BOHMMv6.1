@@ -3692,6 +3692,7 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
         # Add least active members to response
         analytics_dict = analytics.model_dump()
         analytics_dict["least_active_members"] = least_active_members
+        analytics_dict["channel_stats"] = channel_stats
         analytics_dict["engagement_stats"] = {
             "total_members": total_members,
             "voice_active_members": len(voice_active_users),
