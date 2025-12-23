@@ -316,7 +316,7 @@ export default function DiscordAnalytics() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Volume2 className="w-5 h-5" />
-                  Top Voice Chat Users (90 days)
+                  Top Voice Chat Users (30 days)
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   Most active members in voice channels
