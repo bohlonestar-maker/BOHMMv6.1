@@ -286,7 +286,7 @@ export default function DiscordAnalytics() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">
-                  {analytics?.voice_stats?.total_sessions ? (analytics.voice_stats.total_sessions / 90).toFixed(1) : 0}
+                  {analytics?.voice_stats?.total_sessions ? (analytics.voice_stats.total_sessions / 30).toFixed(1) : 0}
                 </div>
               </CardContent>
             </Card>
