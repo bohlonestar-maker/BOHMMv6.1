@@ -846,9 +846,7 @@ class ProspectCreate(BaseModel):
     military_service: bool = False
     military_branch: Optional[str] = None
     # First Responder Service
-    is_police: bool = False
-    is_fire: bool = False
-    is_ems: bool = False
+    is_first_responder: bool = False
     meeting_attendance: Optional[dict] = None
 
 class ProspectUpdate(BaseModel):
@@ -863,9 +861,7 @@ class ProspectUpdate(BaseModel):
     military_service: Optional[bool] = None
     military_branch: Optional[str] = None
     # First Responder Service
-    is_police: Optional[bool] = None
-    is_fire: Optional[bool] = None
-    is_ems: Optional[bool] = None
+    is_first_responder: Optional[bool] = None
     meeting_attendance: Optional[dict] = None
 
 class PrivateMessage(BaseModel):
