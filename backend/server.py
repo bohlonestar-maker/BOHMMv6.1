@@ -1424,7 +1424,7 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     
     # Always include Military and First Responder fields for admin
     if is_admin:
-        header.extend(['Military Service', 'Military Branch', 'Police', 'Fire', 'EMS'])
+        header.extend(['Military Service', 'Military Branch', 'First Responder'])
     
     if is_admin or permissions.get("dues_tracking"):
         month_names = ['January', 'February', 'March', 'April', 'May', 'June', 
