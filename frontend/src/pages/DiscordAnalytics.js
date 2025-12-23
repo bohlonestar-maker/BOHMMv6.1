@@ -21,9 +21,11 @@ export default function DiscordAnalytics() {
   const [importing, setImporting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkedMembersDialogOpen, setLinkedMembersDialogOpen] = useState(false);
   const [selectedDiscordMember, setSelectedDiscordMember] = useState(null);
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
+  const [linkedMemberSearch, setLinkedMemberSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
