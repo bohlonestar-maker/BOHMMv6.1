@@ -135,6 +135,14 @@ export default function CSVExportView() {
             indices.push(index);
           }
           break;
+        case 'service':
+          // Select: Handle, Military Service, Military Branch, Police, Fire, EMS
+          if (h.includes('handle') || h.includes('military') || h.includes('police') || 
+              h.includes('fire') || h.includes('ems')) {
+            console.log('  Matched service field:', header);
+            indices.push(index);
+          }
+          break;
         case 'dues_q1':
           // Q1: January, February, March
           if (h.includes('handle') || h.includes('dues year') ||
