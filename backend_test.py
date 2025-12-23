@@ -7228,6 +7228,9 @@ class BOHDirectoryAPITester:
         # NEW FEATURE TEST: Birthday Notifications
         self.test_birthday_notifications()
         
+        # ANNIVERSARY DATE FEATURE TEST: End-to-End Testing
+        self.test_anniversary_date_feature()
+        
         # Test member operations
         self.test_member_operations()
         
