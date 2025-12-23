@@ -8831,3 +8831,8 @@ def test_discord_members_data_structure():
         
         return bot_status, analytics, discord_members
 
+if __name__ == "__main__":
+    # Run the specific review request tests
+    tester = BOHDirectoryAPITester()
+    tester.run_review_request_tests()
+
