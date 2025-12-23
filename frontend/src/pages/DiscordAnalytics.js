@@ -458,7 +458,7 @@ export default function DiscordAnalytics() {
                               No Text
                             </span>
                           </div>
-                          <p className="text-sm text-slate-400 mt-1">No activity in 90 days</p>
+                          <p className="text-sm text-slate-400 mt-1">No activity in 30 days</p>
                         </div>
                       </div>
                     ))}
