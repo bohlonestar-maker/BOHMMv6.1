@@ -249,13 +249,17 @@ export default function DiscordAnalytics() {
   };
 
   const formatDuration = (seconds) => {
-    if (!seconds) return "0m";
+    if (!seconds || seconds === 0) return "0m";
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
-    return `${minutes}m`;
+    if (minutes > 0) {
+      return `${minutes}m ${secs > 0 ? `${secs}s` : ''}`.trim();
+    }
+    return `${secs}s`;
   };
 
   if (loading) {
