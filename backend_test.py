@@ -8292,6 +8292,545 @@ def test_discord_members_data_structure():
         
         return bot_status, analytics, discord_members
 
+    def test_3_role_system_access_control(self):
+        """Test 3-role system access control as requested in review"""
+        print(f"\n🔐 Testing 3-Role System Access Control...")
+        
+        # Step 1: Create test users with different roles
+        print(f"\n   👥 Creating test users with different roles...")
+        
+        # Create prospect user
+        prospect_user = {
+            "username": "testprospectuser",
+            "password": "testpass123",
+            "role": "prospect",
+            "email": "prospect@test.com"
+        }
+        
+        success, created_prospect_user = self.run_test(
+            "Create Prospect User",
+            "POST",
+            "users",
+            201,
+            data=prospect_user
+        )
+        
+        prospect_user_id = None
+        if success and 'id' in created_prospect_user:
+            prospect_user_id = created_prospect_user['id']
+            print(f"   ✅ Created prospect user ID: {prospect_user_id}")
+        
+        # Create member user
+        member_user = {
+            "username": "testmemberuser",
+            "password": "testpass123",
+            "role": "member",
+            "chapter": "AD",
+            "title": "Member",
+            "email": "member@test.com"
+        }
+        
+        success, created_member_user = self.run_test(
+            "Create Member User",
+            "POST",
+            "users",
+            201,
+            data=member_user
+        )
+        
+        member_user_id = None
+        if success and 'id' in created_member_user:
+            member_user_id = created_member_user['id']
+            print(f"   ✅ Created member user ID: {member_user_id}")
+        
+        # Create some test members for visibility testing
+        test_members = [
+            {
+                "chapter": "National",
+                "title": "Prez",
+                "handle": "TestNational1",
+                "name": "National Test Member 1",
+                "email": "national1@test.com",
+                "phone": "555-0001",
+                "address": "123 National St"
+            },
+            {
+                "chapter": "AD",
+                "title": "VP",
+                "handle": "TestAD1",
+                "name": "AD Test Member 1",
+                "email": "ad1@test.com",
+                "phone": "555-0002",
+                "address": "456 AD Ave"
+            }
+        ]
+        
+        created_member_ids = []
+        for i, member_data in enumerate(test_members):
+            success, created_member = self.run_test(
+                f"Create Test Member {i+1}",
+                "POST",
+                "members",
+                201,
+                data=member_data
+            )
+            if success and 'id' in created_member:
+                created_member_ids.append(created_member['id'])
+        
+        # Save original admin token
+        original_token = self.token
+        
+        # Step 2: Test PROSPECT role access
+        print(f"\n   🔍 Testing PROSPECT role access...")
+        
+        # Login as prospect user
+        success, prospect_login = self.run_test(
+            "Login as Prospect User",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testprospectuser", "password": "testpass123"}
+        )
+        
+        if success and 'token' in prospect_login:
+            self.token = prospect_login['token']
+            
+            # Test GET /api/members - Should succeed but names should be "Hidden"
+            success, members_list = self.run_test(
+                "Prospect - GET /api/members (Should Succeed)",
+                "GET",
+                "members",
+                200
+            )
+            
+            if success and isinstance(members_list, list):
+                # Check if names are hidden
+                hidden_names = [m for m in members_list if m.get('name') == 'Hidden']
+                visible_names = [m for m in members_list if m.get('name') != 'Hidden']
+                
+                if len(hidden_names) > 0 and len(visible_names) == 0:
+                    self.log_test("Prospect - Member Names Hidden", True, f"All {len(hidden_names)} member names are hidden")
+                else:
+                    self.log_test("Prospect - Member Names Hidden", False, f"Found {len(visible_names)} visible names, {len(hidden_names)} hidden")
+            
+            # Test GET /api/prospects - Should return 403 Forbidden (admin only)
+            success, response = self.run_test(
+                "Prospect - GET /api/prospects (Should Fail 403)",
+                "GET",
+                "prospects",
+                403
+            )
+            
+            # Test POST /api/members - Should return 403 Forbidden (admin only)
+            success, response = self.run_test(
+                "Prospect - POST /api/members (Should Fail 403)",
+                "POST",
+                "members",
+                403,
+                data={"chapter": "Test", "title": "Test", "handle": "Test", "name": "Test", "email": "test@test.com", "phone": "123", "address": "Test"}
+            )
+            
+            # Test POST /api/prospects - Should return 403 Forbidden (admin only)
+            success, response = self.run_test(
+                "Prospect - POST /api/prospects (Should Fail 403)",
+                "POST",
+                "prospects",
+                403,
+                data={"handle": "Test", "name": "Test", "email": "test@test.com", "phone": "123", "address": "Test"}
+            )
+        
+        # Step 3: Test MEMBER role access
+        print(f"\n   👤 Testing MEMBER role access...")
+        
+        # Login as member user
+        success, member_login = self.run_test(
+            "Login as Member User",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "testmemberuser", "password": "testpass123"}
+        )
+        
+        if success and 'token' in member_login:
+            self.token = member_login['token']
+            
+            # Test GET /api/members - Should succeed, names visible, but private emails/phones show "Private"
+            success, members_list = self.run_test(
+                "Member - GET /api/members (Should Succeed)",
+                "GET",
+                "members",
+                200
+            )
+            
+            if success and isinstance(members_list, list):
+                # Check if names are visible (not "Hidden")
+                visible_names = [m for m in members_list if m.get('name') != 'Hidden']
+                hidden_names = [m for m in members_list if m.get('name') == 'Hidden']
+                
+                if len(visible_names) > 0 and len(hidden_names) == 0:
+                    self.log_test("Member - Member Names Visible", True, f"All {len(visible_names)} member names are visible")
+                else:
+                    self.log_test("Member - Member Names Visible", False, f"Found {len(hidden_names)} hidden names, {len(visible_names)} visible")
+                
+                # Check for private data restrictions (if any members have private flags)
+                private_restricted = [m for m in members_list if m.get('phone') == 'Private' or m.get('address') == 'Private']
+                if len(private_restricted) > 0:
+                    self.log_test("Member - Private Data Restrictions", True, f"Found {len(private_restricted)} members with private data restrictions")
+                else:
+                    self.log_test("Member - Private Data Restrictions", True, "No private data restrictions found (expected if no private flags set)")
+            
+            # Test GET /api/prospects - Should return 403 Forbidden (admin only)
+            success, response = self.run_test(
+                "Member - GET /api/prospects (Should Fail 403)",
+                "GET",
+                "prospects",
+                403
+            )
+            
+            # Test POST /api/members - Should return 403 Forbidden (admin only)
+            success, response = self.run_test(
+                "Member - POST /api/members (Should Fail 403)",
+                "POST",
+                "members",
+                403,
+                data={"chapter": "Test", "title": "Test", "handle": "Test", "name": "Test", "email": "test@test.com", "phone": "123", "address": "Test"}
+            )
+        
+        # Step 4: Test ADMIN role access
+        print(f"\n   👑 Testing ADMIN role access...")
+        
+        # Restore admin token
+        self.token = original_token
+        
+        # Test GET /api/members - Full access, all data visible
+        success, members_list = self.run_test(
+            "Admin - GET /api/members (Full Access)",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success and isinstance(members_list, list):
+            # Admin should see all data without restrictions
+            visible_names = [m for m in members_list if m.get('name') != 'Hidden']
+            self.log_test("Admin - Full Member Access", True, f"Admin can see all {len(visible_names)} member names and data")
+        
+        # Test GET /api/prospects - Full access
+        success, prospects_list = self.run_test(
+            "Admin - GET /api/prospects (Full Access)",
+            "GET",
+            "prospects",
+            200
+        )
+        
+        # Test POST /api/members - Can create members
+        success, response = self.run_test(
+            "Admin - POST /api/members (Can Create)",
+            "POST",
+            "members",
+            201,
+            data={"chapter": "Test", "title": "Test", "handle": "AdminTestMember", "name": "Admin Test Member", "email": "admintest@test.com", "phone": "555-9999", "address": "999 Admin St"}
+        )
+        
+        admin_created_member_id = None
+        if success and 'id' in response:
+            admin_created_member_id = response['id']
+        
+        # Test POST /api/prospects - Can create prospects
+        success, response = self.run_test(
+            "Admin - POST /api/prospects (Can Create)",
+            "POST",
+            "prospects",
+            201,
+            data={"handle": "AdminTestProspect", "name": "Admin Test Prospect", "email": "adminprospect@test.com", "phone": "555-8888", "address": "888 Admin Ave"}
+        )
+        
+        admin_created_prospect_id = None
+        if success and 'id' in response:
+            admin_created_prospect_id = response['id']
+        
+        # Clean up test data
+        print(f"\n   🧹 Cleaning up 3-role system test data...")
+        
+        cleanup_items = [
+            (prospect_user_id, "users", "Delete Prospect Test User"),
+            (member_user_id, "users", "Delete Member Test User"),
+            (admin_created_member_id, "members", "Delete Admin Created Member"),
+            (admin_created_prospect_id, "prospects", "Delete Admin Created Prospect")
+        ]
+        
+        # Add created test members to cleanup
+        for i, member_id in enumerate(created_member_ids):
+            cleanup_items.append((member_id, "members", f"Delete Test Member {i+1}"))
+        
+        for item_id, endpoint, description in cleanup_items:
+            if item_id:
+                success, response = self.run_test(
+                    description,
+                    "DELETE",
+                    f"{endpoint}/{item_id}",
+                    200
+                )
+        
+        print(f"   🔐 3-role system access control testing completed")
+
+    def test_bulk_promotion_comprehensive(self):
+        """Test bulk promotion of prospects to members as requested in review"""
+        print(f"\n🚀 Testing Bulk Promotion Functionality...")
+        
+        # Step 1: Create 3 test prospects
+        print(f"\n   👥 Creating test prospects for bulk promotion...")
+        
+        test_prospects = [
+            {
+                "handle": "BulkTest1",
+                "name": "Bulk Test Prospect 1",
+                "email": "bulktest1@test.com",
+                "phone": "555-1001",
+                "address": "101 Bulk St"
+            },
+            {
+                "handle": "BulkTest2", 
+                "name": "Bulk Test Prospect 2",
+                "email": "bulktest2@test.com",
+                "phone": "555-1002",
+                "address": "102 Bulk St"
+            },
+            {
+                "handle": "BulkTest3",
+                "name": "Bulk Test Prospect 3", 
+                "email": "bulktest3@test.com",
+                "phone": "555-1003",
+                "address": "103 Bulk St"
+            }
+        ]
+        
+        created_prospect_ids = []
+        for i, prospect_data in enumerate(test_prospects):
+            success, created_prospect = self.run_test(
+                f"Create Bulk Test Prospect {i+1}",
+                "POST",
+                "prospects",
+                201,
+                data=prospect_data
+            )
+            
+            if success and 'id' in created_prospect:
+                created_prospect_ids.append(created_prospect['id'])
+                print(f"   ✅ Created prospect {i+1} ID: {created_prospect['id']}")
+        
+        if len(created_prospect_ids) < 3:
+            print("❌ Failed to create all test prospects - cannot continue bulk promotion tests")
+            return
+        
+        # Step 2: Bulk promote 2 prospects (BulkTest1 and BulkTest2)
+        print(f"\n   🔄 Testing bulk promotion of 2 prospects...")
+        
+        # Use first 2 prospect IDs for bulk promotion
+        promotion_ids = created_prospect_ids[:2]
+        
+        success, promotion_response = self.run_test_bulk_promote(
+            "Bulk Promote 2 Prospects",
+            promotion_ids,
+            "AD",
+            "Member",
+            200
+        )
+        
+        if success:
+            # Verify promotion response
+            if 'promoted_count' in promotion_response:
+                promoted_count = promotion_response['promoted_count']
+                if promoted_count == 2:
+                    self.log_test("Bulk Promotion - Correct Count", True, f"promoted_count=2 as expected")
+                else:
+                    self.log_test("Bulk Promotion - Correct Count", False, f"Expected promoted_count=2, got {promoted_count}")
+            else:
+                self.log_test("Bulk Promotion - Response Format", False, "No promoted_count in response")
+            
+            # Check for promoted handles list
+            if 'promoted_handles' in promotion_response:
+                promoted_handles = promotion_response['promoted_handles']
+                expected_handles = ["BulkTest1", "BulkTest2"]
+                if set(promoted_handles) == set(expected_handles):
+                    self.log_test("Bulk Promotion - Promoted Handles", True, f"Handles: {promoted_handles}")
+                else:
+                    self.log_test("Bulk Promotion - Promoted Handles", False, f"Expected {expected_handles}, got {promoted_handles}")
+        
+        # Step 3: Verify promotions - check members list
+        print(f"\n   ✅ Verifying promotions in members list...")
+        
+        success, members_list = self.run_test(
+            "Get Members After Bulk Promotion",
+            "GET",
+            "members",
+            200
+        )
+        
+        if success and isinstance(members_list, list):
+            # Look for promoted members
+            promoted_members = []
+            for member in members_list:
+                if member.get('handle') in ['BulkTest1', 'BulkTest2']:
+                    promoted_members.append(member)
+            
+            if len(promoted_members) == 2:
+                self.log_test("Verify Promotions - Members Created", True, f"Found 2 promoted members in members list")
+                
+                # Verify chapter and title assignment
+                correct_assignments = 0
+                for member in promoted_members:
+                    if member.get('chapter') == 'AD' and member.get('title') == 'Member':
+                        correct_assignments += 1
+                
+                if correct_assignments == 2:
+                    self.log_test("Verify Promotions - Chapter/Title Assignment", True, "Both members have chapter=AD, title=Member")
+                else:
+                    self.log_test("Verify Promotions - Chapter/Title Assignment", False, f"Only {correct_assignments}/2 have correct assignments")
+                
+                # Verify contact info transfer
+                for member in promoted_members:
+                    handle = member.get('handle')
+                    if handle == 'BulkTest1':
+                        if (member.get('email') == 'bulktest1@test.com' and 
+                            member.get('phone') == '555-1001' and
+                            member.get('address') == '101 Bulk St'):
+                            self.log_test("Verify Promotions - BulkTest1 Data Transfer", True, "All contact info transferred correctly")
+                        else:
+                            self.log_test("Verify Promotions - BulkTest1 Data Transfer", False, "Contact info not transferred correctly")
+                    elif handle == 'BulkTest2':
+                        if (member.get('email') == 'bulktest2@test.com' and 
+                            member.get('phone') == '555-1002' and
+                            member.get('address') == '102 Bulk St'):
+                            self.log_test("Verify Promotions - BulkTest2 Data Transfer", True, "All contact info transferred correctly")
+                        else:
+                            self.log_test("Verify Promotions - BulkTest2 Data Transfer", False, "Contact info not transferred correctly")
+            else:
+                self.log_test("Verify Promotions - Members Created", False, f"Expected 2 promoted members, found {len(promoted_members)}")
+        
+        # Step 4: Verify prospects list - should only have BulkTest3 remaining
+        print(f"\n   📋 Verifying prospects list after promotion...")
+        
+        success, prospects_list = self.run_test(
+            "Get Prospects After Bulk Promotion",
+            "GET",
+            "prospects",
+            200
+        )
+        
+        if success and isinstance(prospects_list, list):
+            # Look for remaining prospects
+            remaining_prospects = []
+            for prospect in prospects_list:
+                if prospect.get('handle') in ['BulkTest1', 'BulkTest2', 'BulkTest3']:
+                    remaining_prospects.append(prospect)
+            
+            # Should only have BulkTest3
+            remaining_handles = [p.get('handle') for p in remaining_prospects]
+            if remaining_handles == ['BulkTest3']:
+                self.log_test("Verify Promotions - Prospects Archived", True, "Only BulkTest3 remains in prospects")
+            else:
+                self.log_test("Verify Promotions - Prospects Archived", False, f"Expected only BulkTest3, found: {remaining_handles}")
+        
+        # Step 5: Test edge cases
+        print(f"\n   🧪 Testing bulk promotion edge cases...")
+        
+        # Test with non-existent prospect ID
+        fake_id = "00000000-0000-0000-0000-000000000000"
+        success, error_response = self.run_test_bulk_promote(
+            "Bulk Promote with Non-existent ID (Should Handle Error)",
+            [fake_id],
+            "AD",
+            "Member",
+            400  # Should return error
+        )
+        
+        # Test with empty prospect list
+        success, empty_response = self.run_test_bulk_promote(
+            "Bulk Promote Empty List",
+            [],
+            "AD", 
+            "Member",
+            200  # Should succeed with 0 count
+        )
+        
+        if success and 'promoted_count' in empty_response:
+            if empty_response['promoted_count'] == 0:
+                self.log_test("Bulk Promotion - Empty List Handling", True, "Empty list returns promoted_count=0")
+            else:
+                self.log_test("Bulk Promotion - Empty List Handling", False, f"Expected promoted_count=0, got {empty_response['promoted_count']}")
+        
+        # Test with missing parameters
+        success, missing_params_response = self.run_test(
+            "Bulk Promote Missing Parameters (Should Fail)",
+            "POST",
+            "prospects/bulk-promote",
+            400,  # Should fail validation
+            data=[created_prospect_ids[2]]  # Missing chapter/title params
+        )
+        
+        # Step 6: Clean up test data
+        print(f"\n   🧹 Cleaning up bulk promotion test data...")
+        
+        # Delete remaining prospect (BulkTest3)
+        if len(created_prospect_ids) > 2:
+            success, response = self.run_test(
+                "Delete Remaining Test Prospect",
+                "DELETE",
+                f"prospects/{created_prospect_ids[2]}",
+                200
+            )
+        
+        # Delete promoted members (now in members collection)
+        success, members_list = self.run_test(
+            "Get Members for Cleanup",
+            "GET", 
+            "members",
+            200
+        )
+        
+        if success and isinstance(members_list, list):
+            for member in members_list:
+                if member.get('handle') in ['BulkTest1', 'BulkTest2']:
+                    success, response = self.run_test(
+                        f"Delete Promoted Member {member.get('handle')}",
+                        "DELETE",
+                        f"members/{member.get('id')}",
+                        200
+                    )
+        
+        print(f"   🚀 Bulk promotion functionality testing completed")
+
+    def run_review_request_tests(self):
+        """Run the specific tests requested in the review"""
+        print("🔍 Starting Review Request Testing - 3-Role System & Bulk Promotion...")
+        print(f"   Base URL: {self.base_url}")
+        print(f"   Testing started at: {datetime.now()}")
+        
+        # Test authentication first with testadmin/testpass123
+        success, login_response = self.test_login("testadmin", "testpass123")
+        if not success:
+            print("❌ Authentication failed - cannot continue tests")
+            return
+        
+        # Run the specific tests requested in the review
+        self.test_3_role_system_access_control()
+        self.test_bulk_promotion_comprehensive()
+        
+        # Print final results
+        print(f"\n📊 Review Request Test Results:")
+        print(f"   Total Tests: {self.tests_run}")
+        print(f"   Passed: {self.tests_passed}")
+        print(f"   Failed: {self.tests_run - self.tests_passed}")
+        print(f"   Success Rate: {(self.tests_passed / self.tests_run * 100):.1f}%")
+        
+        if self.tests_passed == self.tests_run:
+            print("🎉 All review request tests passed!")
+        else:
+            print("⚠️  Some tests failed - check details above")
+            
+        return self.tests_passed == self.tests_run
+
 if __name__ == "__main__":
     # Run the Discord voice activity investigation specifically
     tester = BOHDirectoryAPITester()
