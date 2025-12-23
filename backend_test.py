@@ -7562,12 +7562,16 @@ class BOHDirectoryAPITester:
         # STEP 2: Create test member with privacy enabled
         print(f"\n📋 STEP 2: Create test member with privacy enabled...")
         
+        # Use timestamp to ensure unique handles
+        import time
+        timestamp = str(int(time.time()))
+        
         test_member_data = {
             "chapter": "AD",
             "title": "Member", 
-            "handle": "PrivacyTestMember",
+            "handle": f"PrivacyTest{timestamp}",
             "name": "Privacy Test Member",
-            "email": "privacytest@example.com",
+            "email": f"privacytest{timestamp}@example.com",
             "phone": "555-PRIVACY",
             "address": "123 Private Street, Privacy City, PC 12345",
             "phone_private": True,
