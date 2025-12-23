@@ -145,6 +145,21 @@ async def start_discord_bot():
                 sys.stderr.write(f"✅ [DISCORD] Monitoring {len(self.guilds)} guild(s):\n")
                 for guild in self.guilds:
                     sys.stderr.write(f"   - {guild.name} ({guild.id}): {guild.member_count} members\n")
+                    
+                    # Scan for users already in voice channels and start tracking them
+                    for voice_channel in guild.voice_channels:
+                        for member in voice_channel.members:
+                            if not member.bot:
+                                user_id = str(member.id)
+                                if user_id not in self.voice_sessions:
+                                    self.voice_sessions[user_id] = {
+                                        'joined_at': datetime.now(timezone.utc),
+                                        'channel_id': str(voice_channel.id),
+                                        'channel_name': voice_channel.name
+                                    }
+                                    sys.stderr.write(f"🎤 [DISCORD] Tracking {member.display_name} already in {voice_channel.name}\n")
+                    
+                sys.stderr.write(f"✅ [DISCORD] Now tracking {len(self.voice_sessions)} user(s) already in voice\n")
                 sys.stderr.flush()
                 
             async def on_voice_state_update(self, member, before, after):
