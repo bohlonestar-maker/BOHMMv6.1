@@ -1439,7 +1439,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                           </div>
                           <p className="text-slate-200 text-sm mb-2">{action.description}</p>
                           <p className="text-slate-500 text-xs">
-                            Added by {action.added_by} on {new Date(action.added_at).toLocaleDateString()}
+                            Added by {action.added_by} on {new Date(action.added_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
                           </p>
                         </div>
                       ))}
