@@ -999,43 +999,17 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       {/* First Responder Section */}
                       <div className="space-y-3 p-3 bg-slate-800 rounded-lg border border-slate-700">
                         <Label className="text-white font-semibold">🚨 First Responder Service</Label>
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="is_police"
-                              checked={formData.is_police || false}
-                              onCheckedChange={(checked) =>
-                                setFormData({ ...formData, is_police: checked })
-                              }
-                            />
-                            <label htmlFor="is_police" className="text-sm text-slate-200 cursor-pointer">
-                              🚔 Police / Law Enforcement
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="is_fire"
-                              checked={formData.is_fire || false}
-                              onCheckedChange={(checked) =>
-                                setFormData({ ...formData, is_fire: checked })
-                              }
-                            />
-                            <label htmlFor="is_fire" className="text-sm text-slate-200 cursor-pointer">
-                              🚒 Fire / Firefighter
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="is_ems"
-                              checked={formData.is_ems || false}
-                              onCheckedChange={(checked) =>
-                                setFormData({ ...formData, is_ems: checked })
-                              }
-                            />
-                            <label htmlFor="is_ems" className="text-sm text-slate-200 cursor-pointer">
-                              🚑 EMS / Paramedic
-                            </label>
-                          </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="is_first_responder"
+                            checked={formData.is_first_responder || false}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, is_first_responder: checked })
+                            }
+                          />
+                          <label htmlFor="is_first_responder" className="text-sm text-slate-200 cursor-pointer">
+                            Served as First Responder (Police, Fire, or EMS)
+                          </label>
                         </div>
                       </div>
 
