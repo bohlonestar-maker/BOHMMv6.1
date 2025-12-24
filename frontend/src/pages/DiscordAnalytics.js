@@ -415,40 +415,40 @@ export default function DiscordAnalytics() {
           </TabsList>
 
           {/* Voice Activity Tab */}
-          <TabsContent value="voice" className="space-y-4">
+          <TabsContent value="voice" className="space-y-4 mt-4">
             <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Volume2 className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   Top Voice Chat Users (30 days)
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-400 text-xs sm:text-sm">
                   Most active members in voice channels
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
                 {analytics?.top_voice_users?.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {analytics.top_voice_users.map((user, index) => (
-                      <div key={user._id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                      <div key={user._id} className="flex items-center justify-between p-2 sm:p-3 bg-slate-900 rounded-lg">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">
                             {index + 1}
                           </div>
-                          <div>
-                            <p className="font-medium text-white">{user.username}</p>
-                            <p className="text-sm text-slate-400">{user.total_sessions} sessions</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-white text-sm sm:text-base truncate">{user.username}</p>
+                            <p className="text-xs sm:text-sm text-slate-400">{user.total_sessions} sessions</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium text-white">{formatDuration(user.total_duration)}</p>
-                          <p className="text-sm text-slate-400">total time</p>
+                        <div className="text-right flex-shrink-0 ml-2">
+                          <p className="font-medium text-white text-sm sm:text-base">{formatDuration(user.total_duration)}</p>
+                          <p className="text-xs sm:text-sm text-slate-400">total time</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-400 text-center py-8">No voice activity recorded yet</p>
+                  <p className="text-slate-400 text-center py-8 text-sm">No voice activity recorded yet</p>
                 )}
               </CardContent>
             </Card>
