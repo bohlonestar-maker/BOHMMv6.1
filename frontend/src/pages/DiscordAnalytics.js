@@ -240,7 +240,7 @@ export default function DiscordAnalytics() {
       const data = response.data;
       toast.success(`Synced! Removed ${data.removed} stale members. Now ${data.database_count} members.`);
       await fetchDiscordMembers(); // Refresh the list
-      await fetchAnalytics(); // Refresh analytics
+      await fetchDiscordAnalytics(); // Refresh analytics
     } catch (error) {
       toast.error("Failed to sync Discord members");
       console.error("Sync error:", error);
