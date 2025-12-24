@@ -353,7 +353,7 @@ export default function WallOfHonor({ token, userRole }) {
         {/* Footer Quote */}
         <div className="text-center mt-12 pt-8 border-t border-slate-700">
           <p className="text-amber-500 italic text-sm sm:text-base">
-            "Gone from our sight, but never from our hearts"
+            &ldquo;Gone from our sight, but never from our hearts&rdquo;
           </p>
         </div>
       </div>
