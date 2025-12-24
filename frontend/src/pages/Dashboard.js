@@ -742,6 +742,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
           
           {hasPermission('admin_actions') && (
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
+              {/* Member Count Badge */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-700 rounded-lg border border-slate-600">
+                <Users className="w-4 h-4 text-blue-400" />
+                <span className="text-sm font-medium text-white">
+                  {members.length} <span className="text-slate-400">Members</span>
+                </span>
+                {searchTerm && sortedFilteredMembers.length !== members.length && (
+                  <span className="text-xs text-slate-400">
+                    ({sortedFilteredMembers.length} shown)
+                  </span>
+                )}
+              </div>
               <Button
                 onClick={handleViewCSV}
                 size="sm"
