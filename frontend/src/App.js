@@ -182,7 +182,7 @@ function App() {
             path="/wall-of-honor"
             element={
               isAuthenticated ? (
-                <WallOfHonor token={token} userRole={userRole} />
+                <WallOfHonor token={localStorage.getItem('token')} userRole={userRole} />
               ) : (
                 <Navigate to="/login" replace />
               )
