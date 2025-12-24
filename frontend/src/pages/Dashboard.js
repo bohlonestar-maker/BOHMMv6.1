@@ -684,6 +684,16 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                   )}
                 </Button>
                 <Button
+                  onClick={() => navigate("/wall-of-honor")}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-amber-900/30 text-amber-400 border-amber-600/50 hover:bg-amber-900/50"
+                >
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Wall of Honor</span>
+                  <span className="sm:hidden">Honor</span>
+                </Button>
+                <Button
                   onClick={() => navigate("/messages")}
                   variant="outline"
                   size="sm"
