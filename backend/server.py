@@ -2319,6 +2319,90 @@ async def bulk_promote_prospects(
         "failed_prospects": failed_prospects
     }
 
+# ==================== WALL OF HONOR (Fallen Members) ====================
+
+@api_router.get("/fallen", response_model=List[FallenMember])
+async def get_fallen_members(current_user: dict = Depends(verify_token)):
+    """Get all fallen members for the Wall of Honor"""
+    fallen = await db.fallen_members.find({}, {"_id": 0}).to_list(1000)
+    # Sort by date_of_passing (most recent first), then by name
+    fallen.sort(key=lambda x: (x.get('date_of_passing') or '0000-00-00', x.get('name', '')), reverse=True)
+    return fallen
+
+@api_router.post("/fallen", response_model=FallenMember, status_code=201)
+async def create_fallen_member(
+    fallen: FallenMemberCreate,
+    current_user: dict = Depends(verify_admin)
+):
+    """Add a fallen member to the Wall of Honor (admin only)"""
+    fallen_dict = fallen.model_dump()
+    fallen_dict["id"] = str(uuid.uuid4())
+    fallen_dict["created_at"] = datetime.now(timezone.utc)
+    fallen_dict["created_by"] = current_user["username"]
+    
+    await db.fallen_members.insert_one(fallen_dict)
+    
+    # Log activity
+    await log_activity(
+        current_user["username"],
+        "add_fallen_member",
+        f"Added {fallen.handle} ({fallen.name}) to the Wall of Honor"
+    )
+    
+    return FallenMember(**fallen_dict)
+
+@api_router.put("/fallen/{fallen_id}", response_model=FallenMember)
+async def update_fallen_member(
+    fallen_id: str,
+    fallen_update: FallenMemberUpdate,
+    current_user: dict = Depends(verify_admin)
+):
+    """Update a fallen member entry (admin only)"""
+    existing = await db.fallen_members.find_one({"id": fallen_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Fallen member not found")
+    
+    update_data = {k: v for k, v in fallen_update.model_dump().items() if v is not None}
+    
+    if update_data:
+        await db.fallen_members.update_one(
+            {"id": fallen_id},
+            {"$set": update_data}
+        )
+        
+        # Log activity
+        await log_activity(
+            current_user["username"],
+            "update_fallen_member",
+            f"Updated Wall of Honor entry for {existing.get('handle', existing.get('name'))}"
+        )
+    
+    updated = await db.fallen_members.find_one({"id": fallen_id}, {"_id": 0})
+    return FallenMember(**updated)
+
+@api_router.delete("/fallen/{fallen_id}")
+async def delete_fallen_member(
+    fallen_id: str,
+    current_user: dict = Depends(verify_admin)
+):
+    """Remove a fallen member from the Wall of Honor (admin only)"""
+    existing = await db.fallen_members.find_one({"id": fallen_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Fallen member not found")
+    
+    await db.fallen_members.delete_one({"id": fallen_id})
+    
+    # Log activity
+    await log_activity(
+        current_user["username"],
+        "delete_fallen_member",
+        f"Removed {existing.get('handle', existing.get('name'))} from the Wall of Honor"
+    )
+    
+    return {"message": "Fallen member removed from Wall of Honor"}
+
+# ==================== END WALL OF HONOR ====================
+
 # User management endpoints (admin only)
 @api_router.get("/users", response_model=List[UserResponse])
 async def get_users(current_user: dict = Depends(verify_admin)):
