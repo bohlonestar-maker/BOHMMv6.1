@@ -1997,11 +1997,9 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
         # Military and First Responder status
         military_service = "Yes" if prospect.get('military_service', False) else "No"
         military_branch = prospect.get('military_branch', '') or ''
-        is_police = "Yes" if prospect.get('is_police', False) else "No"
-        is_fire = "Yes" if prospect.get('is_fire', False) else "No"
-        is_ems = "Yes" if prospect.get('is_ems', False) else "No"
+        is_first_responder = "Yes" if prospect.get('is_first_responder', False) else "No"
         
-        row = f"{prospect['handle']},{prospect['name']},{prospect['email']},{prospect['phone']},{prospect['address']},{military_service},{military_branch},{is_police},{is_fire},{is_ems},{current_year}"
+        row = f"{prospect['handle']},{prospect['name']},{prospect['email']},{prospect['phone']},{prospect['address']},{military_service},{military_branch},{is_first_responder},{current_year}"
         
         for i in range(24):
             meeting = meetings[i] if i < len(meetings) else {"status": 0, "note": ""}
