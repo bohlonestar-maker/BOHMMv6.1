@@ -333,63 +333,63 @@ export default function DiscordAnalytics() {
             </div>
           </div>
 
-          {/* Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {/* Overview Cards - 2 cols on mobile, 4 on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
             <Card 
               className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700 transition-colors"
               onClick={openLinkedMembersDialog}
             >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Total Members
-                  <span className="text-xs text-blue-400 ml-auto">Click to view</span>
+              <CardHeader className="p-3 sm:pb-3 sm:pt-4 sm:px-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-1.5 sm:gap-2">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate">Total Members</span>
                 </CardTitle>
+                <span className="text-[10px] sm:text-xs text-blue-400 block mt-1">Click to view</span>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">
+              <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+                <div className="text-2xl sm:text-3xl font-bold text-white">
                   {analytics?.total_members || 0}
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <Volume2 className="w-4 h-4" />
-                  Voice Sessions
+              <CardHeader className="p-3 sm:pb-3 sm:pt-4 sm:px-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-1.5 sm:gap-2">
+                  <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate">Voice Sessions</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">
+              <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+                <div className="text-2xl sm:text-3xl font-bold text-white">
                   {analytics?.voice_stats?.total_sessions || 0}
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Text Messages
+              <CardHeader className="p-3 sm:pb-3 sm:pt-4 sm:px-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-1.5 sm:gap-2">
+                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate">Text Messages</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">
+              <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+                <div className="text-2xl sm:text-3xl font-bold text-white">
                   {analytics?.text_stats?.total_messages || 0}
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Daily Average
+              <CardHeader className="p-3 sm:pb-3 sm:pt-4 sm:px-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-1.5 sm:gap-2">
+                  <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate">Daily Average</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">
+              <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+                <div className="text-2xl sm:text-3xl font-bold text-white">
                   {analytics?.voice_stats?.total_sessions ? (analytics.voice_stats.total_sessions / 30).toFixed(1) : 0}
                 </div>
               </CardContent>
