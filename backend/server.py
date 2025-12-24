@@ -874,6 +874,50 @@ class ProspectUpdate(BaseModel):
     is_first_responder: Optional[bool] = None
     meeting_attendance: Optional[dict] = None
 
+# Fallen Member (Wall of Honor) models
+class FallenMember(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    handle: str
+    chapter: Optional[str] = None
+    title: Optional[str] = None
+    photo_url: Optional[str] = None
+    date_of_passing: Optional[str] = None  # YYYY-MM-DD format
+    join_date: Optional[str] = None  # When they joined the club
+    tribute: Optional[str] = None  # Memorial message
+    military_service: bool = False
+    military_branch: Optional[str] = None
+    is_first_responder: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_by: Optional[str] = None
+
+class FallenMemberCreate(BaseModel):
+    name: str
+    handle: str
+    chapter: Optional[str] = None
+    title: Optional[str] = None
+    photo_url: Optional[str] = None
+    date_of_passing: Optional[str] = None
+    join_date: Optional[str] = None
+    tribute: Optional[str] = None
+    military_service: bool = False
+    military_branch: Optional[str] = None
+    is_first_responder: bool = False
+
+class FallenMemberUpdate(BaseModel):
+    name: Optional[str] = None
+    handle: Optional[str] = None
+    chapter: Optional[str] = None
+    title: Optional[str] = None
+    photo_url: Optional[str] = None
+    date_of_passing: Optional[str] = None
+    join_date: Optional[str] = None
+    tribute: Optional[str] = None
+    military_service: Optional[bool] = None
+    military_branch: Optional[str] = None
+    is_first_responder: Optional[bool] = None
+
 class PrivateMessage(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
