@@ -239,7 +239,7 @@ export default function WallOfHonor({ token, userRole }) {
             <p className="text-slate-400 text-lg">No memorials yet</p>
             {isAdmin && (
               <p className="text-slate-500 text-sm mt-2">
-                Click "Add Memorial" to honor a fallen brother
+                Click &ldquo;Add Memorial&rdquo; to honor a fallen brother
               </p>
             )}
           </div>
