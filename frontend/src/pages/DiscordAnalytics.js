@@ -399,17 +399,17 @@ export default function DiscordAnalytics() {
 
         {/* Analytics Content */}
         <Tabs defaultValue="voice" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800">
-            <TabsTrigger value="voice" className="data-[state=active]:bg-slate-700 text-white">
+          <TabsList className="w-full bg-slate-800 overflow-x-auto flex justify-start sm:grid sm:grid-cols-4 gap-0 p-1 rounded-lg">
+            <TabsTrigger value="voice" className="flex-shrink-0 px-3 sm:px-4 py-2 text-xs sm:text-sm data-[state=active]:bg-slate-700 text-white whitespace-nowrap">
               Voice Activity
             </TabsTrigger>
-            <TabsTrigger value="channels" className="data-[state=active]:bg-slate-700 text-white">
+            <TabsTrigger value="channels" className="flex-shrink-0 px-3 sm:px-4 py-2 text-xs sm:text-sm data-[state=active]:bg-slate-700 text-white whitespace-nowrap">
               By Channel
             </TabsTrigger>
-            <TabsTrigger value="text" className="data-[state=active]:bg-slate-700 text-white">
+            <TabsTrigger value="text" className="flex-shrink-0 px-3 sm:px-4 py-2 text-xs sm:text-sm data-[state=active]:bg-slate-700 text-white whitespace-nowrap">
               Text Activity
             </TabsTrigger>
-            <TabsTrigger value="inactive" className="data-[state=active]:bg-slate-700 text-white">
+            <TabsTrigger value="inactive" className="flex-shrink-0 px-3 sm:px-4 py-2 text-xs sm:text-sm data-[state=active]:bg-slate-700 text-white whitespace-nowrap">
               Least Active
             </TabsTrigger>
           </TabsList>
