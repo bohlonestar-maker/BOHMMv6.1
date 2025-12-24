@@ -1973,7 +1973,7 @@ async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
         meeting_dates.append((first_wed, third_wed))
     
     # Create CSV header with dates
-    csv_content = "Handle,Name,Email,Phone,Address,Military Service,Military Branch,Police,Fire,EMS,Meeting Attendance Year"
+    csv_content = "Handle,Name,Email,Phone,Address,Military Service,Military Branch,First Responder,Meeting Attendance Year"
     
     for idx, month in enumerate(months):
         first_date, third_date = meeting_dates[idx]
