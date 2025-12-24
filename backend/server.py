@@ -540,7 +540,7 @@ class SupportRequest(BaseModel):
     reason: str
 
 # Support email address
-SUPPORT_EMAIL = "supp.boh2158@gmail.com"
+SUPPORT_EMAIL = "support@boh2158.org"
 
 # Support request endpoint (no auth required - accessible from login page)
 @api_router.post("/support/request")

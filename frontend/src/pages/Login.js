@@ -276,8 +276,8 @@ export default function Login({ onLogin }) {
           
           <p className="text-xs text-slate-500 text-center mt-2">
             Or email us directly at{" "}
-            <a href="mailto:supp.boh2158@gmail.com" className="text-blue-400 hover:underline">
-              supp.boh2158@gmail.com
+            <a href="mailto:support@boh2158.org" className="text-blue-400 hover:underline">
+              support@boh2158.org
             </a>
           </p>
         </DialogContent>
