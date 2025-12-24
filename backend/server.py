@@ -2433,6 +2433,18 @@ async def upload_image(
     # Return the URL path (will be served via /uploads static mount)
     return {"url": f"/api/uploads/{unique_filename}", "filename": unique_filename}
 
+@api_router.get("/uploads/{filename}")
+async def get_uploaded_file(filename: str):
+    """Serve uploaded files"""
+    from fastapi.responses import FileResponse
+    upload_dir = Path(__file__).parent / "uploads"
+    file_path = upload_dir / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    return FileResponse(file_path)
+
 # ==================== END WALL OF HONOR ====================
 
 # User management endpoints (admin only)
