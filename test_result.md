@@ -156,6 +156,10 @@ New flexible meeting attendance format:
 None yet
 
 ## Known Issues
-1. **CRITICAL**: Missing GET /api/prospects/{prospect_id} endpoint
+1. **CRITICAL**: Frontend session management causing authentication persistence issues
 2. **MINOR**: Quarter parameter validation allows invalid values
 3. **MINOR**: Inconsistent HTTP status codes for validation errors
+
+## Testing Agent Communication
+- **Agent**: testing
+- **Message**: Completed comprehensive testing of flexible meeting attendance system and quarterly reports feature. Backend APIs are fully functional. Quarterly reports page works correctly with all filter controls and download functionality. However, critical frontend session management issues prevent full testing of Meeting Attendance UI in Dashboard and Prospects pages. The GET /api/prospects/{prospect_id} endpoint that was previously missing is now working correctly. Recommend investigating frontend authentication token storage and session persistence.
