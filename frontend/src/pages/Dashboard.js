@@ -113,6 +113,9 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const [upcomingEventsCount, setUpcomingEventsCount] = useState(0);
   const [attendanceExpanded, setAttendanceExpanded] = useState(false);
   const [editingNoteIndex, setEditingNoteIndex] = useState(null);
+  const [availableYears, setAvailableYears] = useState([new Date().getFullYear().toString()]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [duesExpanded, setDuesExpanded] = useState(false);
   const navigate = useNavigate();
 
   // Helper to check permissions
@@ -121,6 +124,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     return userPermissions?.[permission] === true;
   };
 
+  // Fetch available years (admin only)
+  useEffect(() => {
+    if (userRole === 'admin') {
+      axios.get(`${API}/admin/available-years`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => {
+        setAvailableYears(res.data.years);
+      }).catch(err => {
+        console.error("Failed to fetch available years:", err);
+      });
+    }
+  }, [userRole, token]);
 
   // Generic error handler for API calls
   const handleApiError = (error, context) => {
