@@ -757,12 +757,36 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                 />
               </svg>
               <Input
-                placeholder="Search by chapter, name, or handle..."
+                placeholder="Search by name or handle..."
                 data-testid="search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 py-4 sm:py-6 text-sm sm:text-base border-2 border-slate-300 focus:border-slate-600 rounded-lg"
               />
+            </div>
+            
+            {/* Chapter Tabs */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {["All", "National", "AD", "HA", "HS"].map((chapter) => (
+                <button
+                  key={chapter}
+                  onClick={() => setSelectedChapter(chapter)}
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedChapter === chapter
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  {chapter}
+                  <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${
+                    selectedChapter === chapter
+                      ? "bg-blue-500 text-white"
+                      : "bg-slate-600 text-slate-400"
+                  }`}>
+                    {chapterCounts[chapter]}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
           
