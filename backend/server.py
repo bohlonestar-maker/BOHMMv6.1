@@ -2762,6 +2762,22 @@ async def get_prospects(current_user: dict = Depends(verify_admin)):
     
     return prospects
 
+
+@api_router.get("/prospects/{prospect_id}", response_model=Prospect)
+async def get_prospect(prospect_id: str, current_user: dict = Depends(verify_admin)):
+    """Get a single prospect by ID"""
+    prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
+    if not prospect:
+        raise HTTPException(status_code=404, detail="Prospect not found")
+    
+    if isinstance(prospect.get('created_at'), str):
+        prospect['created_at'] = datetime.fromisoformat(prospect['created_at'])
+    if isinstance(prospect.get('updated_at'), str):
+        prospect['updated_at'] = datetime.fromisoformat(prospect['updated_at'])
+    
+    return prospect
+
+
 @api_router.post("/prospects", response_model=Prospect, status_code=201)
 async def create_prospect(prospect_data: ProspectCreate, current_user: dict = Depends(verify_admin)):
     prospect_dict = {k: v for k, v in prospect_data.model_dump().items() if v is not None}
