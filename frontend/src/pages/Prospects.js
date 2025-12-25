@@ -393,6 +393,7 @@ export default function Prospects({ onLogout, userRole }) {
   };
 
   const resetForm = () => {
+    const currentYear = new Date().getFullYear().toString();
     setFormData({
       handle: "",
       name: "",
@@ -405,49 +406,106 @@ export default function Prospects({ onLogout, userRole }) {
       military_branch: "",
       is_first_responder: false,
       meeting_attendance: {
-        year: new Date().getFullYear(),
-        meetings: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
+        [currentYear]: []
       }
     });
     setEditingProspect(null);
   };
 
   const handleAttendanceToggle = (index) => {
-    setFormData(prevData => {
-      const newMeetings = [...prevData.meeting_attendance.meetings];
-      const currentStatus = newMeetings[index].status;
-      
-      if (currentStatus === 0) {
-        newMeetings[index] = { status: 1, note: "" };
-      } else if (currentStatus === 1) {
-        newMeetings[index] = { status: 2, note: "" };
-      } else {
-        newMeetings[index] = { status: 0, note: "" };
+    const yearMeetings = formData.meeting_attendance[selectedYear] || [];
+    const newMeetings = [...yearMeetings];
+    const currentStatus = newMeetings[index]?.status || 0;
+    
+    newMeetings[index] = {
+      ...newMeetings[index],
+      status: (currentStatus + 1) % 3
+    };
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [selectedYear]: newMeetings
       }
-      
-      return {
-        ...prevData,
-        meeting_attendance: {
-          ...prevData.meeting_attendance,
-          meetings: newMeetings
-        }
-      };
     });
   };
 
   const handleAttendanceNoteChange = (index, note) => {
-    setFormData(prevData => {
-      const newMeetings = [...prevData.meeting_attendance.meetings];
-      newMeetings[index] = { ...newMeetings[index], note };
-      
-      return {
-        ...prevData,
-        meeting_attendance: {
-          ...prevData.meeting_attendance,
-          meetings: newMeetings
-        }
-      };
+    const yearMeetings = formData.meeting_attendance[selectedYear] || [];
+    const newMeetings = [...yearMeetings];
+    
+    newMeetings[index] = {
+      ...newMeetings[index],
+      note: note
+    };
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [selectedYear]: newMeetings
+      }
     });
+  };
+
+  const handleAddMeeting = () => {
+    if (!newMeetingDate) {
+      toast.error("Please select a date");
+      return;
+    }
+    
+    const meetingYear = newMeetingDate.split('-')[0];
+    const yearMeetings = formData.meeting_attendance[meetingYear] || [];
+    
+    if (yearMeetings.some(m => m.date === newMeetingDate)) {
+      toast.error("A meeting already exists for this date");
+      return;
+    }
+    
+    const newMeeting = {
+      date: newMeetingDate,
+      status: newMeetingStatus,
+      note: newMeetingNote
+    };
+    
+    const newMeetings = [...yearMeetings, newMeeting].sort((a, b) => a.date.localeCompare(b.date));
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [meetingYear]: newMeetings
+      }
+    });
+    
+    setNewMeetingDate("");
+    setNewMeetingStatus(1);
+    setNewMeetingNote("");
+    setAddMeetingDialogOpen(false);
+    toast.success("Meeting added");
+  };
+
+  const handleDeleteMeeting = (meetingIndex) => {
+    const yearMeetings = formData.meeting_attendance[selectedYear] || [];
+    const newMeetings = yearMeetings.filter((_, idx) => idx !== meetingIndex);
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [selectedYear]: newMeetings
+      }
+    });
+    toast.success("Meeting removed");
+  };
+
+  const formatMeetingDate = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
   };
 
   const handleExportCSV = async () => {
