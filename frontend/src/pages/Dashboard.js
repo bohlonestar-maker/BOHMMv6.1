@@ -1316,7 +1316,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                                 return (
                                   <div className="text-center py-4 text-slate-500 text-sm">
                                     No meetings recorded for {selectedYear}
-                                    {userRole === 'admin' && <p className="text-xs mt-1">Click "Add Meeting" to add one</p>}
+                                    {userRole === 'admin' && <p className="text-xs mt-1">Click &quot;Add Meeting&quot; to add one</p>}
                                   </div>
                                 );
                               }
