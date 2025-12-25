@@ -595,6 +595,70 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     });
   };
 
+  // Add a new meeting to the member's attendance
+  const handleAddMeeting = () => {
+    if (!newMeetingDate) {
+      toast.error("Please select a date");
+      return;
+    }
+    
+    const meetingYear = newMeetingDate.split('-')[0];
+    const yearMeetings = formData.meeting_attendance[meetingYear] || [];
+    
+    // Check if meeting already exists for this date
+    if (yearMeetings.some(m => m.date === newMeetingDate)) {
+      toast.error("A meeting already exists for this date");
+      return;
+    }
+    
+    const newMeeting = {
+      date: newMeetingDate,
+      status: newMeetingStatus,
+      note: newMeetingNote
+    };
+    
+    const newMeetings = [...yearMeetings, newMeeting].sort((a, b) => a.date.localeCompare(b.date));
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [meetingYear]: newMeetings
+      }
+    });
+    
+    // Reset form
+    setNewMeetingDate("");
+    setNewMeetingStatus(1);
+    setNewMeetingNote("");
+    setAddMeetingDialogOpen(false);
+    toast.success("Meeting added");
+  };
+
+  // Delete a meeting from the member's attendance
+  const handleDeleteMeeting = (meetingIndex) => {
+    const currentYear = selectedYear;
+    const yearMeetings = formData.meeting_attendance[currentYear] || [];
+    const newMeetings = yearMeetings.filter((_, idx) => idx !== meetingIndex);
+    
+    setFormData({
+      ...formData,
+      meeting_attendance: {
+        ...formData.meeting_attendance,
+        [currentYear]: newMeetings
+      }
+    });
+    toast.success("Meeting removed");
+  };
+
+  // Format date for display
+  const formatMeetingDate = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const handleExportCSV = async () => {
