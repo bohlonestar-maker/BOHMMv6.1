@@ -180,7 +180,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
       [new Date().getFullYear().toString()]: Array(12).fill(false)
     },
     meeting_attendance: {
-      [new Date().getFullYear().toString()]: Array(24).fill(null).map(() => ({ status: 0, note: "" }))
+      [new Date().getFullYear().toString()]: []  // Flexible array of meetings
     }
   });
 
