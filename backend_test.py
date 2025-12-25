@@ -8472,6 +8472,10 @@ class BOHDirectoryAPITester:
         # Test meeting attendance permissions (Priority Test)
         self.test_permissions_meeting_attendance()
         
+        # NEW TESTS FOR QUARTERLY REPORTS AND FLEXIBLE ATTENDANCE
+        self.test_quarterly_reports()
+        self.test_flexible_meeting_attendance()
+        
         # Test user management
         self.test_user_management()
         
