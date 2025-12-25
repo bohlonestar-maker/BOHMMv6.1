@@ -17,6 +17,10 @@ export default function CSVExportView() {
   const [showSheetsModal, setShowSheetsModal] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectedPreset, setSelectedPreset] = useState('');
+  const [reportYear, setReportYear] = useState(new Date().getFullYear().toString());
+  const [reportQuarter, setReportQuarter] = useState(Math.ceil((new Date().getMonth() + 1) / 3).toString());
+  const [reportChapter, setReportChapter] = useState('All');
+  const [reportLoading, setReportLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
