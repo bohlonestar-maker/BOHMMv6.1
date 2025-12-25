@@ -89,6 +89,7 @@ export default function Prospects({ onLogout, userRole }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [meetingDates, setMeetingDates] = useState([]);
   const [attendanceExpanded, setAttendanceExpanded] = useState(false);
+  const [editingNoteIndex, setEditingNoteIndex] = useState(null);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
