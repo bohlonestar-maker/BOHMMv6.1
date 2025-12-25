@@ -1601,18 +1601,48 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                       {hasPermission('meeting_attendance') && (
                         <TableCell>
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-xs text-white">{member.meeting_attendance?.year || new Date().getFullYear()}</span>
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="text-green-600 font-medium">
-                                P:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? m.status === 1 : m === 1)).length || 0}
-                              </span>
-                              <span className="text-yellow-600 font-medium">
-                                E:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? m.status === 2 : m === 2)).length || 0}
-                              </span>
-                              <span className="text-slate-500">
-                                A:{member.meeting_attendance?.meetings?.filter(m => (typeof m === 'object' ? (m.status === 0 || !m.status) : (m === 0 || !m))).length || 24}
-                              </span>
-                            </div>
+                            {(() => {
+                              const currentYear = new Date().getFullYear().toString();
+                              const attendance = member.meeting_attendance || {};
+                              
+                              // Support both new flexible format and old format
+                              let yearMeetings = [];
+                              let displayYear = currentYear;
+                              
+                              if (Array.isArray(attendance[currentYear])) {
+                                // New flexible format: { "2025": [{ date, status, note }, ...] }
+                                yearMeetings = attendance[currentYear];
+                                displayYear = currentYear;
+                              } else if (attendance.year && attendance.meetings) {
+                                // Old format: { year: 2025, meetings: [...] }
+                                yearMeetings = attendance.meetings || [];
+                                displayYear = attendance.year;
+                              } else {
+                                // Check for year keys
+                                const years = Object.keys(attendance).filter(k => /^\d{4}$/.test(k)).sort((a, b) => b - a);
+                                if (years.length > 0) {
+                                  displayYear = years[0];
+                                  yearMeetings = attendance[displayYear] || [];
+                                }
+                              }
+                              
+                              const total = yearMeetings.length;
+                              const present = yearMeetings.filter(m => m?.status === 1).length;
+                              const excused = yearMeetings.filter(m => m?.status === 2).length;
+                              const absent = yearMeetings.filter(m => m?.status === 0).length;
+                              
+                              return (
+                                <>
+                                  <span className="text-xs text-white">{displayYear}</span>
+                                  <div className="flex items-center gap-1 text-xs">
+                                    <span className="text-slate-400">{total}:</span>
+                                    <span className="text-green-600 font-medium">P:{present}</span>
+                                    <span className="text-yellow-600 font-medium">E:{excused}</span>
+                                    <span className="text-red-500">A:{absent}</span>
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
                         </TableCell>
                       )}
