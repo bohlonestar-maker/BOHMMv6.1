@@ -2158,6 +2158,355 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
         }
     )
 
+
+# Quarterly Report Endpoints
+@api_router.get("/reports/attendance/quarterly")
+async def get_attendance_quarterly_report(
+    year: int = None,
+    quarter: int = None,
+    chapter: str = None,
+    current_user: dict = Depends(verify_admin)
+):
+    """Get quarterly meeting attendance report by chapter"""
+    if year is None:
+        year = datetime.now(timezone.utc).year
+    if quarter is None:
+        quarter = (datetime.now(timezone.utc).month - 1) // 3 + 1
+    
+    # Calculate quarter date range
+    quarter_months = {
+        1: (1, 2, 3),
+        2: (4, 5, 6),
+        3: (7, 8, 9),
+        4: (10, 11, 12)
+    }
+    months = quarter_months.get(quarter, (1, 2, 3))
+    start_date = f"{year}-{months[0]:02d}-01"
+    end_date = f"{year}-{months[2]:02d}-31"
+    
+    # Build query
+    query = {}
+    if chapter and chapter != "All":
+        query["chapter"] = chapter
+    
+    members = await db.members.find(query, {"_id": 0}).to_list(10000)
+    decrypted_members = [decrypt_member_sensitive_data(m) for m in members]
+    
+    # Sort by chapter and title
+    CHAPTERS = ["National", "AD", "HA", "HS"]
+    TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM", "Member", "Honorary"]
+    
+    def sort_key(member):
+        ch_idx = CHAPTERS.index(member.get('chapter', '')) if member.get('chapter', '') in CHAPTERS else 999
+        ti_idx = TITLES.index(member.get('title', '')) if member.get('title', '') in TITLES else 999
+        return (ch_idx, ti_idx)
+    
+    sorted_members = sorted(decrypted_members, key=sort_key)
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Header
+    quarter_name = f"Q{quarter} {year}"
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    header = ["Chapter", "Title", "Handle", "Name"]
+    
+    # Add columns for each meeting in the quarter
+    for month_idx in months:
+        header.append(f"{month_names[month_idx-1]} Meetings")
+    header.extend(["Total Meetings", "Present", "Excused", "Absent", "Attendance %"])
+    
+    writer.writerow([f"Meeting Attendance Report - {quarter_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
+    writer.writerow([])
+    writer.writerow(header)
+    
+    # Data rows
+    for member in sorted_members:
+        attendance = member.get("meeting_attendance", {})
+        year_str = str(year)
+        
+        # Handle both old and new format
+        if 'year' in attendance:
+            meetings = attendance.get('meetings', [])
+        else:
+            meetings = attendance.get(year_str, [])
+        
+        # Filter meetings for this quarter
+        quarter_meetings = []
+        for m in meetings:
+            if isinstance(m, dict) and m.get('date'):
+                meeting_date = m['date']
+                meeting_month = int(meeting_date.split('-')[1])
+                if meeting_month in months:
+                    quarter_meetings.append(m)
+        
+        # Calculate stats
+        total = len(quarter_meetings)
+        present = sum(1 for m in quarter_meetings if m.get('status') == 1)
+        excused = sum(1 for m in quarter_meetings if m.get('status') == 2)
+        absent = sum(1 for m in quarter_meetings if m.get('status') == 0)
+        attendance_pct = f"{(present / total * 100):.1f}%" if total > 0 else "N/A"
+        
+        # Count meetings per month
+        month_counts = []
+        for month_idx in months:
+            month_meetings = [m for m in quarter_meetings if int(m['date'].split('-')[1]) == month_idx]
+            month_counts.append(str(len(month_meetings)))
+        
+        row = [
+            member.get('chapter', ''),
+            member.get('title', ''),
+            member.get('handle', ''),
+            member.get('name', ''),
+        ]
+        row.extend(month_counts)
+        row.extend([str(total), str(present), str(excused), str(absent), attendance_pct])
+        
+        writer.writerow(row)
+    
+    output.seek(0)
+    csv_content = '\ufeff' + output.getvalue()
+    
+    filename = f"attendance_Q{quarter}_{year}"
+    if chapter and chapter != "All":
+        filename += f"_{chapter}"
+    filename += ".csv"
+    
+    return StreamingResponse(
+        iter([csv_content]),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "text/csv; charset=utf-8"
+        }
+    )
+
+
+@api_router.get("/reports/dues/quarterly")
+async def get_dues_quarterly_report(
+    year: int = None,
+    quarter: int = None,
+    chapter: str = None,
+    current_user: dict = Depends(verify_admin)
+):
+    """Get quarterly dues report by chapter"""
+    if year is None:
+        year = datetime.now(timezone.utc).year
+    if quarter is None:
+        quarter = (datetime.now(timezone.utc).month - 1) // 3 + 1
+    
+    # Calculate quarter months
+    quarter_months = {
+        1: (1, 2, 3),
+        2: (4, 5, 6),
+        3: (7, 8, 9),
+        4: (10, 11, 12)
+    }
+    months = quarter_months.get(quarter, (1, 2, 3))
+    
+    # Build query
+    query = {}
+    if chapter and chapter != "All":
+        query["chapter"] = chapter
+    
+    members = await db.members.find(query, {"_id": 0}).to_list(10000)
+    decrypted_members = [decrypt_member_sensitive_data(m) for m in members]
+    
+    # Sort by chapter and title
+    CHAPTERS = ["National", "AD", "HA", "HS"]
+    TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM", "Member", "Honorary"]
+    
+    def sort_key(member):
+        ch_idx = CHAPTERS.index(member.get('chapter', '')) if member.get('chapter', '') in CHAPTERS else 999
+        ti_idx = TITLES.index(member.get('title', '')) if member.get('title', '') in TITLES else 999
+        return (ch_idx, ti_idx)
+    
+    sorted_members = sorted(decrypted_members, key=sort_key)
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Header
+    quarter_name = f"Q{quarter} {year}"
+    month_names = ["January", "February", "March", "April", "May", "June", 
+                   "July", "August", "September", "October", "November", "December"]
+    header = ["Chapter", "Title", "Handle", "Name"]
+    
+    for month_idx in months:
+        header.append(month_names[month_idx - 1])
+    header.extend(["Quarter Paid", "Quarter Late", "Quarter Unpaid"])
+    
+    writer.writerow([f"Dues Report - {quarter_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
+    writer.writerow([])
+    writer.writerow(header)
+    
+    # Data rows
+    for member in sorted_members:
+        dues = member.get("dues", {})
+        year_str = str(year)
+        
+        # Handle both old and new format
+        if 'year' in dues:
+            months_data = dues.get('months', [])
+        else:
+            months_data = dues.get(year_str, [])
+        
+        # Get status for quarter months
+        quarter_paid = 0
+        quarter_late = 0
+        quarter_unpaid = 0
+        month_statuses = []
+        
+        for month_idx in months:
+            idx = month_idx - 1
+            if idx < len(months_data):
+                month_due = months_data[idx]
+                if isinstance(month_due, dict):
+                    status = month_due.get('status', 'unpaid')
+                elif month_due == True:
+                    status = 'paid'
+                else:
+                    status = 'unpaid'
+            else:
+                status = 'unpaid'
+            
+            month_statuses.append(status.capitalize())
+            
+            if status == 'paid':
+                quarter_paid += 1
+            elif status == 'late':
+                quarter_late += 1
+            else:
+                quarter_unpaid += 1
+        
+        row = [
+            member.get('chapter', ''),
+            member.get('title', ''),
+            member.get('handle', ''),
+            member.get('name', ''),
+        ]
+        row.extend(month_statuses)
+        row.extend([str(quarter_paid), str(quarter_late), str(quarter_unpaid)])
+        
+        writer.writerow(row)
+    
+    output.seek(0)
+    csv_content = '\ufeff' + output.getvalue()
+    
+    filename = f"dues_Q{quarter}_{year}"
+    if chapter and chapter != "All":
+        filename += f"_{chapter}"
+    filename += ".csv"
+    
+    return StreamingResponse(
+        iter([csv_content]),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "text/csv; charset=utf-8"
+        }
+    )
+
+
+@api_router.get("/reports/prospects/attendance/quarterly")
+async def get_prospects_attendance_quarterly_report(
+    year: int = None,
+    quarter: int = None,
+    current_user: dict = Depends(verify_admin)
+):
+    """Get quarterly meeting attendance report for prospects"""
+    if year is None:
+        year = datetime.now(timezone.utc).year
+    if quarter is None:
+        quarter = (datetime.now(timezone.utc).month - 1) // 3 + 1
+    
+    # Calculate quarter date range
+    quarter_months = {
+        1: (1, 2, 3),
+        2: (4, 5, 6),
+        3: (7, 8, 9),
+        4: (10, 11, 12)
+    }
+    months = quarter_months.get(quarter, (1, 2, 3))
+    
+    prospects = await db.prospects.find({}, {"_id": 0}).to_list(10000)
+    decrypted_prospects = [decrypt_member_sensitive_data(p) for p in prospects]
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Header
+    quarter_name = f"Q{quarter} {year}"
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    header = ["Handle", "Name", "Email", "Phone"]
+    
+    for month_idx in months:
+        header.append(f"{month_names[month_idx-1]} Meetings")
+    header.extend(["Total Meetings", "Present", "Excused", "Absent", "Attendance %"])
+    
+    writer.writerow([f"Prospects Meeting Attendance Report - {quarter_name}"])
+    writer.writerow([])
+    writer.writerow(header)
+    
+    # Data rows
+    for prospect in decrypted_prospects:
+        attendance = prospect.get("meeting_attendance", {})
+        year_str = str(year)
+        
+        # Handle both old and new format
+        if 'year' in attendance:
+            meetings = attendance.get('meetings', [])
+        else:
+            meetings = attendance.get(year_str, [])
+        
+        # Filter meetings for this quarter
+        quarter_meetings = []
+        for m in meetings:
+            if isinstance(m, dict) and m.get('date'):
+                meeting_date = m['date']
+                meeting_month = int(meeting_date.split('-')[1])
+                if meeting_month in months:
+                    quarter_meetings.append(m)
+        
+        # Calculate stats
+        total = len(quarter_meetings)
+        present = sum(1 for m in quarter_meetings if m.get('status') == 1)
+        excused = sum(1 for m in quarter_meetings if m.get('status') == 2)
+        absent = sum(1 for m in quarter_meetings if m.get('status') == 0)
+        attendance_pct = f"{(present / total * 100):.1f}%" if total > 0 else "N/A"
+        
+        # Count meetings per month
+        month_counts = []
+        for month_idx in months:
+            month_meetings = [m for m in quarter_meetings if int(m['date'].split('-')[1]) == month_idx]
+            month_counts.append(str(len(month_meetings)))
+        
+        row = [
+            prospect.get('handle', ''),
+            prospect.get('name', ''),
+            prospect.get('email', ''),
+            prospect.get('phone', ''),
+        ]
+        row.extend(month_counts)
+        row.extend([str(total), str(present), str(excused), str(absent), attendance_pct])
+        
+        writer.writerow(row)
+    
+    output.seek(0)
+    csv_content = '\ufeff' + output.getvalue()
+    
+    filename = f"prospects_attendance_Q{quarter}_{year}.csv"
+    
+    return StreamingResponse(
+        iter([csv_content]),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "text/csv; charset=utf-8"
+        }
+    )
+
+
 # Member Actions endpoints (admin only)
 @api_router.post("/members/{member_id}/actions")
 async def add_member_action(
