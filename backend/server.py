@@ -1034,6 +1034,77 @@ async def create_default_admin():
         traceback.print_exc(file=sys.stderr)
         raise
 
+# New Year Initialization - runs on January 1st at 12:01 AM CST (06:01 UTC)
+def run_new_year_initialization():
+    """Initialize new year for dues and meeting attendance for all members and prospects"""
+    import asyncio
+    
+    async def init_new_year():
+        try:
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import pytz
+            
+            # Get current year in CST
+            cst = pytz.timezone('America/Chicago')
+            now_cst = datetime.now(pytz.UTC).astimezone(cst)
+            new_year = str(now_cst.year)
+            
+            client = AsyncIOMotorClient(os.environ.get('MONGO_URL'))
+            database = client[os.environ.get('DB_NAME', 'member_management')]
+            
+            # Initialize new year for all members
+            members = await database.members.find({}).to_list(None)
+            for member in members:
+                dues = member.get('dues', {})
+                meeting_attendance = member.get('meeting_attendance', {})
+                
+                # Only add new year if it doesn't exist
+                if new_year not in dues:
+                    dues[new_year] = [{"status": "unpaid", "note": ""} for _ in range(12)]
+                
+                if new_year not in meeting_attendance:
+                    meeting_attendance[new_year] = [{"status": 0, "note": ""} for _ in range(24)]
+                
+                await database.members.update_one(
+                    {"id": member["id"]},
+                    {"$set": {"dues": dues, "meeting_attendance": meeting_attendance}}
+                )
+            
+            # Initialize new year for all prospects
+            prospects = await database.prospects.find({}).to_list(None)
+            for prospect in prospects:
+                meeting_attendance = prospect.get('meeting_attendance', {})
+                
+                # Convert old format if needed
+                if 'year' in meeting_attendance and 'meetings' in meeting_attendance:
+                    old_year = str(meeting_attendance.get('year'))
+                    old_meetings = meeting_attendance.get('meetings', [])
+                    meeting_attendance = {old_year: old_meetings}
+                
+                if new_year not in meeting_attendance:
+                    meeting_attendance[new_year] = [{"status": 0, "note": ""} for _ in range(24)]
+                
+                await database.prospects.update_one(
+                    {"id": prospect["id"]},
+                    {"$set": {"meeting_attendance": meeting_attendance}}
+                )
+            
+            client.close()
+            print(f"✅ [NEW YEAR] Initialized {new_year} for {len(members)} members and {len(prospects)} prospects", file=sys.stderr, flush=True)
+            
+        except Exception as e:
+            print(f"❌ [NEW YEAR] Error initializing new year: {str(e)}", file=sys.stderr, flush=True)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+    
+    # Run the async function
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(init_new_year())
+    finally:
+        loop.close()
+
 @app.on_event("startup")
 async def start_scheduler():
     """Start the APScheduler for Discord event notifications and birthday checks"""
