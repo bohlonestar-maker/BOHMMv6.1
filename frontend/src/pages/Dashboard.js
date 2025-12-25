@@ -1132,63 +1132,98 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Meeting Attendance ({new Date().getFullYear()})</Label>
-                          <div className="flex gap-2 text-xs">
-                            <span className="text-green-500">● Present</span>
-                            <span className="text-orange-500">● Excused</span>
-                            <span className="text-red-500">● Absent</span>
-                          </div>
-                        </div>
-                        {/* Compact 6x4 grid for 24 meetings */}
-                        <div className="grid grid-cols-6 gap-1">
-                          {monthNames.map((month, monthIndex) => {
-                            const currentYear = new Date().getFullYear().toString();
-                            const yearMeetings = formData.meeting_attendance[currentYear] || Array(24).fill(null).map(() => ({ status: 0, note: "" }));
-                            const meeting1 = yearMeetings[monthIndex * 2];
-                            const meeting2 = yearMeetings[monthIndex * 2 + 1];
-                            
-                            return (
-                              <div key={month} className="flex flex-col gap-0.5">
-                                <span className="text-[10px] text-slate-400 text-center">{month.slice(0, 3)}</span>
-                                <div className="flex gap-0.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAttendanceToggle(monthIndex * 2)}
-                                    className={`flex-1 h-6 rounded text-[10px] font-medium transition-colors ${
-                                      meeting1?.status === 1
-                                        ? 'bg-green-600 text-white'
-                                        : meeting1?.status === 2
-                                        ? 'bg-orange-500 text-white'
-                                        : 'bg-red-600/80 text-white'
-                                    }`}
-                                    title={`${month} 1st - ${meeting1?.status === 1 ? 'Present' : meeting1?.status === 2 ? 'Excused' : 'Absent'}${meeting1?.note ? ': ' + meeting1.note : ''}`}
-                                  >
-                                    1
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
-                                    className={`flex-1 h-6 rounded text-[10px] font-medium transition-colors ${
-                                      meeting2?.status === 1
-                                        ? 'bg-green-600 text-white'
-                                        : meeting2?.status === 2
-                                        ? 'bg-orange-500 text-white'
-                                        : 'bg-red-600/80 text-white'
-                                    }`}
-                                    title={`${month} 3rd - ${meeting2?.status === 1 ? 'Present' : meeting2?.status === 2 ? 'Excused' : 'Absent'}${meeting2?.note ? ': ' + meeting2.note : ''}`}
-                                  >
-                                    3
-                                  </button>
+                      {/* Collapsible Meeting Attendance Section */}
+                      <div className="border border-slate-600 rounded-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setAttendanceExpanded(!attendanceExpanded)}
+                          className="w-full flex items-center justify-between p-3 bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Label className="cursor-pointer">Meeting Attendance ({new Date().getFullYear()})</Label>
+                            {/* Summary counts when collapsed */}
+                            {(() => {
+                              const currentYear = new Date().getFullYear().toString();
+                              const yearMeetings = formData.meeting_attendance[currentYear] || [];
+                              const present = yearMeetings.filter(m => m?.status === 1).length;
+                              const excused = yearMeetings.filter(m => m?.status === 2).length;
+                              const absent = yearMeetings.filter(m => !m?.status || m?.status === 0).length;
+                              return (
+                                <div className="flex gap-2 text-xs">
+                                  <span className="px-2 py-0.5 bg-green-600 text-white rounded">{present} P</span>
+                                  <span className="px-2 py-0.5 bg-orange-500 text-white rounded">{excused} E</span>
+                                  <span className="px-2 py-0.5 bg-red-600/80 text-white rounded">{absent} A</span>
                                 </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <p className="text-xs text-slate-500">
-                          Click to cycle: Absent → Present → Excused. Hover for details.
-                        </p>
+                              );
+                            })()}
+                          </div>
+                          <svg 
+                            className={`w-5 h-5 text-slate-400 transition-transform ${attendanceExpanded ? 'rotate-180' : ''}`}
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        
+                        {attendanceExpanded && (
+                          <div className="p-3 space-y-3 bg-slate-800/50">
+                            <div className="flex justify-end gap-2 text-xs">
+                              <span className="text-green-500">● Present</span>
+                              <span className="text-orange-500">● Excused</span>
+                              <span className="text-red-500">● Absent</span>
+                            </div>
+                            {/* Compact 6x4 grid for 24 meetings */}
+                            <div className="grid grid-cols-6 gap-1">
+                              {monthNames.map((month, monthIndex) => {
+                                const currentYear = new Date().getFullYear().toString();
+                                const yearMeetings = formData.meeting_attendance[currentYear] || Array(24).fill(null).map(() => ({ status: 0, note: "" }));
+                                const meeting1 = yearMeetings[monthIndex * 2];
+                                const meeting2 = yearMeetings[monthIndex * 2 + 1];
+                                
+                                return (
+                                  <div key={month} className="flex flex-col gap-0.5">
+                                    <span className="text-[10px] text-slate-400 text-center">{month.slice(0, 3)}</span>
+                                    <div className="flex gap-0.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAttendanceToggle(monthIndex * 2)}
+                                        className={`flex-1 h-6 rounded text-[10px] font-medium transition-colors ${
+                                          meeting1?.status === 1
+                                            ? 'bg-green-600 text-white'
+                                            : meeting1?.status === 2
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-red-600/80 text-white'
+                                        }`}
+                                        title={`${month} 1st - ${meeting1?.status === 1 ? 'Present' : meeting1?.status === 2 ? 'Excused' : 'Absent'}${meeting1?.note ? ': ' + meeting1.note : ''}`}
+                                      >
+                                        1
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAttendanceToggle(monthIndex * 2 + 1)}
+                                        className={`flex-1 h-6 rounded text-[10px] font-medium transition-colors ${
+                                          meeting2?.status === 1
+                                            ? 'bg-green-600 text-white'
+                                            : meeting2?.status === 2
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-red-600/80 text-white'
+                                        }`}
+                                        title={`${month} 3rd - ${meeting2?.status === 1 ? 'Present' : meeting2?.status === 2 ? 'Excused' : 'Absent'}${meeting2?.note ? ': ' + meeting2.note : ''}`}
+                                      >
+                                        3
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <p className="text-xs text-slate-500">
+                              Click to cycle: Absent → Present → Excused. Hover for details.
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex gap-3 justify-end pt-4">
