@@ -142,41 +142,28 @@ export default function WallOfHonor({ token, userRole }) {
       return;
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File too large. Maximum size is 5MB.");
+    // Validate file size (2MB max for base64 storage)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File too large. Maximum size is 2MB.");
       return;
     }
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = (e) => setPhotoPreview(e.target.result);
-    reader.readAsDataURL(file);
-
-    // Upload file
     setUploading(true);
-    try {
-      const uploadData = new FormData();
-      uploadData.append('file', file);
-
-      const response = await axios.post(`${API}/upload/image`, uploadData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      // Store the URL from the upload response
-      const imageUrl = `${BACKEND_URL}${response.data.url}`;
-      setFormData({ ...formData, photo_url: imageUrl });
-      toast.success("Photo uploaded successfully");
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload photo");
-      setPhotoPreview(null);
-    } finally {
+    
+    // Convert to base64 and store directly
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Data = e.target.result;
+      setPhotoPreview(base64Data);
+      setFormData({ ...formData, photo_url: base64Data });
       setUploading(false);
-    }
+      toast.success("Photo added successfully");
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read photo");
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
