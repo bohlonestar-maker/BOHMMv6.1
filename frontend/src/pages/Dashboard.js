@@ -796,11 +796,11 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
               <div className="flex items-center gap-2 px-3 py-2 bg-slate-700 rounded-lg border border-slate-600">
                 <Users className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-white">
-                  {members.length} <span className="text-slate-400">Members</span>
+                  {sortedFilteredMembers.length} <span className="text-slate-400">{selectedChapter === "All" ? "Members" : selectedChapter + " Members"}</span>
                 </span>
-                {searchTerm && sortedFilteredMembers.length !== members.length && (
+                {(searchTerm || selectedChapter !== "All") && sortedFilteredMembers.length !== members.length && (
                   <span className="text-xs text-slate-400">
-                    ({sortedFilteredMembers.length} shown)
+                    (of {members.length} total)
                   </span>
                 )}
               </div>
