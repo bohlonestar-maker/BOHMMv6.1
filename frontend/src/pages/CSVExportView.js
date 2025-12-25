@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PageLayout from "@/components/PageLayout";
-import { FileSpreadsheet, Users, DollarSign, UserCheck } from "lucide-react";
-import { toast } from "sonner";
+import { FileSpreadsheet } from "lucide-react";
 
 const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
