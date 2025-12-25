@@ -116,6 +116,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const [availableYears, setAvailableYears] = useState([new Date().getFullYear().toString()]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [duesExpanded, setDuesExpanded] = useState(false);
+  const [addMeetingDialogOpen, setAddMeetingDialogOpen] = useState(false);
+  const [newMeetingDate, setNewMeetingDate] = useState("");
+  const [newMeetingStatus, setNewMeetingStatus] = useState(1);
+  const [newMeetingNote, setNewMeetingNote] = useState("");
   const navigate = useNavigate();
 
   // Helper to check permissions
