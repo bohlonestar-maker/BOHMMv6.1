@@ -8,6 +8,22 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v.5.1",
+      date: "December 25, 2025",
+      changes: [
+        "Wall of Honor: New memorial page to honor fallen brothers with photo upload, tribute messages, and service badges",
+        "Photo Upload: Direct image upload for memorials (stored as base64 for deployment persistence)",
+        "Chapter Tabs: Members page now has tabs to filter by chapter (All, National, AD, HA, HS) with member counts",
+        "Support Form: New support request form on login page - sends email directly to support@boh2158.org with reply-to functionality",
+        "Honorary Title: Added 'Honorary' as a new title option for members",
+        "Member Count Badge: Dashboard now shows total member count that updates dynamically",
+        "Discord Analytics Mobile: Fully responsive design for mobile, tablet, and desktop",
+        "Timezone Fix: All Discord Analytics times now correctly display in Central Time (CST)",
+        "First Responder Simplified: Single checkbox for first responder status instead of three separate fields",
+        "Trucker Club Branding: Updated Wall of Honor messaging for trucker club context"
+      ]
+    },
+    {
       version: "v.2.3",
       date: "November 8, 2025",
       changes: [
