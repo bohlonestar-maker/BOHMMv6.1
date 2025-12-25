@@ -547,7 +547,7 @@ export default function WallOfHonor({ token, userRole }) {
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-slate-500">JPEG, PNG, GIF, or WEBP. Max 5MB.</p>
+                <p className="text-xs text-slate-500">JPEG, PNG, GIF, or WEBP. Max 2MB.</p>
               </div>
             </div>
 
