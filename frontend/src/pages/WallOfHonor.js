@@ -256,7 +256,7 @@ export default function WallOfHonor({ token, userRole }) {
         {/* Header */}
         <div className="mb-8">
           <Button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
             variant="ghost"
             size="sm"
             className="text-slate-300 hover:text-white mb-4 -ml-2"
