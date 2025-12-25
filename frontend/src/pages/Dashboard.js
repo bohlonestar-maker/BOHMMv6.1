@@ -405,28 +405,31 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
     const currentYear = new Date().getFullYear().toString();
     
     if (member.meeting_attendance) {
-      // Check if it's new format (keys are years) or old format (has 'year' key)
-      if (member.meeting_attendance.year) {
-        // Old format - convert to new
+      // Check if it's new format (keys are years with arrays) or old format (has 'year' key)
+      if (member.meeting_attendance.year && member.meeting_attendance.meetings) {
+        // Old format - convert to new flexible format
         const yearStr = member.meeting_attendance.year.toString();
         const meetings = member.meeting_attendance.meetings || [];
-        attendanceData[yearStr] = meetings.map(m => {
-          if (typeof m === 'object' && m !== null) {
-            return { status: m.status || 0, note: m.note || "" };
-          } else {
-            return { status: m || 0, note: "" };
-          }
-        });
+        // Convert old indexed meetings to dated meetings (approximate dates)
+        attendanceData[yearStr] = meetings.map((m, idx) => {
+          const monthIdx = Math.floor(idx / 2);
+          const weekNum = (idx % 2) + 1;
+          const approxDate = new Date(parseInt(yearStr), monthIdx, weekNum * 7);
+          return {
+            date: approxDate.toISOString().split('T')[0],
+            status: typeof m === 'object' ? (m.status || 0) : (m || 0),
+            note: typeof m === 'object' ? (m.note || '') : ''
+          };
+        }).filter(m => m.status !== 0 || m.note); // Only keep non-empty meetings
       } else {
-        // New format - use as is, ensuring current year exists
+        // New format - use as is
         attendanceData = { ...member.meeting_attendance };
-        if (!attendanceData[currentYear]) {
-          attendanceData[currentYear] = Array(24).fill(null).map(() => ({ status: 0, note: "" }));
-        }
       }
-    } else {
-      // No attendance data
-      attendanceData[currentYear] = Array(24).fill(null).map(() => ({ status: 0, note: "" }));
+    }
+    
+    // Ensure current year exists
+    if (!attendanceData[currentYear]) {
+      attendanceData[currentYear] = [];
     }
     
     // Handle dues - support both old and new format
