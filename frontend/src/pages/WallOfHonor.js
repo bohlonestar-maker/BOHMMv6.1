@@ -48,6 +48,9 @@ export default function WallOfHonor({ token, userRole }) {
   const [editingMember, setEditingMember] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const fileInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
     name: "",
