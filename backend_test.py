@@ -8619,6 +8619,11 @@ class BOHDirectoryAPITester:
         # PRIORITY TESTS - Run these first
         print("\n🔥 RUNNING PRIORITY TESTS...")
         
+        # HIGHEST PRIORITY: Test Square Hosted Checkout functionality
+        print("\n💳 TESTING SQUARE HOSTED CHECKOUT (HIGHEST PRIORITY)")
+        self.test_square_checkout_functionality()
+        self.test_square_checkout_edge_cases()
+        
         # NEW HIGH PRIORITY FEATURE: AI Chatbot Endpoint
         self.test_ai_chatbot_endpoint()
         
