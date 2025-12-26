@@ -7080,37 +7080,82 @@ async def get_cart(current_user: dict = Depends(verify_token)):
     }
 
 @api_router.post("/store/cart/add")
-async def add_to_cart(product_id: str, quantity: int = 1, current_user: dict = Depends(verify_token)):
-    """Add a product to the shopping cart"""
+async def add_to_cart(
+    product_id: str, 
+    quantity: int = 1, 
+    variation_id: Optional[str] = None,
+    customization: Optional[str] = None,
+    current_user: dict = Depends(verify_token)
+):
+    """Add a product to the shopping cart with optional variation and customization"""
     product = await db.store_products.find_one({"id": product_id, "is_active": True}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    # Check inventory
-    if product.get("inventory_count", 0) < quantity and product.get("category") == "merchandise":
-        raise HTTPException(status_code=400, detail="Insufficient inventory")
+    # Get price and inventory based on variation if provided
+    price = product['price']
+    variation_name = None
+    variation_inventory = product.get("inventory_count", 0)
+    
+    if product.get("has_variations") and product.get("variations"):
+        if not variation_id:
+            raise HTTPException(status_code=400, detail="Please select a size/option")
+        
+        # Find the selected variation
+        selected_var = None
+        for var in product["variations"]:
+            if var["id"] == variation_id:
+                selected_var = var
+                break
+        
+        if not selected_var:
+            raise HTTPException(status_code=400, detail="Invalid size/option selected")
+        
+        if selected_var.get("sold_out") or selected_var.get("inventory_count", 0) < quantity:
+            raise HTTPException(status_code=400, detail=f"Size {selected_var['name']} is out of stock")
+        
+        price = selected_var["price"]
+        variation_name = selected_var["name"]
+        variation_inventory = selected_var.get("inventory_count", 0)
+    else:
+        # Check inventory for non-variation products
+        if product.get("inventory_count", 0) < quantity and product.get("category") == "merchandise":
+            raise HTTPException(status_code=400, detail="Insufficient inventory")
     
     # Check if user is a member for pricing
     is_member = current_user.get("role") == "admin" or await db.members.find_one({"email": current_user.get("email")})
-    price = product.get('member_price', product['price']) if is_member and product.get('member_price') else product['price']
+    if is_member and product.get('member_price'):
+        price = product['member_price']
+    
+    # Build cart item name with variation and customization
+    item_name = product["name"]
+    if variation_name:
+        item_name += f" ({variation_name})"
+    if customization:
+        item_name += f" - Handle: {customization}"
     
     cart_item = {
         "product_id": product_id,
-        "name": product["name"],
+        "name": item_name,
         "price": price,
         "quantity": quantity,
-        "image_url": product.get("image_url")
+        "image_url": product.get("image_url"),
+        "variation_id": variation_id,
+        "variation_name": variation_name,
+        "customization": customization
     }
     
-    # Check if item already in cart
+    # Check if item already in cart (same product, variation, and customization)
     existing_cart = await db.store_carts.find_one({"user_id": current_user["username"]})
     
     if existing_cart:
-        # Check if product already in cart
         items = existing_cart.get("items", [])
         found = False
         for item in items:
-            if item["product_id"] == product_id:
+            # Match on product_id, variation_id, AND customization
+            if (item["product_id"] == product_id and 
+                item.get("variation_id") == variation_id and 
+                item.get("customization") == customization):
                 item["quantity"] += quantity
                 found = True
                 break
@@ -7135,7 +7180,7 @@ async def add_to_cart(product_id: str, quantity: int = 1, current_user: dict = D
     return {"message": "Item added to cart", "item": cart_item}
 
 @api_router.put("/store/cart/update")
-async def update_cart_item(product_id: str, quantity: int, current_user: dict = Depends(verify_token)):
+async def update_cart_item(product_id: str, quantity: int, variation_id: Optional[str] = None, customization: Optional[str] = None, current_user: dict = Depends(verify_token)):
     """Update quantity of an item in cart"""
     cart = await db.store_carts.find_one({"user_id": current_user["username"]})
     if not cart:
@@ -7145,8 +7190,12 @@ async def update_cart_item(product_id: str, quantity: int, current_user: dict = 
     found = False
     
     if quantity <= 0:
-        # Remove item
-        items = [item for item in items if item["product_id"] != product_id]
+        # Remove item matching product_id, variation_id, and customization
+        items = [item for item in items if not (
+            item["product_id"] == product_id and 
+            item.get("variation_id") == variation_id and
+            item.get("customization") == customization
+        )]
         found = True
     else:
         for item in items:
