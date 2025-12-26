@@ -63,7 +63,9 @@ export default function Login({ onLogin }) {
         admin_actions: false
       };
       
-      onLogin(token, user, role, permissions);
+      const chapter = userResponse.data.chapter || null;
+      
+      onLogin(token, user, role, permissions, chapter);
       toast.success("Login successful!");
     } catch (error) {
       console.error("Login error:", error);
