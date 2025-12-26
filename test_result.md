@@ -152,6 +152,34 @@ New flexible meeting attendance format:
 - QuarterlyReports.js: New page for downloading quarterly CSV reports
 - server.py: Added 3 new quarterly report endpoints
 
+## Current Testing Focus
+Testing the newly implemented role-based permission system:
+- National Admin: Full access to everything
+- Chapter Admins (AD, HS): Can only edit members in their own chapter, NO access to prospects
+- HA Admin: Can view and edit prospects, can edit HA chapter members
+- Wall of Honor: Only National Admin can add/edit/delete entries
+
+## Backend API Changes for Permissions
+The following endpoints now have permission checks:
+- `PUT /api/members/{id}` - Chapter-based edit permission
+- `DELETE /api/members/{id}` - Chapter-based archive permission  
+- `PUT /api/members/{id}/dues` - Chapter-based dues edit permission
+- `PUT /api/members/{id}/attendance` - Chapter-based attendance edit permission
+- `GET /api/prospects` - Only National/HA Admin
+- `POST /api/prospects` - Only National/HA Admin
+- `PUT /api/prospects/{id}` - Only National/HA Admin
+- `DELETE /api/prospects/{id}` - Only National/HA Admin
+- `POST /api/fallen` - Only National Admin
+- `PUT /api/fallen/{id}` - Only National Admin
+- `DELETE /api/fallen/{id}` - Only National Admin
+
+## Frontend Changes for Permissions
+- Dashboard now receives userChapter prop
+- Prospects button only visible to National/HA Admin
+- Member edit/delete buttons use member.can_edit flag from backend
+- WallOfHonor edit/delete buttons only visible to National Admin
+- User header now shows chapter info: "username (role - chapter)"
+
 ## Incorporate User Feedback
 None yet
 
