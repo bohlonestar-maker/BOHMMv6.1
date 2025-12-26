@@ -268,6 +268,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/store"
+            element={
+              isAuthenticated ? (
+                <Store userRole={userRole} userChapter={userChapter} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
         </Routes>
         {isAuthenticated && <MessageNotifier />}
         {isAuthenticated && <ChatBot />}
