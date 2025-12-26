@@ -822,13 +822,14 @@ export default function Store({ userRole, userChapter }) {
                         </TableBody>
                       </Table>
                       <div className="mt-4 pt-4 border-t border-slate-700 space-y-1 text-right">
-                        <div className="text-slate-400">Subtotal: ${order.subtotal.toFixed(2)}</div>
+                        <div className="text-slate-400 text-sm">Subtotal: ${order.subtotal.toFixed(2)}</div>
                         {order.tax > 0 && (
-                          <div className="text-slate-400">Tax: ${order.tax.toFixed(2)}</div>
+                          <div className="text-slate-400 text-sm">Tax: ${order.tax.toFixed(2)}</div>
                         )}
-                        <div className="text-xl font-bold text-white">
+                        <div className="text-lg sm:text-xl font-bold text-white">
                           Total: ${order.total.toFixed(2)}
                         </div>
+                      </div>
                       </div>
                     </CardContent>
                   </Card>
