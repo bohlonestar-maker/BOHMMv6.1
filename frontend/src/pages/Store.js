@@ -488,28 +488,31 @@ export default function Store({ userRole, userChapter }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 md:p-6">
+    <div className="min-h-screen bg-slate-900 p-2 sm:p-4 md:p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        {/* Mobile-optimized header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => navigate("/")}
-              className="text-slate-300 hover:text-white"
+              className="text-slate-300 hover:text-white px-2 sm:px-3"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Package className="w-6 h-6" />
+            <h1 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
+              <Package className="w-5 h-5 sm:w-6 sm:h-6" />
               BOHTC Store
             </h1>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             {canManageStore && (
               <Button
+                size="sm"
                 onClick={() => {
                   setEditingProduct(null);
                   setProductForm({
@@ -523,21 +526,22 @@ export default function Store({ userRole, userChapter }) {
                   });
                   setAddProductOpen(true);
                 }}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Add Product</span>
               </Button>
             )}
             <Button
               onClick={() => setCartOpen(true)}
               variant="outline"
+              size="sm"
               className="relative border-slate-600 text-slate-200 hover:bg-slate-700"
             >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Cart
+              <ShoppingCart className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Cart</span>
               {cart.item_count > 0 && (
-                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5">
+                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 flex items-center justify-center">
                   {cart.item_count}
                 </Badge>
               )}
@@ -547,18 +551,21 @@ export default function Store({ userRole, userChapter }) {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-slate-800 border-slate-700 mb-6">
-            <TabsTrigger value="merchandise" className="data-[state=active]:bg-slate-700">
-              <Package className="w-4 h-4 mr-2" />
-              Merchandise
+          <TabsList className="bg-slate-800 border-slate-700 mb-4 sm:mb-6 w-full sm:w-auto grid grid-cols-3 sm:flex">
+            <TabsTrigger value="merchandise" className="data-[state=active]:bg-slate-700 text-xs sm:text-sm px-2 sm:px-4">
+              <Package className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Merchandise</span>
+              <span className="sm:hidden">Shop</span>
             </TabsTrigger>
-            <TabsTrigger value="dues" className="data-[state=active]:bg-slate-700">
-              <DollarSign className="w-4 h-4 mr-2" />
-              Pay Dues
+            <TabsTrigger value="dues" className="data-[state=active]:bg-slate-700 text-xs sm:text-sm px-2 sm:px-4">
+              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Pay Dues</span>
+              <span className="sm:hidden">Dues</span>
             </TabsTrigger>
-            <TabsTrigger value="orders" className="data-[state=active]:bg-slate-700">
-              <CreditCardIcon className="w-4 h-4 mr-2" />
-              My Orders
+            <TabsTrigger value="orders" className="data-[state=active]:bg-slate-700 text-xs sm:text-sm px-2 sm:px-4">
+              <CreditCardIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">My Orders</span>
+              <span className="sm:hidden">Orders</span>
             </TabsTrigger>
           </TabsList>
 
