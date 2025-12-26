@@ -1175,17 +1175,29 @@ class DiscordAnalytics(BaseModel):
 
 # ==================== STORE MODELS ====================
 
+class ProductVariation(BaseModel):
+    """A size/variation of a product"""
+    id: str
+    name: str  # e.g., "S", "M", "L", "XL", "2XL"
+    price: float
+    square_variation_id: Optional[str] = None
+    inventory_count: int = 0
+    sold_out: bool = False
+
 class StoreProduct(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     description: Optional[str] = None
-    price: float  # In dollars
+    price: float  # Base/starting price in dollars
     category: str  # "merchandise" or "dues"
     image_url: Optional[str] = None
     square_catalog_id: Optional[str] = None
-    inventory_count: int = 0
+    inventory_count: int = 0  # Total across all variations
     is_active: bool = True
     member_price: Optional[float] = None  # Discounted price for members
+    variations: List[dict] = []  # List of size/variation options
+    has_variations: bool = False  # True if product has multiple sizes
+    allows_customization: bool = False  # True if handle/name can be added
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
