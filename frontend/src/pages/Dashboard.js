@@ -94,7 +94,7 @@ const sortMembers = (members) => {
   });
 };
 
-export default function Dashboard({ onLogout, userRole, userPermissions }) {
+export default function Dashboard({ onLogout, userRole, userPermissions, userChapter }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -121,6 +121,19 @@ export default function Dashboard({ onLogout, userRole, userPermissions }) {
   const [newMeetingStatus, setNewMeetingStatus] = useState(1);
   const [newMeetingNote, setNewMeetingNote] = useState("");
   const navigate = useNavigate();
+
+  // Check if user is National Admin
+  const isNationalAdmin = userRole === 'admin' && userChapter === 'National';
+  
+  // Check if user can edit a specific member (based on chapter)
+  const canEditMember = (memberChapter) => {
+    if (userRole !== 'admin') return false;
+    if (userChapter === 'National') return true;  // National Admin can edit all
+    return userChapter === memberChapter;  // Chapter admins can only edit their own chapter
+  };
+
+  // Check if user can access prospects (National or HA Admin)
+  const canAccessProspects = userRole === 'admin' && (userChapter === 'National' || userChapter === 'HA');
 
   // Helper to check permissions
   const hasPermission = (permission) => {
