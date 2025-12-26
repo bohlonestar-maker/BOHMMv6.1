@@ -7389,6 +7389,30 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
         if not items:
             return {"message": "No items found in Square catalog", "count": 0}
         
+        # Collect all variation IDs to fetch inventory in batch
+        all_variation_ids = []
+        for item in items:
+            item_data = item.item_data
+            if not item_data:
+                continue
+            for var in (item_data.variations or []):
+                all_variation_ids.append(var.id)
+        
+        # Fetch inventory counts for all variations
+        inventory_map = {}
+        if all_variation_ids:
+            try:
+                inv_result = square_client.inventory.batch_get_counts(
+                    catalog_object_ids=all_variation_ids,
+                    location_ids=[SQUARE_LOCATION_ID]
+                )
+                inv_items = list(inv_result)
+                for count in inv_items:
+                    qty = int(count.quantity) if count.quantity else 0
+                    inventory_map[count.catalog_object_id] = qty
+            except Exception as inv_e:
+                print(f"Warning: Could not fetch inventory: {inv_e}", file=sys.stderr)
+        
         synced_count = 0
         
         for item in items:
@@ -7404,75 +7428,108 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
             if item_data.ecom_image_uris and len(item_data.ecom_image_uris) > 0:
                 image_url = item_data.ecom_image_uris[0]
             
-            # Get variations and use the first/lowest price
-            variations = item_data.variations or []
-            if not variations:
+            # Get variations with inventory
+            variations_list = item_data.variations or []
+            if not variations_list:
                 continue
             
-            # Get all variation prices and find the lowest
-            prices = []
-            variation_names = []
-            for var in variations:
+            # Build variations data with inventory
+            product_variations = []
+            total_inventory = 0
+            min_price = float('inf')
+            has_size_variations = False
+            
+            # Check if this is a shirt/hoodie (allows customization)
+            name_lower = name.lower()
+            allows_customization = any(word in name_lower for word in ['shirt', 'hoodie', 'tee', 'jersey', 'long sleeve'])
+            
+            for var in variations_list:
                 var_data = var.item_variation_data
                 if not var_data:
                     continue
+                
                 price_money = var_data.price_money
-                if price_money:
-                    price = price_money.amount / 100
-                    if price > 0:
-                        prices.append(price)
-                        variation_names.append(f"{var_data.name or 'Default'}: ${price:.2f}")
+                if not price_money:
+                    continue
+                    
+                price = price_money.amount / 100
+                if price <= 0:
+                    continue
+                
+                if price < min_price:
+                    min_price = price
+                
+                var_name = var_data.name or "Default"
+                var_id = var.id
+                
+                # Get inventory from our map
+                inv_count = inventory_map.get(var_id, 0)
+                total_inventory += inv_count
+                
+                # Check sold_out from location overrides
+                sold_out = inv_count == 0
+                if var_data.location_overrides:
+                    for lo in var_data.location_overrides:
+                        if lo.sold_out:
+                            sold_out = True
+                            break
+                
+                # Check if this looks like a size
+                size_indicators = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 'XS', 'XXL', 'LT', 'XLT', '2XLT', '3XLT']
+                if var_name.upper() in size_indicators or any(s in var_name.upper() for s in size_indicators):
+                    has_size_variations = True
+                
+                product_variations.append({
+                    "id": str(uuid.uuid4()),
+                    "name": var_name,
+                    "price": price,
+                    "square_variation_id": var_id,
+                    "inventory_count": inv_count,
+                    "sold_out": sold_out
+                })
             
-            if not prices:
+            if min_price == float('inf'):
                 continue
             
-            min_price = min(prices)
-            
-            # Build variation info for description
-            if len(variation_names) > 1:
-                variation_info = "\n\nSizes/Options: " + ", ".join(variation_names[:5])
-                if len(variation_names) > 5:
-                    variation_info += f" (+{len(variation_names)-5} more)"
-            else:
-                variation_info = ""
+            # Sort variations by size order
+            size_order = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'LT': 4, 'XL': 5, 'XLT': 6, '2XL': 7, '2XLT': 8, '3XL': 9, '3XLT': 10, '4XL': 11, '5XL': 12, 'Regular': 0}
+            product_variations.sort(key=lambda x: size_order.get(x['name'], 99))
             
             # Check if product already exists
             existing = await db.store_products.find_one({"square_catalog_id": item_id})
             
+            product_data = {
+                "name": name,
+                "description": description[:500] if description else "",
+                "price": min_price,
+                "image_url": image_url,
+                "variations": product_variations,
+                "has_variations": len(product_variations) > 1 or has_size_variations,
+                "allows_customization": allows_customization,
+                "inventory_count": total_inventory,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
             if existing:
                 # Update existing product
-                update_fields = {
-                    "name": name,
-                    "description": description[:500] + variation_info if description else variation_info,
-                    "price": min_price,
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                }
-                if image_url:
-                    update_fields["image_url"] = image_url
                 await db.store_products.update_one(
                     {"square_catalog_id": item_id},
-                    {"$set": update_fields}
+                    {"$set": product_data}
                 )
             else:
                 # Create new product
-                product = {
+                product_data.update({
                     "id": str(uuid.uuid4()),
-                    "name": name,
-                    "description": description[:500] + variation_info if description else variation_info,
-                    "price": min_price,
                     "category": "merchandise",
                     "square_catalog_id": item_id,
-                    "image_url": image_url,
-                    "inventory_count": 100,  # Default inventory
                     "is_active": True,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                }
-                await db.store_products.insert_one(product)
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
+                await db.store_products.insert_one(product_data)
             
             synced_count += 1
         
-        return {"message": f"Successfully synced {synced_count} products from Square catalog", "count": synced_count}
+        return {"message": f"Successfully synced {synced_count} products from Square catalog with inventory", "count": synced_count}
     
     except HTTPException:
         raise
