@@ -419,7 +419,7 @@ export default function Store({ userRole, userChapter }) {
           </div>
           
           <div className="flex items-center gap-3">
-            {isAdmin && (
+            {canManageStore && (
               <Button
                 onClick={() => {
                   setEditingProduct(null);
