@@ -1226,6 +1226,9 @@ class CartItem(BaseModel):
     price: float
     quantity: int
     image_url: Optional[str] = None
+    variation_id: Optional[str] = None  # Selected size/variation ID
+    variation_name: Optional[str] = None  # e.g., "L", "XL"
+    customization: Optional[str] = None  # Handle/name to print on item
 
 class ShoppingCart(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
