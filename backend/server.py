@@ -7199,7 +7199,10 @@ async def update_cart_item(product_id: str, quantity: int, variation_id: Optiona
         found = True
     else:
         for item in items:
-            if item["product_id"] == product_id:
+            # Match on product_id, variation_id, and customization
+            if (item["product_id"] == product_id and 
+                item.get("variation_id") == variation_id and
+                item.get("customization") == customization):
                 item["quantity"] = quantity
                 found = True
                 break
