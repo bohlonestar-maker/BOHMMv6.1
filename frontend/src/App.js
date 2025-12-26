@@ -82,28 +82,35 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userPermissions, setUserPermissions] = useState(null);
+  const [userChapter, setUserChapter] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
     const permissions = localStorage.getItem('permissions');
+    const chapter = localStorage.getItem('chapter');
     if (token && role) {
       setIsAuthenticated(true);
       setUserRole(role);
       setUserPermissions(permissions ? JSON.parse(permissions) : null);
+      setUserChapter(chapter || null);
     }
     setLoading(false);
   }, []);
 
-  const handleLogin = (token, username, role, permissions) => {
+  const handleLogin = (token, username, role, permissions, chapter) => {
     localStorage.setItem('token', token);
     localStorage.setItem('username', username);
     localStorage.setItem('role', role);
     localStorage.setItem('permissions', JSON.stringify(permissions));
+    if (chapter) {
+      localStorage.setItem('chapter', chapter);
+    }
     setIsAuthenticated(true);
     setUserRole(role);
     setUserPermissions(permissions);
+    setUserChapter(chapter);
   };
 
   const handleLogout = () => {
@@ -111,9 +118,11 @@ function App() {
     localStorage.removeItem('username');
     localStorage.removeItem('role');
     localStorage.removeItem('permissions');
+    localStorage.removeItem('chapter');
     setIsAuthenticated(false);
     setUserRole(null);
     setUserPermissions(null);
+    setUserChapter(null);
   };
 
   if (loading) {
