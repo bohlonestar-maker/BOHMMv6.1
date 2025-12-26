@@ -7631,16 +7631,23 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
             has_size_variations = False
             
             # Check if this is a shirt/hoodie (allows customization)
-            # Exclude: Hi-Viz shirts, Member Long Sleeve Shirt - Black (Original Logo Design), Ladiez T-Shirt
+            # Specific exclusions per user requirements:
+            # - Hi-Viz shirts (any Hi-Viz product)
+            # - Member Long Sleeve Shirt - Black (Original Logo Design)
+            # - Ladiez T-Shirt
             name_lower = name.lower()
-            allows_customization = (
-                any(word in name_lower for word in ['shirt', 'hoodie', 'tee', 'jersey', 'long sleeve']) and
-                'hi-viz' not in name_lower and 
-                'hiviz' not in name_lower and
-                'hi viz' not in name_lower and
-                'original logo design' not in name_lower and
-                'ladiez' not in name_lower
+            is_apparel = any(word in name_lower for word in ['shirt', 'hoodie', 'tee', 'jersey', 'long sleeve'])
+            
+            # Check specific exclusions
+            is_excluded = (
+                'hi-viz' in name_lower or 
+                'hiviz' in name_lower or
+                'hi viz' in name_lower or
+                'ladiez' in name_lower or
+                ('member long sleeve' in name_lower and 'original logo design' in name_lower)
             )
+            
+            allows_customization = is_apparel and not is_excluded
             
             for var in variations_list:
                 var_data = var.item_variation_data
