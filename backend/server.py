@@ -3040,7 +3040,11 @@ async def delete_prospect(
     return {"message": "Prospect archived successfully"}
 
 @api_router.get("/prospects/export/csv")
-async def export_prospects_csv(current_user: dict = Depends(verify_admin)):
+async def export_prospects_csv(current_user: dict = Depends(verify_token)):
+    # Check if user can view prospects
+    if not can_view_prospects(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can export prospects")
+    
     prospects = await db.prospects.find({}, {"_id": 0}).to_list(1000)
     
     # Decrypt sensitive data for all prospects
