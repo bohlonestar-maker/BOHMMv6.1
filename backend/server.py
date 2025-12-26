@@ -691,6 +691,20 @@ def can_edit_fallen_member(user: dict) -> bool:
     chapter = user.get("chapter", "")
     return role == "admin" and chapter == "National"
 
+def can_manage_store(user: dict) -> bool:
+    """Check if user can add/edit/delete store products - only National Prez, VP, and SEC"""
+    role = user.get("role", "")
+    chapter = user.get("chapter", "")
+    title = user.get("title", "")
+    
+    # Must be an admin in National chapter with specific title
+    if role != "admin" or chapter != "National":
+        return False
+    
+    # Only Prez, VP, and SEC can manage store
+    allowed_titles = ["Prez", "VP", "SEC"]
+    return title in allowed_titles
+
 def filter_member_for_user(member: dict, user: dict) -> dict:
     """Filter member data based on user permissions"""
     role = user.get("role", "")
