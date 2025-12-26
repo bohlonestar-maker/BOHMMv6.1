@@ -136,7 +136,7 @@ class SquareCheckoutTester:
         print(f"   Using test product: {test_product.get('name', 'Unknown')} (ID: {test_product.get('id')})")
         
         # Test 2: Add product to cart
-        cart_item = {
+        cart_params = {
             "product_id": test_product['id'],
             "quantity": 1
         }
@@ -144,15 +144,14 @@ class SquareCheckoutTester:
         # Add variation if product has variations
         if test_product.get('has_variations') and test_product.get('variations'):
             variation = test_product['variations'][0]
-            cart_item["variation_id"] = variation.get('id')
-            cart_item["variation_name"] = variation.get('name')
+            cart_params["variation_id"] = variation.get('id')
         
         success, add_response = self.run_test(
             "Add Product to Cart",
             "POST",
             "store/cart/add",
             200,
-            data=cart_item
+            params=cart_params
         )
         
         if not success:
