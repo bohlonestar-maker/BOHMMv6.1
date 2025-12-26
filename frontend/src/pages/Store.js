@@ -743,33 +743,33 @@ export default function Store({ userRole, userChapter }) {
           {/* Orders Tab */}
           <TabsContent value="orders">
             {orders.length === 0 ? (
-              <div className="text-center py-12 text-slate-400">
-                <CreditCardIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No orders yet.</p>
+              <div className="text-center py-8 sm:py-12 text-slate-400">
+                <CreditCardIcon className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-sm sm:text-base">No orders yet.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {orders.map((order) => (
                   <Card key={order.id} className="bg-slate-800 border-slate-700">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
+                    <CardHeader className="p-3 sm:p-4 pb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div>
-                          <CardTitle className="text-white text-lg">
+                          <CardTitle className="text-white text-sm sm:text-lg">
                             Order #{order.id.slice(0, 8)}
                           </CardTitle>
-                          <CardDescription className="text-slate-400">
+                          <CardDescription className="text-slate-400 text-xs sm:text-sm">
                             {new Date(order.created_at).toLocaleDateString()} at{" "}
                             {new Date(order.created_at).toLocaleTimeString()}
                           </CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {getStatusBadge(order.status)}
                           {canManageStore && order.status === "paid" && (
                             <Select
                               value={order.status}
                               onValueChange={(v) => updateOrderStatus(order.id, v)}
                             >
-                              <SelectTrigger className="w-32 bg-slate-700 border-slate-600 text-white text-xs">
+                              <SelectTrigger className="w-24 sm:w-32 bg-slate-700 border-slate-600 text-white text-xs">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-slate-800 border-slate-700">
@@ -782,12 +782,30 @@ export default function Store({ userRole, userChapter }) {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-slate-700">
-                            <TableHead className="text-slate-400">Item</TableHead>
-                            <TableHead className="text-slate-400 text-right">Qty</TableHead>
+                    <CardContent className="p-3 sm:p-4 pt-0">
+                      {/* Mobile-friendly order items */}
+                      <div className="space-y-2 sm:hidden">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="bg-slate-700/50 rounded p-2 text-xs">
+                            <div className="text-white font-medium">{item.name}</div>
+                            <div className="flex justify-between text-slate-400 mt-1">
+                              <span>Qty: {item.quantity}</span>
+                              <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="flex justify-between pt-2 border-t border-slate-700 text-sm font-bold text-white">
+                          <span>Total:</span>
+                          <span>${order.total.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      {/* Desktop table view */}
+                      <div className="hidden sm:block">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="border-slate-700">
+                              <TableHead className="text-slate-400">Item</TableHead>
+                              <TableHead className="text-slate-400 text-right">Qty</TableHead>
                             <TableHead className="text-slate-400 text-right">Price</TableHead>
                           </TableRow>
                         </TableHeader>
