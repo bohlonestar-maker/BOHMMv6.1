@@ -2013,10 +2013,18 @@ async def delete_member(
 
 # Dues tracking endpoint
 @api_router.put("/members/{member_id}/dues")
-async def update_member_dues(member_id: str, dues_data: dict, current_user: dict = Depends(verify_admin)):
+async def update_member_dues(member_id: str, dues_data: dict, current_user: dict = Depends(verify_token)):
+    # Check if user is an admin
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
     member = await db.members.find_one({"id": member_id})
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
+    
+    # Check if user can edit this member
+    if not can_edit_member(current_user, member.get("chapter", "")):
+        raise HTTPException(status_code=403, detail="You can only edit dues for members in your own chapter")
     
     update_data = {
         'dues': dues_data,
@@ -2034,10 +2042,18 @@ async def update_member_dues(member_id: str, dues_data: dict, current_user: dict
 
 # Meeting attendance tracking endpoint
 @api_router.put("/members/{member_id}/attendance")
-async def update_member_attendance(member_id: str, attendance_data: dict, current_user: dict = Depends(verify_admin)):
+async def update_member_attendance(member_id: str, attendance_data: dict, current_user: dict = Depends(verify_token)):
+    # Check if user is an admin
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
     member = await db.members.find_one({"id": member_id})
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
+    
+    # Check if user can edit this member
+    if not can_edit_member(current_user, member.get("chapter", "")):
+        raise HTTPException(status_code=403, detail="You can only edit attendance for members in your own chapter")
     
     update_data = {
         'meeting_attendance': attendance_data,
