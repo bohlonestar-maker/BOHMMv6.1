@@ -291,7 +291,7 @@ export default function WallOfHonor({ token, userRole, userChapter }) {
           <div className="text-center py-16">
             <Heart className="w-16 h-16 text-slate-600 mx-auto mb-4" />
             <p className="text-slate-400 text-lg">No memorials yet</p>
-            {isAdmin && (
+            {canEditWallOfHonor && (
               <p className="text-slate-500 text-sm mt-2">
                 Click &ldquo;Add Memorial&rdquo; to honor a fallen brother
               </p>
