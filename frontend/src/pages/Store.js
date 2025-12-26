@@ -842,46 +842,46 @@ export default function Store({ userRole, userChapter }) {
 
       {/* Cart Dialog */}
       <Dialog open={cartOpen} onOpenChange={setCartOpen}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-lg">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-[95vw] sm:max-w-lg mx-2 sm:mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
+            <DialogTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
               Shopping Cart
             </DialogTitle>
           </DialogHeader>
           {cart.items.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
+            <div className="text-center py-6 sm:py-8 text-slate-400 text-sm sm:text-base">
               Your cart is empty
             </div>
           ) : (
             <>
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-64 overflow-y-auto">
                 {cart.items.map((item, idx) => (
                   <div
                     key={`${item.product_id}-${item.variation_id || ''}-${item.customization || ''}-${idx}`}
-                    className="flex items-center justify-between p-3 bg-slate-700 rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 bg-slate-700 rounded-lg gap-2"
                   >
-                    <div className="flex-1">
-                      <div className="text-white font-medium">{item.name}</div>
-                      <div className="text-slate-400 text-sm">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium text-sm sm:text-base truncate">{item.name}</div>
+                      <div className="text-slate-400 text-xs sm:text-sm">
                         ${item.price.toFixed(2)} each
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2 justify-end">
                       <Button
                         size="icon"
                         variant="outline"
                         onClick={() => updateCartItem(item, item.quantity - 1)}
-                        className="h-8 w-8 border-slate-600"
+                        className="h-7 w-7 sm:h-8 sm:w-8 border-slate-600"
                       >
                         <Minus className="w-3 h-3" />
                       </Button>
-                      <span className="text-white w-8 text-center">{item.quantity}</span>
+                      <span className="text-white w-6 sm:w-8 text-center text-sm">{item.quantity}</span>
                       <Button
                         size="icon"
                         variant="outline"
                         onClick={() => updateCartItem(item, item.quantity + 1)}
-                        className="h-8 w-8 border-slate-600"
+                        className="h-7 w-7 sm:h-8 sm:w-8 border-slate-600"
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
@@ -889,54 +889,54 @@ export default function Store({ userRole, userChapter }) {
                         size="icon"
                         variant="ghost"
                         onClick={() => updateCartItem(item, 0)}
-                        className="h-8 w-8 text-red-400 hover:text-red-300"
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-red-400 hover:text-red-300"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-slate-700 pt-4 space-y-3">
-                <div className="flex justify-between text-xl font-bold text-white">
+              <div className="border-t border-slate-700 pt-3 sm:pt-4 space-y-2 sm:space-y-3">
+                <div className="flex justify-between text-lg sm:text-xl font-bold text-white">
                   <span>Total:</span>
                   <span>${cart.total.toFixed(2)}</span>
                 </div>
                 <div>
-                  <Label className="text-slate-200">Shipping Address (optional)</Label>
+                  <Label className="text-slate-200 text-xs sm:text-sm">Shipping Address (optional)</Label>
                   <Textarea
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
                     placeholder="Enter shipping address..."
-                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                    className="bg-slate-700 border-slate-600 text-white mt-1 text-sm"
                     rows={2}
                   />
                 </div>
                 <div>
-                  <Label className="text-slate-200">Order Notes (optional)</Label>
+                  <Label className="text-slate-200 text-xs sm:text-sm">Order Notes (optional)</Label>
                   <Input
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     placeholder="Any special instructions..."
-                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                    className="bg-slate-700 border-slate-600 text-white mt-1 text-sm"
                   />
                 </div>
               </div>
             </>
           )}
-          <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={clearCart} className="border-slate-600" disabled={redirectingToCheckout}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={clearCart} className="border-slate-600 text-sm w-full sm:w-auto" disabled={redirectingToCheckout}>
               Clear Cart
             </Button>
             <Button
               onClick={createOrder}
               disabled={cart.items.length === 0 || redirectingToCheckout}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-sm w-full sm:w-auto"
             >
               {redirectingToCheckout ? (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Redirecting to Square...
+                  Redirecting...
                 </>
               ) : (
                 "Proceed to Checkout"
