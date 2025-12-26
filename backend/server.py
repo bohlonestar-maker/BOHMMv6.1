@@ -7333,19 +7333,19 @@ async def create_hosted_checkout(shipping_address: Optional[str] = None, notes: 
         frontend_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '').rstrip('/')
         redirect_url = f"{frontend_url}/store?payment=success&order_id={order_id}"
         
-        # Create payment link request
-        payment_link_body = {
-            "idempotency_key": idempotency_key,
-            "description": f"BOHTC Store Order #{order_id[:8]}",
-            "order": square_order,
-            "checkout_options": {
-                "redirect_url": redirect_url,
-                "ask_for_shipping_address": True if shipping_address else False,
-            }
+        # Create checkout options
+        checkout_options = {
+            "redirect_url": redirect_url,
+            "ask_for_shipping_address": True if shipping_address else False,
         }
         
         # Call Square API to create payment link
-        result = square_client.checkout.payment_links.create(body=payment_link_body)
+        result = square_client.checkout.payment_links.create(
+            idempotency_key=idempotency_key,
+            description=f"BOHTC Store Order #{order_id[:8]}",
+            order=square_order,
+            checkout_options=checkout_options
+        )
         
         if result and hasattr(result, 'payment_link') and result.payment_link:
             payment_link = result.payment_link
