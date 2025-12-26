@@ -2066,55 +2066,81 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
         
         if is_admin or permissions.get("meeting_attendance"):
             attendance = member.get('meeting_attendance', {})
+            current_year_str = str(datetime.now(timezone.utc).year)
             
-            # Handle new format (dict with years as keys) and old format (single year dict)
+            # Handle new format (dict with years as keys containing arrays of {date, status, note})
+            # and old format (has 'year' key with 'meetings' array of 24 items)
+            meetings = []
+            export_year = current_year_str
+            
             if attendance and isinstance(attendance, dict):
-                # Check if it's the new format (years as keys) or old format (has 'year' key)
                 if 'year' in attendance:
-                    # Old format - convert to new format
-                    old_year = str(attendance.get('year', ''))
+                    # Old format - convert
+                    export_year = str(attendance.get('year', current_year_str))
                     old_meetings = attendance.get('meetings', [])
-                    attendance = {old_year: old_meetings}
-                
-                # Get all years sorted
-                years = sorted(attendance.keys(), reverse=True)
-                
-                # Export most recent year
-                if years:
-                    current_year = years[0]
-                    meetings = attendance.get(current_year, [{"status": 0, "note": ""} for _ in range(24)])
+                    # Old format was 24 indexed meetings, convert to dated format
+                    for idx, m in enumerate(old_meetings):
+                        if isinstance(m, dict) and (m.get('status', 0) != 0 or m.get('note')):
+                            month_idx = idx // 2
+                            week_num = (idx % 2) + 1
+                            approx_date = f"{export_year}-{month_idx+1:02d}-{week_num * 7:02d}"
+                            meetings.append({
+                                'date': approx_date,
+                                'status': m.get('status', 0),
+                                'note': m.get('note', '')
+                            })
+                        elif isinstance(m, int) and m != 0:
+                            month_idx = idx // 2
+                            week_num = (idx % 2) + 1
+                            approx_date = f"{export_year}-{month_idx+1:02d}-{week_num * 7:02d}"
+                            meetings.append({
+                                'date': approx_date,
+                                'status': m,
+                                'note': ''
+                            })
                 else:
-                    current_year = str(datetime.now(timezone.utc).year)
-                    meetings = [{"status": 0, "note": ""} for _ in range(24)]
-                
-                # Interleave status and notes for each meeting
-                meeting_data = []
-                for meeting in meetings:
-                    if isinstance(meeting, dict):
-                        status = meeting.get('status', 0)
-                        note = meeting.get('note', '')
-                    else:
-                        status = meeting
-                        note = ''
-                    
-                    if status == 1:
-                        status_text = 'Present'
-                    elif status == 2:
-                        status_text = 'Excused'
-                    else:
-                        status_text = 'Absent'
-                    
-                    meeting_data.append(status_text)
-                    meeting_data.append(note)
-                
-                row.append(current_year)
-                row.extend(meeting_data)
-            else:
-                # No attendance data - interleave empty status and notes
-                row.append('')
-                for _ in range(24):
-                    row.append('Absent')
-                    row.append('')
+                    # New format - years as keys with array of {date, status, note}
+                    years = sorted([k for k in attendance.keys() if k.isdigit()], reverse=True)
+                    if years:
+                        export_year = years[0]
+                        meetings = attendance.get(export_year, [])
+            
+            # Calculate stats
+            total = len(meetings)
+            present = sum(1 for m in meetings if m.get('status') == 1)
+            excused = sum(1 for m in meetings if m.get('status') == 2)
+            absent = sum(1 for m in meetings if m.get('status') == 0)
+            attendance_pct = f"{(present / total * 100):.1f}%" if total > 0 else "N/A"
+            
+            # Build meeting details string
+            details_parts = []
+            for m in sorted(meetings, key=lambda x: x.get('date', '')):
+                date_str = m.get('date', '')
+                if date_str:
+                    # Format date as MM/DD
+                    try:
+                        parts = date_str.split('-')
+                        if len(parts) == 3:
+                            date_str = f"{parts[1]}/{parts[2]}"
+                    except:
+                        pass
+                status = m.get('status', 0)
+                status_char = 'P' if status == 1 else ('E' if status == 2 else 'A')
+                note = m.get('note', '')
+                if note:
+                    details_parts.append(f"{date_str}:{status_char}({note})")
+                else:
+                    details_parts.append(f"{date_str}:{status_char}")
+            
+            details_str = "; ".join(details_parts) if details_parts else "No meetings"
+            
+            row.append(export_year)
+            row.append(str(total))
+            row.append(str(present))
+            row.append(str(excused))
+            row.append(str(absent))
+            row.append(attendance_pct)
+            row.append(details_str)
         
         writer.writerow(row)
     
