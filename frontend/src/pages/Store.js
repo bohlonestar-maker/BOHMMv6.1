@@ -949,32 +949,6 @@ export default function Store({ userRole, userChapter }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-              locationId={SQUARE_LOCATION_ID}
-              cardTokenizeResponseReceived={handlePaymentComplete}
-              createPaymentRequest={() => ({
-                countryCode: "US",
-                currencyCode: "USD",
-                total: {
-                  amount: currentOrder?.total.toString() || "0",
-                  label: "Total",
-                },
-              })}
-            >
-              <CreditCard />
-              <Button
-                type="submit"
-                disabled={processingPayment}
-                className="w-full mt-4 bg-green-600 hover:bg-green-700"
-              >
-                {processingPayment ? "Processing..." : `Pay $${currentOrder?.total.toFixed(2)}`}
-              </Button>
-            </PaymentForm>
-          </div>
-          <div className="text-xs text-slate-500 text-center">
-            🔒 Payments processed securely by Square
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Dues Checkout Dialog */}
       <Dialog open={duesCheckoutOpen} onOpenChange={setDuesCheckoutOpen}>
