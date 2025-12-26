@@ -7407,14 +7407,17 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
             
             if existing:
                 # Update existing product
+                update_fields = {
+                    "name": name,
+                    "description": description[:500] + variation_info if description else variation_info,
+                    "price": min_price,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                if image_url:
+                    update_fields["image_url"] = image_url
                 await db.store_products.update_one(
                     {"square_catalog_id": item_id},
-                    {"$set": {
-                        "name": name,
-                        "description": description[:500] + variation_info if description else variation_info,
-                        "price": min_price,
-                        "updated_at": datetime.now(timezone.utc).isoformat()
-                    }}
+                    {"$set": update_fields}
                 )
             else:
                 # Create new product
@@ -7425,6 +7428,7 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
                     "price": min_price,
                     "category": "merchandise",
                     "square_catalog_id": item_id,
+                    "image_url": image_url,
                     "inventory_count": 100,  # Default inventory
                     "is_active": True,
                     "created_at": datetime.now(timezone.utc).isoformat(),
