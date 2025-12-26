@@ -175,34 +175,15 @@ export default function CSVExportView() {
           }
           break;
         case 'meetings_q1':
-          // Q1: January, February, March meetings
-          if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('january') || h.includes('february') || h.includes('march')))) {
-            console.log('  Matched meetings Q1:', header);
-            indices.push(index);
-          }
-          break;
         case 'meetings_q2':
-          // Q2: April, May, June meetings
-          if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('april') || h.includes('may') || h.includes('june')))) {
-            console.log('  Matched meetings Q2:', header);
-            indices.push(index);
-          }
-          break;
         case 'meetings_q3':
-          // Q3: July, August, September meetings
-          if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('july') || h.includes('august') || h.includes('september')))) {
-            console.log('  Matched meetings Q3:', header);
-            indices.push(index);
-          }
-          break;
         case 'meetings_q4':
-          // Q4: October, November, December meetings
-          if (h.includes('handle') ||
-              (h.includes('meeting') && (h.includes('october') || h.includes('november') || h.includes('december')))) {
-            console.log('  Matched meetings Q4:', header);
+          // All meeting presets now select the attendance summary columns
+          if (h.includes('handle') || h.includes('name') || h.includes('chapter') || h.includes('title') ||
+              h.includes('attendance year') || h.includes('total meetings') || 
+              h.includes('present') || h.includes('excused') || h.includes('absent') || 
+              h.includes('attendance %') || h.includes('meeting details')) {
+            console.log('  Matched meetings:', header);
             indices.push(index);
           }
           break;
