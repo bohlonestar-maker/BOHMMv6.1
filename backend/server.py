@@ -7200,17 +7200,17 @@ async def process_payment(order_id: str, payment: PaymentRequest, current_user: 
         if payment.customer_email:
             payment_body["buyer_email_address"] = payment.customer_email
         
-        result = square_client.payments.create_payment(body=payment_body)
+        result = square_client.payments.create(**payment_body)
         
-        if result.is_success():
-            square_payment = result.body.get("payment", {})
+        if result and result.payment:
+            square_payment = result.payment
             
             # Update order status
             await db.store_orders.update_one(
                 {"id": order_id},
                 {"$set": {
                     "status": "paid",
-                    "square_payment_id": square_payment.get("id"),
+                    "square_payment_id": square_payment.id,
                     "payment_method": "card",
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }}
