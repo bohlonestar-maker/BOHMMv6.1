@@ -281,17 +281,14 @@ export default function CSVExportView() {
     }));
   };
 
-  const generatePrintHTML = (data, preset, username, timestamp) => {
+  const generatePrintHTML = (data, preset, username, timestamp, filterDesc = 'All Members') => {
     // Convert preset code to readable name
     const presetNames = {
       'dues_q1': 'Dues - Quarter 1 (Jan, Feb, Mar)',
       'dues_q2': 'Dues - Quarter 2 (Apr, May, Jun)',
       'dues_q3': 'Dues - Quarter 3 (Jul, Aug, Sep)',
       'dues_q4': 'Dues - Quarter 4 (Oct, Nov, Dec)',
-      'meetings_q1': 'Meetings - Quarter 1 (Jan, Feb, Mar)',
-      'meetings_q2': 'Meetings - Quarter 2 (Apr, May, Jun)',
-      'meetings_q3': 'Meetings - Quarter 3 (Jul, Aug, Sep)',
-      'meetings_q4': 'Meetings - Quarter 4 (Oct, Nov, Dec)',
+      'meetings_q1': 'Attendance Summary',
       'contact': 'Contact Information',
       'service': 'Military & First Responder Service',
       'all': 'All Fields'
@@ -309,8 +306,8 @@ export default function CSVExportView() {
     body { font-family: Arial, sans-serif; margin: 10px; }
     .header-info { background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #8b5cf6; }
     .header-info h1 { text-align: center; color: #8b5cf6; margin: 0 0 10px 0; font-size: 1.5rem; }
-    .header-info .meta { display: flex; justify-content: space-between; font-size: 0.875rem; color: #1f2937; }
-    .header-info .meta div { margin: 5px 0; }
+    .header-info .meta { display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 0.875rem; color: #1f2937; }
+    .header-info .meta div { margin: 5px 0; min-width: 200px; }
     .header-info .meta strong { color: #8b5cf6; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #8b5cf6; color: white; padding: 8px; text-align: left; font-size: 0.75rem; }
@@ -332,6 +329,13 @@ export default function CSVExportView() {
   <div class="header-info">
     <h1>Brothers of the Highway - Member Export</h1>
     <div class="meta">
+      <div><strong>Report Type:</strong> ${presetName}</div>
+      <div><strong>Filter:</strong> ${filterDesc}</div>
+      <div><strong>Members:</strong> ${data.length - 1}</div>
+      <div><strong>Exported By:</strong> ${username}</div>
+      <div><strong>Date/Time (CST):</strong> ${timestamp}</div>
+    </div>
+  </div>`;
       <div><strong>Report:</strong> ${presetName}</div>
       <div><strong>Printed By:</strong> ${username}</div>
       <div><strong>Date/Time:</strong> ${timestamp} CST</div>
