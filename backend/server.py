@@ -1972,13 +1972,21 @@ async def get_member_attendance_summary(
 async def delete_member(
     member_id: str, 
     reason: str,
-    current_user: dict = Depends(verify_admin)
+    current_user: dict = Depends(verify_token)
 ):
     """Archive a member with deletion reason"""
+    # Check if user is an admin first
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
     # Get member info before archiving
     member = await db.members.find_one({"id": member_id}, {"_id": 0})
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
+    
+    # Check if user can delete this member (based on chapter)
+    if not can_edit_member(current_user, member.get("chapter", "")):
+        raise HTTPException(status_code=403, detail="You can only archive members in your own chapter")
     
     # Create archived record
     archived_member = {
