@@ -17,6 +17,7 @@ import ArchivedMembers from "@/pages/ArchivedMembers";
 import ArchivedProspects from "@/pages/ArchivedProspects";
 import DiscordAnalytics from "@/pages/DiscordAnalytics";
 import WallOfHonor from "@/pages/WallOfHonor";
+import Store from "@/pages/Store";
 import ChatBot from "@/components/ChatBot";
 import { Toaster } from "@/components/ui/sonner";
 
