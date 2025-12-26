@@ -134,6 +134,22 @@ export default function Store({ userRole, userChapter }) {
     }
   }, []);
 
+  // Handle return from Square hosted checkout
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    const orderId = searchParams.get("order_id");
+    
+    if (paymentStatus === "success" && orderId) {
+      // Payment completed - show success message and switch to orders tab
+      toast.success("Payment successful! Your order has been placed.");
+      setActiveTab("orders");
+      // Clear the URL params
+      setSearchParams({});
+      // Refresh orders to show the new order
+      fetchOrders();
+    }
+  }, [searchParams, setSearchParams, fetchOrders]);
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
