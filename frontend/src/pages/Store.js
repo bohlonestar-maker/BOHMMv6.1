@@ -141,29 +141,71 @@ export default function Store({ userRole, userChapter }) {
     loadData();
   }, [fetchProducts, fetchCart, fetchOrders]);
 
-  const addToCart = async (productId) => {
+  // Product selection state for size/customization modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [selectedVariation, setSelectedVariation] = useState(null);
+  const [handleText, setHandleText] = useState("");
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setSelectedVariation(null);
+    setHandleText("");
+    setProductModalOpen(true);
+  };
+
+  const addToCart = async (product, variationId = null, customization = null) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        `${API_URL}/api/store/cart/add?product_id=${productId}&quantity=1`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      let url = `${API_URL}/api/store/cart/add?product_id=${product.id}&quantity=1`;
+      if (variationId) {
+        url += `&variation_id=${variationId}`;
+      }
+      if (customization) {
+        url += `&customization=${encodeURIComponent(customization)}`;
+      }
+      await axios.post(url, {}, { headers: { Authorization: `Bearer ${token}` } });
       await fetchCart();
       toast.success("Added to cart!");
+      setProductModalOpen(false);
+      setSelectedProduct(null);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to add to cart");
     }
   };
 
-  const updateCartItem = async (productId, quantity) => {
+  const handleAddToCartClick = (product) => {
+    // If product has variations or allows customization, open modal
+    if (product.has_variations || product.allows_customization) {
+      openProductModal(product);
+    } else {
+      // Add directly to cart
+      addToCart(product);
+    }
+  };
+
+  const handleConfirmAddToCart = () => {
+    if (!selectedProduct) return;
+    
+    if (selectedProduct.has_variations && !selectedVariation) {
+      toast.error("Please select a size");
+      return;
+    }
+    
+    addToCart(selectedProduct, selectedVariation?.id, handleText || null);
+  };
+
+  const updateCartItem = async (item, quantity) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
-        `${API_URL}/api/store/cart/update?product_id=${productId}&quantity=${quantity}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      let url = `${API_URL}/api/store/cart/update?product_id=${item.product_id}&quantity=${quantity}`;
+      if (item.variation_id) {
+        url += `&variation_id=${item.variation_id}`;
+      }
+      if (item.customization) {
+        url += `&customization=${encodeURIComponent(item.customization)}`;
+      }
+      await axios.put(url, {}, { headers: { Authorization: `Bearer ${token}` } });
       await fetchCart();
     } catch (error) {
       toast.error("Failed to update cart");
@@ -171,7 +213,7 @@ export default function Store({ userRole, userChapter }) {
   };
 
   const clearCart = async () => {
-    try {
+    try:
       const token = localStorage.getItem("token");
       await axios.delete(`${API_URL}/api/store/cart/clear`, {
         headers: { Authorization: `Bearer ${token}` },
