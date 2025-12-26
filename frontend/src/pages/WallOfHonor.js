@@ -40,7 +40,7 @@ const CHAPTERS = ["National", "AD", "HA", "HS"];
 const TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD", "CC", "CCLC", "MD", "PM", "Member", "Honorary"];
 const MILITARY_BRANCHES = ["Army", "Navy", "Air Force", "Marines", "Coast Guard", "Space Force", "National Guard"];
 
-export default function WallOfHonor({ token, userRole }) {
+export default function WallOfHonor({ token, userRole, userChapter }) {
   const navigate = useNavigate();
   const [fallenMembers, setFallenMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,8 @@ export default function WallOfHonor({ token, userRole }) {
     is_first_responder: false
   });
 
-  const isAdmin = userRole === "admin";
+  // Only National Admin can edit Wall of Honor
+  const canEditWallOfHonor = userRole === "admin" && userChapter === "National";
 
   useEffect(() => {
     fetchFallenMembers();
