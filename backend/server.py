@@ -1160,6 +1160,80 @@ class DiscordAnalytics(BaseModel):
     top_text_users: List[dict]
     daily_activity: List[dict]
 
+# ==================== STORE MODELS ====================
+
+class StoreProduct(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: Optional[str] = None
+    price: float  # In dollars
+    category: str  # "merchandise" or "dues"
+    image_url: Optional[str] = None
+    square_catalog_id: Optional[str] = None
+    inventory_count: int = 0
+    is_active: bool = True
+    member_price: Optional[float] = None  # Discounted price for members
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class StoreProductCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    category: str
+    image_url: Optional[str] = None
+    inventory_count: int = 0
+    member_price: Optional[float] = None
+
+class StoreProductUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category: Optional[str] = None
+    image_url: Optional[str] = None
+    inventory_count: Optional[int] = None
+    is_active: Optional[bool] = None
+    member_price: Optional[float] = None
+
+class CartItem(BaseModel):
+    product_id: str
+    name: str
+    price: float
+    quantity: int
+    image_url: Optional[str] = None
+
+class ShoppingCart(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    items: List[CartItem] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class StoreOrder(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str
+    items: List[CartItem]
+    subtotal: float
+    tax: float = 0.0
+    total: float
+    status: str = "pending"  # pending, paid, shipped, completed, cancelled, refunded
+    square_order_id: Optional[str] = None
+    square_payment_id: Optional[str] = None
+    payment_method: str = "card"
+    shipping_address: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PaymentRequest(BaseModel):
+    source_id: str  # Payment token from Square Web Payments SDK
+    amount_cents: int
+    order_id: str
+    customer_email: Optional[str] = None
+
+# ==================== END STORE MODELS ====================
+
 # Initialize default admin user
 @app.on_event("startup")
 async def create_default_admin():
