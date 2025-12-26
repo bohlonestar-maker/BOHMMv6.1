@@ -1666,29 +1666,33 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                               >
                                 <FileText className="w-4 h-4" />
                               </Button>
+                              {member.can_edit && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-slate-300 hover:text-white hover:bg-slate-600 h-8 w-8 p-0"
+                                  onClick={() => handleEdit(member)}
+                                  data-testid={`edit-member-${member.id}`}
+                                  title="Edit Member"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                            
+                            {/* Delete Action - only show if user can edit this member */}
+                            {member.can_edit && (
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-slate-300 hover:text-white hover:bg-slate-600 h-8 w-8 p-0"
-                                onClick={() => handleEdit(member)}
-                                data-testid={`edit-member-${member.id}`}
-                                title="Edit Member"
+                                className="text-red-500 hover:text-red-600 hover:bg-red-950/50 h-8 w-8 p-0"
+                                onClick={() => handleDelete(member)}
+                                data-testid={`delete-member-${member.id}`}
+                                title="Archive Member"
                               >
-                                <Pencil className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </Button>
-                            </div>
-                            
-                            {/* Delete Action */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-500 hover:text-red-600 hover:bg-red-950/50 h-8 w-8 p-0"
-                              onClick={() => handleDelete(member)}
-                              data-testid={`delete-member-${member.id}`}
-                              title="Archive Member"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            )}
                           </div>
                         </TableCell>
                       )}
