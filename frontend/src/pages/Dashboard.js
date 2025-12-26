@@ -804,6 +804,16 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   )}
                 </Button>
                 <Button
+                  onClick={() => navigate("/store")}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-green-900/30 text-green-400 border-green-600/50 hover:bg-green-900/50"
+                >
+                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Store</span>
+                  <span className="sm:hidden">Store</span>
+                </Button>
+                <Button
                   onClick={() => navigate("/wall-of-honor")}
                   variant="outline"
                   size="sm"
