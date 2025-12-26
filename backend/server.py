@@ -7496,8 +7496,14 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
             has_size_variations = False
             
             # Check if this is a shirt/hoodie (allows customization)
+            # Exclude Hi-Viz shirts from customization
             name_lower = name.lower()
-            allows_customization = any(word in name_lower for word in ['shirt', 'hoodie', 'tee', 'jersey', 'long sleeve'])
+            allows_customization = (
+                any(word in name_lower for word in ['shirt', 'hoodie', 'tee', 'jersey', 'long sleeve']) and
+                'hi-viz' not in name_lower and 
+                'hiviz' not in name_lower and
+                'hi viz' not in name_lower
+            )
             
             for var in variations_list:
                 var_data = var.item_variation_data
