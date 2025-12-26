@@ -7348,13 +7348,13 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail="Square client not configured")
     
     try:
-        # Fetch catalog items from Square
+        # Fetch catalog items from Square - iterate through the pager
         result = square_client.catalog.list(types="ITEM")
+        items = list(result)  # Convert pager to list
         
-        if not result or not result.objects:
+        if not items:
             return {"message": "No items found in Square catalog", "count": 0}
         
-        items = result.objects
         synced_count = 0
         
         for item in items:
@@ -7364,6 +7364,11 @@ async def sync_square_catalog(current_user: dict = Depends(verify_token)):
             item_id = item.id
             name = item_data.name or "Unknown"
             description = item_data.description or ""
+            
+            # Get ecom image URLs if available
+            image_url = None
+            if item_data.ecom_image_uris and len(item_data.ecom_image_uris) > 0:
+                image_url = item_data.ecom_image_uris[0]
             
             # Get variations and use the first/lowest price
             variations = item_data.variations or []
