@@ -7085,6 +7085,7 @@ async def add_to_cart(
     quantity: int = 1, 
     variation_id: Optional[str] = None,
     customization: Optional[str] = None,
+    add_on_price: float = 0,
     current_user: dict = Depends(verify_token)
 ):
     """Add a product to the shopping cart with optional variation and customization"""
