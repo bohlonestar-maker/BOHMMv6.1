@@ -23,9 +23,32 @@ export default function CSVExportView() {
 
   const CHAPTERS = ['National', 'AD', 'HA', 'HS'];
 
-  useEffect(() => {
-    fetchCSVData();
-  }, []);
+  const parseCSV = (text) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    const result = [];
+    
+    for (const line of lines) {
+      const row = [];
+      let cell = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          row.push(cell.trim());
+          cell = '';
+        } else {
+          cell += char;
+        }
+      }
+      row.push(cell.trim());
+      result.push(row);
+    }
+    
+    return result;
+  };
 
   const fetchCSVData = async () => {
     const token = localStorage.getItem('token');
@@ -59,9 +82,10 @@ export default function CSVExportView() {
     }
   };
 
-  const parseCSV = (text) => {
-    const lines = text.split('\n').filter(line => line.trim());
-    const result = [];
+  useEffect(() => {
+    fetchCSVData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
     
     for (let line of lines) {
       const row = [];
