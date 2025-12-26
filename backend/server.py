@@ -7128,12 +7128,15 @@ async def add_to_cart(
     if is_member and product.get('member_price'):
         price = product['member_price']
     
+    # Add customization add-on price
+    price += add_on_price
+    
     # Build cart item name with variation and customization
     item_name = product["name"]
     if variation_name:
         item_name += f" ({variation_name})"
     if customization:
-        item_name += f" - Handle: {customization}"
+        item_name += f" - {customization}"
     
     cart_item = {
         "product_id": product_id,
