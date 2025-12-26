@@ -541,7 +541,7 @@ export default function Store({ userRole, userChapter }) {
                       )}
                       <CardTitle className="text-white text-lg">{product.name}</CardTitle>
                       {product.description && (
-                        <CardDescription className="text-slate-400">
+                        <CardDescription className="text-slate-400 text-sm line-clamp-2">
                           {product.description}
                         </CardDescription>
                       )}
@@ -561,27 +561,49 @@ export default function Store({ userRole, userChapter }) {
                             </div>
                           ) : (
                             <span className="text-xl font-bold text-white">
-                              ${product.display_price.toFixed(2)}
+                              {product.has_variations ? `From $${product.display_price.toFixed(2)}` : `$${product.display_price.toFixed(2)}`}
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="text-sm text-slate-400 mb-3">
+                      <div className="text-sm text-slate-400 mb-2">
                         {product.inventory_count > 0 ? (
                           <span className="text-green-400">{product.inventory_count} in stock</span>
                         ) : (
                           <span className="text-red-400">Out of stock</span>
                         )}
                       </div>
+                      {/* Show size/variation badges */}
+                      {product.has_variations && product.variations && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {product.variations.slice(0, 6).map((v) => (
+                            <Badge 
+                              key={v.id} 
+                              variant="outline" 
+                              className={`text-xs ${v.sold_out || v.inventory_count === 0 ? 'text-slate-500 border-slate-600 line-through' : 'text-slate-300 border-slate-500'}`}
+                            >
+                              {v.name}
+                            </Badge>
+                          ))}
+                          {product.variations.length > 6 && (
+                            <Badge variant="outline" className="text-xs text-slate-400">
+                              +{product.variations.length - 6}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                      {product.allows_customization && (
+                        <Badge className="bg-purple-600 text-xs">Add Handle</Badge>
+                      )}
                     </CardContent>
                     <CardFooter className="flex gap-2">
                       <Button
-                        onClick={() => addToCart(product.id)}
+                        onClick={() => handleAddToCartClick(product)}
                         disabled={product.inventory_count === 0}
                         className="flex-1 bg-blue-600 hover:bg-blue-700"
                       >
                         <ShoppingCart className="w-4 h-4 mr-2" />
-                        Add to Cart
+                        {product.has_variations ? 'Select Options' : 'Add to Cart'}
                       </Button>
                       {canManageStore && (
                         <>
