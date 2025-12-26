@@ -71,7 +71,7 @@ const formatMeetingDate = (date) => {
   return `${month}/${day}`;
 };
 
-export default function Prospects({ onLogout, userRole }) {
+export default function Prospects({ onLogout, userRole, userChapter }) {
   const [prospects, setProspects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -99,6 +99,9 @@ export default function Prospects({ onLogout, userRole }) {
   const [newMeetingNote, setNewMeetingNote] = useState("");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const navigate = useNavigate();
+  
+  // Check if user can edit prospects (National or HA Admin)
+  const canEditProspects = userRole === 'admin' && (userChapter === 'National' || userChapter === 'HA');
 
   const [formData, setFormData] = useState({
     handle: "",
