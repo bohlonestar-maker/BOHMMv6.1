@@ -254,9 +254,11 @@ class PermissionTester:
         )
         
         # Test POST /api/fallen - Should work for National Admin
+        import time
+        timestamp = str(int(time.time()))
         test_fallen = {
             "name": "Test Memorial",
-            "handle": "TestHandle",
+            "handle": f"TestHandle{timestamp}",
             "chapter": "National",
             "tribute": "In memory"
         }
