@@ -1449,38 +1449,46 @@ async def get_members(current_user: dict = Depends(verify_token)):
     # Titles that can see private emails
     officer_titles = ['Prez', 'VP', 'S@A', 'Enf', 'SEC']
     
-    # Check if user can see private emails:
-    # - National chapter members can see all private emails
+    # Check if user can see private info:
+    # - National chapter admins can see everything
     # - Officers (Prez, VP, S@A, Enf, SEC) of any chapter can see private emails
-    is_national_member = user_chapter == 'National'
+    is_national_admin = user_role == 'admin' and user_chapter == 'National'
     is_officer = user_title in officer_titles
-    can_see_private_emails = is_national_member or is_officer
+    can_see_private_emails = is_national_admin or is_officer
     
     # Debug logging
-    print(f"[EMAIL PRIVACY DEBUG] User: chapter={user_chapter}, title={user_title}, is_national={is_national_member}, is_officer={is_officer}, can_see_private={can_see_private_emails}")
-    
-    # For phone/address privacy, only National Chapter admins can see
-    is_national_admin = user_role == 'admin' and user_chapter == 'National'
+    print(f"[EMAIL PRIVACY DEBUG] User: chapter={user_chapter}, title={user_title}, is_national={is_national_admin}, is_officer={is_officer}, can_see_private={can_see_private_emails}")
     
     for i, member in enumerate(members):
         # Decrypt sensitive data
         members[i] = decrypt_member_sensitive_data(member)
         
-        # Hide names for prospect users
+        # Prospect users: hide names and emails
         if user_role == 'prospect':
-            members[i]['name'] = 'Hidden'
-        
-        # Apply email privacy settings
-        # Private emails visible to: National members, and officers (Prez, VP, S@A, Enf, SEC)
-        if members[i].get('email_private', False) and not can_see_private_emails:
+            members[i]['name'] = 'Private'
             members[i]['email'] = 'Private'
-        
-        # Apply phone/address privacy settings (only National Chapter admins can see)
-        if not is_national_admin:
             if members[i].get('phone_private', False):
                 members[i]['phone'] = 'Private'
             if members[i].get('address_private', False):
                 members[i]['address'] = 'Private'
+            continue
+        
+        # National Admin sees everything
+        if is_national_admin:
+            pass  # No filtering needed
+        else:
+            # Apply email privacy settings
+            if members[i].get('email_private', False) and not can_see_private_emails:
+                members[i]['email'] = 'Private'
+            
+            # Apply phone/address privacy settings
+            if members[i].get('phone_private', False):
+                members[i]['phone'] = 'Private'
+            if members[i].get('address_private', False):
+                members[i]['address'] = 'Private'
+        
+        # Add can_edit flag for frontend to show/hide edit buttons
+        members[i]['can_edit'] = can_edit_member(current_user, members[i].get('chapter', ''))
         
         if isinstance(members[i].get('created_at'), str):
             members[i]['created_at'] = datetime.fromisoformat(members[i]['created_at'])
