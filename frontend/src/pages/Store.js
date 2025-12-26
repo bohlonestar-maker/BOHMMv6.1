@@ -929,35 +929,26 @@ export default function Store({ userRole, userChapter }) {
             </>
           )}
           <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={clearCart} className="border-slate-600">
+            <Button variant="outline" onClick={clearCart} className="border-slate-600" disabled={redirectingToCheckout}>
               Clear Cart
             </Button>
             <Button
               onClick={createOrder}
-              disabled={cart.items.length === 0}
+              disabled={cart.items.length === 0 || redirectingToCheckout}
               className="bg-green-600 hover:bg-green-700"
             >
-              Proceed to Checkout
+              {redirectingToCheckout ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Redirecting to Square...
+                </>
+              ) : (
+                "Proceed to Checkout"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Checkout Dialog */}
-      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <CreditCardIcon className="w-5 h-5" />
-              Complete Payment
-            </DialogTitle>
-            <DialogDescription className="text-slate-400">
-              Total: ${currentOrder?.total.toFixed(2)}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <PaymentForm
-              applicationId={SQUARE_APP_ID}
               locationId={SQUARE_LOCATION_ID}
               cardTokenizeResponseReceived={handlePaymentComplete}
               createPaymentRequest={() => ({
