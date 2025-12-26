@@ -126,12 +126,14 @@ class PermissionTester:
         print(f"\n   👥 Testing Member Permissions...")
         
         # Create test member for permission testing
+        import time
+        timestamp = str(int(time.time()))
         test_member = {
             "chapter": "AD",
             "title": "Member",
-            "handle": "PermissionTestRider",
+            "handle": f"PermissionTestRider{timestamp}",
             "name": "Permission Test Member",
-            "email": "permtest@example.com",
+            "email": f"permtest{timestamp}@example.com",
             "phone": "555-0199",
             "address": "199 Permission St"
         }
