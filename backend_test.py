@@ -8602,6 +8602,10 @@ class BOHDirectoryAPITester:
             print("❌ Login failed - cannot continue with other tests")
             return self.generate_report()
         
+        # PRIORITY TEST: Role-Based Permission System (NEW - HIGHEST PRIORITY)
+        print("\n🔥 RUNNING HIGHEST PRIORITY TEST: ROLE-BASED PERMISSION SYSTEM")
+        self.test_role_based_permissions()
+        
         # PRIORITY TEST: Contact Privacy Feature Verification - National Admin Access
         print("\n🔥 RUNNING PRIORITY TEST: CONTACT PRIVACY FEATURE VERIFICATION")
         self.test_contact_privacy_national_admin_verification()
