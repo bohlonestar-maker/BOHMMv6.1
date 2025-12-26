@@ -335,11 +335,6 @@ export default function CSVExportView() {
       <div><strong>Exported By:</strong> ${username}</div>
       <div><strong>Date/Time (CST):</strong> ${timestamp}</div>
     </div>
-  </div>`;
-      <div><strong>Report:</strong> ${presetName}</div>
-      <div><strong>Printed By:</strong> ${username}</div>
-      <div><strong>Date/Time:</strong> ${timestamp} CST</div>
-    </div>
   </div>
   
   <table>
