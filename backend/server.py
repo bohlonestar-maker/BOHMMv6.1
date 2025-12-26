@@ -7230,7 +7230,7 @@ async def clear_cart(current_user: dict = Depends(verify_token)):
 # Order Endpoints
 @api_router.post("/store/orders/create")
 async def create_order(shipping_address: Optional[str] = None, notes: Optional[str] = None, current_user: dict = Depends(verify_token)):
-    """Create an order from the current cart"""
+    """Create an order from the current cart (legacy endpoint - use /store/checkout for hosted checkout)"""
     cart = await db.store_carts.find_one({"user_id": current_user["username"]})
     if not cart or not cart.get("items"):
         raise HTTPException(status_code=400, detail="Cart is empty")
@@ -7258,6 +7258,144 @@ async def create_order(shipping_address: Optional[str] = None, notes: Optional[s
     await db.store_orders.insert_one(order)
     
     return {"order_id": order["id"], "total": total, "total_cents": int(total * 100)}
+
+@api_router.post("/store/checkout")
+async def create_hosted_checkout(shipping_address: Optional[str] = None, notes: Optional[str] = None, current_user: dict = Depends(verify_token)):
+    """Create a Square hosted checkout link and redirect URL"""
+    cart = await db.store_carts.find_one({"user_id": current_user["username"]})
+    if not cart or not cart.get("items"):
+        raise HTTPException(status_code=400, detail="Cart is empty")
+    
+    if not square_client:
+        raise HTTPException(status_code=500, detail="Payment system not configured")
+    
+    items = cart["items"]
+    subtotal = sum(item["price"] * item["quantity"] for item in items)
+    tax = round(subtotal * 0.0825, 2)  # 8.25% tax
+    total = round(subtotal + tax, 2)
+    
+    # Create local order first with pending status
+    order_id = str(uuid.uuid4())
+    order = {
+        "id": order_id,
+        "user_id": current_user["username"],
+        "user_name": current_user.get("username", "Unknown"),
+        "items": items,
+        "subtotal": subtotal,
+        "tax": tax,
+        "total": total,
+        "status": "pending",
+        "shipping_address": shipping_address,
+        "notes": notes,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.store_orders.insert_one(order)
+    
+    try:
+        # Generate idempotency key
+        idempotency_key = str(uuid.uuid4())
+        
+        # Build line items for Square order
+        line_items = []
+        for item in items:
+            # Calculate item price including any add-ons
+            item_price_cents = int(item["price"] * 100)
+            
+            line_item = {
+                "name": item["name"],
+                "quantity": str(item["quantity"]),
+                "base_price_money": {
+                    "amount": item_price_cents,
+                    "currency": "USD"
+                }
+            }
+            
+            # Add variation name if present
+            if item.get("variation_name"):
+                line_item["variation_name"] = item["variation_name"]
+            
+            # Add customization as note if present
+            if item.get("customization"):
+                line_item["note"] = item["customization"]
+            
+            line_items.append(line_item)
+        
+        # Add tax as a separate line item (Square handles taxes differently)
+        # Or we can use Square's tax calculation
+        
+        # Create order object for Square
+        square_order = {
+            "location_id": SQUARE_LOCATION_ID,
+            "line_items": line_items,
+            "reference_id": order_id  # Link to our local order
+        }
+        
+        # Get frontend URL for redirect after payment
+        frontend_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '').rstrip('/')
+        redirect_url = f"{frontend_url}/store?payment=success&order_id={order_id}"
+        
+        # Create payment link request
+        payment_link_body = {
+            "idempotency_key": idempotency_key,
+            "description": f"BOHTC Store Order #{order_id[:8]}",
+            "order": square_order,
+            "checkout_options": {
+                "redirect_url": redirect_url,
+                "ask_for_shipping_address": True if shipping_address else False,
+            }
+        }
+        
+        # Call Square API to create payment link
+        result = square_client.checkout.create_payment_link(payment_link_body)
+        
+        if result and result.payment_link:
+            payment_link = result.payment_link
+            
+            # Update order with Square payment link info
+            await db.store_orders.update_one(
+                {"id": order_id},
+                {"$set": {
+                    "square_payment_link_id": payment_link.id,
+                    "square_order_id": payment_link.order_id,
+                    "checkout_url": payment_link.url,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            # Clear the cart after successful checkout link creation
+            await db.store_carts.delete_one({"user_id": current_user["username"]})
+            
+            # Log activity
+            await log_activity(
+                current_user["username"],
+                "checkout_started",
+                f"Checkout started for order {order_id}, total ${total:.2f}"
+            )
+            
+            return {
+                "success": True,
+                "checkout_url": payment_link.url,
+                "order_id": order_id,
+                "square_order_id": payment_link.order_id,
+                "total": total
+            }
+        else:
+            # If Square API returns an error, delete the pending order
+            await db.store_orders.delete_one({"id": order_id})
+            error_detail = "Failed to create checkout link"
+            if hasattr(result, 'errors') and result.errors:
+                error_detail = result.errors[0].get('detail', error_detail)
+            raise HTTPException(status_code=400, detail=error_detail)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Clean up the order if Square API call fails
+        await db.store_orders.delete_one({"id": order_id})
+        logger.error(f"Square checkout error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Checkout error: {str(e)}")
 
 @api_router.post("/store/orders/{order_id}/pay")
 async def process_payment(order_id: str, payment: PaymentRequest, current_user: dict = Depends(verify_token)):
