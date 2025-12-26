@@ -2901,7 +2901,11 @@ async def update_prospect_action(
 
 # Prospect management endpoints (admin only)
 @api_router.get("/prospects", response_model=List[Prospect])
-async def get_prospects(current_user: dict = Depends(verify_admin)):
+async def get_prospects(current_user: dict = Depends(verify_token)):
+    # Check if user can view prospects (National Admin or HA Admin only)
+    if not can_view_prospects(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can view prospects")
+    
     prospects = await db.prospects.find({}, {"_id": 0}).to_list(1000)
     
     for prospect in prospects:
@@ -2914,8 +2918,12 @@ async def get_prospects(current_user: dict = Depends(verify_admin)):
 
 
 @api_router.get("/prospects/{prospect_id}", response_model=Prospect)
-async def get_prospect(prospect_id: str, current_user: dict = Depends(verify_admin)):
+async def get_prospect(prospect_id: str, current_user: dict = Depends(verify_token)):
     """Get a single prospect by ID"""
+    # Check if user can view prospects
+    if not can_view_prospects(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can view prospects")
+    
     prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
     if not prospect:
         raise HTTPException(status_code=404, detail="Prospect not found")
@@ -2929,7 +2937,11 @@ async def get_prospect(prospect_id: str, current_user: dict = Depends(verify_adm
 
 
 @api_router.post("/prospects", response_model=Prospect, status_code=201)
-async def create_prospect(prospect_data: ProspectCreate, current_user: dict = Depends(verify_admin)):
+async def create_prospect(prospect_data: ProspectCreate, current_user: dict = Depends(verify_token)):
+    # Check if user can edit prospects (National Admin or HA Admin only)
+    if not can_edit_prospect(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can create prospects")
+    
     prospect_dict = {k: v for k, v in prospect_data.model_dump().items() if v is not None}
     prospect = Prospect(**prospect_dict)
     doc = prospect.model_dump()
@@ -2947,7 +2959,11 @@ async def create_prospect(prospect_data: ProspectCreate, current_user: dict = De
     return prospect
 
 @api_router.put("/prospects/{prospect_id}", response_model=Prospect)
-async def update_prospect(prospect_id: str, prospect_data: ProspectUpdate, current_user: dict = Depends(verify_admin)):
+async def update_prospect(prospect_id: str, prospect_data: ProspectUpdate, current_user: dict = Depends(verify_token)):
+    # Check if user can edit prospects
+    if not can_edit_prospect(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can edit prospects")
+    
     prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
     if not prospect:
         raise HTTPException(status_code=404, detail="Prospect not found")
@@ -2976,9 +2992,13 @@ async def update_prospect(prospect_id: str, prospect_data: ProspectUpdate, curre
 async def delete_prospect(
     prospect_id: str,
     reason: str,
-    current_user: dict = Depends(verify_admin)
+    current_user: dict = Depends(verify_token)
 ):
     """Archive a prospect with deletion reason"""
+    # Check if user can edit prospects
+    if not can_edit_prospect(current_user):
+        raise HTTPException(status_code=403, detail="Only National Admin and HA Admin can archive prospects")
+    
     # Get prospect info before archiving
     prospect = await db.prospects.find_one({"id": prospect_id}, {"_id": 0})
     if not prospect:
