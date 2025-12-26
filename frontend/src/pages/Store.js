@@ -70,6 +70,7 @@ export default function Store({ userRole, userChapter }) {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [shippingAddress, setShippingAddress] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
+  const [canManageStore, setCanManageStore] = useState(false);
   
   // Dues state
   const [duesAmount, setDuesAmount] = useState(100);
@@ -97,6 +98,10 @@ export default function Store({ userRole, userChapter }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(response.data);
+      // Check if any product has can_manage flag (indicates user permission)
+      if (response.data.length > 0 && response.data[0].can_manage !== undefined) {
+        setCanManageStore(response.data[0].can_manage);
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products");
