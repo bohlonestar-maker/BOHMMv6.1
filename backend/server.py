@@ -661,6 +661,12 @@ def can_view_private_info(user: dict, data_chapter: str = None) -> bool:
     # Members cannot see private info
     return False
 
+def can_edit_fallen_member(user: dict) -> bool:
+    """Check if user can edit Wall of Honor entries - only National Admin"""
+    role = user.get("role", "")
+    chapter = user.get("chapter", "")
+    return role == "admin" and chapter == "National"
+
 def filter_member_for_user(member: dict, user: dict) -> dict:
     """Filter member data based on user permissions"""
     role = user.get("role", "")
