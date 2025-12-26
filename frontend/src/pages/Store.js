@@ -541,7 +541,7 @@ export default function Store({ userRole, userChapter }) {
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Add to Cart
                       </Button>
-                      {isAdmin && (
+                      {canManageStore && (
                         <>
                           <Button
                             size="icon"
