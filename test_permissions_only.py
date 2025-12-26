@@ -294,7 +294,7 @@ class PermissionTester:
             success, response = self.run_test(
                 "Cleanup - Delete Test Member",
                 "DELETE",
-                f"members/{member_id}",
+                f"members/{member_id}?reason=test_cleanup",
                 200
             )
         
