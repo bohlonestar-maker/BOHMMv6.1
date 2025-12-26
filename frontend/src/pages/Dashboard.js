@@ -1655,18 +1655,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                       {hasPermission('admin_actions') && (
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1.5">
-                            {/* Info/View Group */}
-                            <div className="flex gap-1 p-1 bg-slate-700/20 rounded border border-slate-600/30">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-950/50 h-8 w-8 p-0"
-                                onClick={() => handleOpenActions(member)}
-                                title="View/Add Actions"
-                              >
-                                <FileText className="w-4 h-4" />
-                              </Button>
-                              {member.can_edit && (
+                            {/* Info/View Group - only show if user can edit this member */}
+                            {member.can_edit && (
+                              <div className="flex gap-1 p-1 bg-slate-700/20 rounded border border-slate-600/30">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-950/50 h-8 w-8 p-0"
+                                  onClick={() => handleOpenActions(member)}
+                                  title="View/Add Actions"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                </Button>
                                 <Button
                                   size="sm"
                                   variant="ghost"
@@ -1677,8 +1677,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                                 >
                                   <Pencil className="w-4 h-4" />
                                 </Button>
-                              )}
-                            </div>
+                              </div>
+                            )}
                             
                             {/* Delete Action - only show if user can edit this member */}
                             {member.can_edit && (
