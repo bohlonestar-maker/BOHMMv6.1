@@ -7341,6 +7341,99 @@ async def pay_dues(amount: float, year: int, current_user: dict = Depends(verify
     
     return {"order_id": order["id"], "total": amount, "total_cents": int(amount * 100)}
 
+@api_router.post("/store/sync-square-catalog")
+async def sync_square_catalog(current_user: dict = Depends(verify_token)):
+    """Sync products from Square catalog to local store (admin only)"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if not square_client:
+        raise HTTPException(status_code=500, detail="Square client not configured")
+    
+    try:
+        # Fetch catalog items from Square
+        result = square_client.catalog.list_catalog(types="ITEM")
+        
+        if not result.is_success():
+            raise HTTPException(status_code=500, detail="Failed to fetch Square catalog")
+        
+        items = result.body.get("objects", [])
+        synced_count = 0
+        
+        for item in items:
+            item_data = item.get("item_data", {})
+            item_id = item.get("id")
+            name = item_data.get("name", "Unknown")
+            description = item_data.get("description", "")
+            
+            # Get variations and use the first/lowest price
+            variations = item_data.get("variations", [])
+            if not variations:
+                continue
+            
+            # Get all variation prices and find the lowest
+            prices = []
+            variation_names = []
+            for var in variations:
+                var_data = var.get("item_variation_data", {})
+                price_money = var_data.get("price_money", {})
+                price = price_money.get("amount", 0) / 100
+                if price > 0:
+                    prices.append(price)
+                    variation_names.append(f"{var_data.get('name', 'Default')}: ${price:.2f}")
+            
+            if not prices:
+                continue
+            
+            min_price = min(prices)
+            
+            # Build variation info for description
+            if len(variation_names) > 1:
+                variation_info = "\n\nSizes/Options: " + ", ".join(variation_names[:5])
+                if len(variation_names) > 5:
+                    variation_info += f" (+{len(variation_names)-5} more)"
+            else:
+                variation_info = ""
+            
+            # Check if product already exists
+            existing = await db.store_products.find_one({"square_catalog_id": item_id})
+            
+            if existing:
+                # Update existing product
+                await db.store_products.update_one(
+                    {"square_catalog_id": item_id},
+                    {"$set": {
+                        "name": name,
+                        "description": description[:500] + variation_info if description else variation_info,
+                        "price": min_price,
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+            else:
+                # Create new product
+                product = {
+                    "id": str(uuid.uuid4()),
+                    "name": name,
+                    "description": description[:500] + variation_info if description else variation_info,
+                    "price": min_price,
+                    "category": "merchandise",
+                    "square_catalog_id": item_id,
+                    "inventory_count": 100,  # Default inventory
+                    "is_active": True,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.store_products.insert_one(product)
+            
+            synced_count += 1
+        
+        return {"message": f"Successfully synced {synced_count} products from Square catalog", "count": synced_count}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Sync error: {str(e)}")
+
 # ==================== END STORE API ENDPOINTS ====================
 
 # Include the router in the main app
