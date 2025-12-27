@@ -5398,7 +5398,31 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
         })
         text_active_users.update(all_text_users)
         
-        # Find least active members (no voice AND no text activity)
+        # Get voice activity totals per user (for scoring)
+        voice_totals_pipeline = [
+            {"$match": {"date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}}},
+            {"$group": {
+                "_id": "$discord_user_id",
+                "total_duration": {"$sum": "$duration_seconds"},
+                "last_voice_date": {"$max": "$date"}
+            }}
+        ]
+        voice_totals = await db.discord_voice_activity.aggregate(voice_totals_pipeline).to_list(None)
+        voice_totals_map = {v["_id"]: {"duration": v["total_duration"], "last_date": v["last_voice_date"]} for v in voice_totals}
+        
+        # Get text activity totals per user (for scoring)
+        text_totals_pipeline = [
+            {"$match": {"date": {"$gte": start_date.isoformat(), "$lte": end_date.isoformat()}}},
+            {"$group": {
+                "_id": "$discord_user_id",
+                "total_messages": {"$sum": "$message_count"},
+                "last_text_date": {"$max": "$date"}
+            }}
+        ]
+        text_totals = await db.discord_text_activity.aggregate(text_totals_pipeline).to_list(None)
+        text_totals_map = {t["_id"]: {"messages": t["total_messages"], "last_date": t["last_text_date"]} for t in text_totals}
+        
+        # Find least active members - include ALL members, sorted by activity score
         # Filter out bots and excluded usernames
         EXCLUDED_USERNAMES = ['bot', 'tv', 'aoh', 'craig', 'testdummy', 'gearjammerbot', 'bohadmin', 'boh admin', 'bohtc']
         
@@ -5421,23 +5445,46 @@ async def get_discord_analytics(days: int = 90, current_user: dict = Depends(ver
                 continue
                 
             discord_id = member["discord_id"]
-            has_voice_activity = discord_id in voice_active_users
-            has_text_activity = discord_id in text_active_users
             
-            if not has_voice_activity and not has_text_activity:
-                least_active_members.append({
-                    "discord_id": discord_id,
-                    "username": member["username"],
-                    "display_name": member.get("display_name") or member["username"],
-                    "voice_activity": False,
-                    "text_activity": False,
-                    "activity_score": 0
-                })
+            # Get activity data
+            voice_data = voice_totals_map.get(discord_id, {"duration": 0, "last_date": None})
+            text_data = text_totals_map.get(discord_id, {"messages": 0, "last_date": None})
+            
+            voice_duration = voice_data["duration"]
+            text_messages = text_data["messages"]
+            
+            # Calculate activity score (voice duration in minutes + text messages * 2)
+            # Lower score = less active
+            activity_score = (voice_duration / 60) + (text_messages * 2)
+            
+            # Determine last activity date
+            last_voice = voice_data["last_date"]
+            last_text = text_data["last_date"]
+            
+            last_active = None
+            if last_voice and last_text:
+                last_active = max(last_voice, last_text)
+            elif last_voice:
+                last_active = last_voice
+            elif last_text:
+                last_active = last_text
+            
+            least_active_members.append({
+                "discord_id": discord_id,
+                "username": member["username"],
+                "display_name": member.get("display_name") or member["username"],
+                "voice_activity": voice_duration > 0,
+                "text_activity": text_messages > 0,
+                "voice_duration": voice_duration,
+                "text_messages": text_messages,
+                "activity_score": activity_score,
+                "last_active": last_active
+            })
         
-        # Sort least active by username for consistency
-        least_active_members.sort(key=lambda x: x["username"].lower())
+        # Sort by activity score (ascending) - least active first
+        least_active_members.sort(key=lambda x: (x["activity_score"], x["username"].lower()))
         
-        # Limit to top 15 least active to avoid overwhelming the UI
+        # Limit to top 15 least active
         least_active_members = least_active_members[:15]
         
         # Add usernames to most active stats
