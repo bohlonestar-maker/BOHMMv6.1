@@ -8808,6 +8808,197 @@ class BOHDirectoryAPITester:
         
         print(f"   🚫 Square checkout edge cases testing completed")
 
+    def test_store_admin_management(self):
+        """Test Store Admin Management and Auto-Sync features"""
+        print(f"\n🏪 Testing Store Admin Management and Auto-Sync Features...")
+        
+        # Test 1: Store Admin Status Endpoint
+        success, status_response = self.run_test(
+            "GET /api/store/admins/status - Store Admin Status",
+            "GET",
+            "store/admins/status",
+            200
+        )
+        
+        if success:
+            # Verify response includes required fields
+            required_fields = ['can_manage_store', 'is_primary_admin', 'is_delegated_admin', 'can_manage_admins']
+            missing_fields = [field for field in required_fields if field not in status_response]
+            
+            if not missing_fields:
+                self.log_test("Store Admin Status - Required Fields", True, f"All required fields present: {required_fields}")
+                
+                # For admin user (Prez title), should return is_primary_admin=true, can_manage_admins=true
+                if status_response.get('is_primary_admin') == True and status_response.get('can_manage_admins') == True:
+                    self.log_test("Store Admin Status - Primary Admin Rights", True, "Admin user has primary admin rights")
+                else:
+                    self.log_test("Store Admin Status - Primary Admin Rights", False, f"Expected primary admin rights, got: {status_response}")
+            else:
+                self.log_test("Store Admin Status - Required Fields", False, f"Missing fields: {missing_fields}")
+        
+        # Test 2: Store Admin List Endpoints
+        success, admins_list = self.run_test(
+            "GET /api/store/admins - List Delegated Store Admins",
+            "GET",
+            "store/admins",
+            200
+        )
+        
+        if success:
+            if isinstance(admins_list, list):
+                self.log_test("Store Admin List - Response Format", True, f"Returned list with {len(admins_list)} admins")
+            else:
+                self.log_test("Store Admin List - Response Format", False, "Expected list response")
+        
+        success, eligible_list = self.run_test(
+            "GET /api/store/admins/eligible - List Eligible National Users",
+            "GET",
+            "store/admins/eligible",
+            200
+        )
+        
+        if success:
+            if isinstance(eligible_list, list):
+                self.log_test("Store Admin Eligible List - Response Format", True, f"Returned list with {len(eligible_list)} eligible users")
+            else:
+                self.log_test("Store Admin Eligible List - Response Format", False, "Expected list response")
+        
+        # Test 3: Store Admin CRUD Tests
+        # Test adding a delegated admin (should fail if user doesn't exist)
+        success, add_response = self.run_test(
+            "POST /api/store/admins - Add Non-existent User (Should Fail)",
+            "POST",
+            "store/admins",
+            400,  # Should fail
+            data={"username": "nonexistentuser"}
+        )
+        
+        # Test 4: Permission Verification - Store Product Endpoints
+        print(f"\n   🔐 Testing Store Product Endpoints with New Permission System...")
+        
+        # Test store product endpoints still work
+        success, products = self.run_test(
+            "GET /api/store/products - Store Products with New Permission System",
+            "GET",
+            "store/products",
+            200
+        )
+        
+        if success and isinstance(products, list):
+            self.log_test("Store Products - New Permission System", True, f"Retrieved {len(products)} products")
+            
+            # If we have products, test other CRUD operations
+            if len(products) > 0:
+                product_id = products[0].get('id')
+                
+                # Test GET single product
+                if product_id:
+                    success, product = self.run_test(
+                        "GET /api/store/products/{id} - Single Product",
+                        "GET",
+                        f"store/products/{product_id}",
+                        200
+                    )
+                
+                # Test POST new product (should work for primary admin)
+                test_product = {
+                    "name": "Test Admin Product",
+                    "description": "Test product for admin management",
+                    "price": 25.00,
+                    "category": "merchandise",
+                    "inventory_count": 10
+                }
+                
+                success, created_product = self.run_test(
+                    "POST /api/store/products - Create Product with New Permission System",
+                    "POST",
+                    "store/products",
+                    201,
+                    data=test_product
+                )
+                
+                created_product_id = None
+                if success and 'id' in created_product:
+                    created_product_id = created_product['id']
+                    
+                    # Test PUT update product
+                    update_data = {
+                        "name": "Updated Test Admin Product",
+                        "price": 30.00
+                    }
+                    
+                    success, updated_product = self.run_test(
+                        "PUT /api/store/products/{id} - Update Product with New Permission System",
+                        "PUT",
+                        f"store/products/{created_product_id}",
+                        200,
+                        data=update_data
+                    )
+                    
+                    # Test DELETE product
+                    success, delete_response = self.run_test(
+                        "DELETE /api/store/products/{id} - Delete Product with New Permission System",
+                        "DELETE",
+                        f"store/products/{created_product_id}",
+                        200
+                    )
+        
+        # Test 5: Auto-Sync on Login Test
+        print(f"\n   🔄 Testing Auto-Sync on Login...")
+        
+        # Login should trigger background catalog sync - check backend logs
+        # We'll test this by doing a fresh login and checking if sync was triggered
+        original_token = self.token
+        self.token = None
+        
+        success, login_response = self.run_test(
+            "POST /api/auth/login - Auto-Sync Trigger Test",
+            "POST",
+            "auth/login",
+            200,
+            data={"username": "admin", "password": "admin123"}
+        )
+        
+        if success:
+            self.log_test("Auto-Sync on Login - Login Successful", True, "Login completed (auto-sync should be triggered in background)")
+            # Note: We can't directly test the background sync without checking logs
+            # The sync happens asynchronously and doesn't affect the login response
+        
+        self.token = original_token
+        
+        # Test 6: Square Webhook Signature Test
+        success, webhook_info = self.run_test(
+            "GET /api/webhooks/square/info - Webhook Signature Configuration",
+            "GET",
+            "webhooks/square/info",
+            200
+        )
+        
+        if success:
+            if 'signature_key_configured' in webhook_info:
+                if webhook_info['signature_key_configured'] == True:
+                    self.log_test("Square Webhook Signature - Configuration", True, "Signature key is configured")
+                else:
+                    self.log_test("Square Webhook Signature - Configuration", False, "Signature key is not configured")
+            else:
+                self.log_test("Square Webhook Signature - Response Format", False, "Missing signature_key_configured field")
+        
+        # Test 7: Store Sync Endpoint
+        success, sync_response = self.run_test(
+            "POST /api/store/sync-square-catalog - Manual Sync with New Permission System",
+            "POST",
+            "store/sync-square-catalog",
+            200
+        )
+        
+        if success:
+            if 'message' in sync_response:
+                self.log_test("Store Sync Endpoint - New Permission System", True, f"Sync response: {sync_response.get('message', 'No message')}")
+            else:
+                self.log_test("Store Sync Endpoint - Response Format", False, "Missing message field in sync response")
+        
+        print(f"   🏪 Store Admin Management and Auto-Sync testing completed")
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
