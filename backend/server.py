@@ -7132,9 +7132,9 @@ async def update_store_product(product_id: str, product_data: StoreProductUpdate
 
 @api_router.delete("/store/products/{product_id}")
 async def delete_store_product(product_id: str, current_user: dict = Depends(verify_token)):
-    """Delete a store product (National Prez, VP, SEC only)"""
-    if not can_manage_store(current_user):
-        raise HTTPException(status_code=403, detail="Only National Prez, VP, and SEC can delete store products")
+    """Delete a store product (Store admins only)"""
+    if not await can_manage_store_async(current_user):
+        raise HTTPException(status_code=403, detail="Only store admins can delete store products")
     
     result = await db.store_products.delete_one({"id": product_id})
     if result.deleted_count == 0:
