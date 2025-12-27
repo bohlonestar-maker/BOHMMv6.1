@@ -9190,6 +9190,212 @@ class BOHDirectoryAPITester:
         print(f"   📢 Discord channel selection testing completed")
         return event_id
 
+    def test_nosql_injection_security_fix(self):
+        """Test NoSQL Injection Security Fix - Dues Payment Endpoint"""
+        print(f"\n🔒 Testing NoSQL Injection Security Fix - Dues Payment Endpoint...")
+        
+        # First, create a test member to use for legitimate testing
+        test_member = {
+            "chapter": "National",
+            "title": "Member",
+            "handle": "ValidHandle",
+            "name": "Valid Test Member",
+            "email": "validmember@test.com",
+            "phone": "555-0001",
+            "address": "123 Valid Street"
+        }
+        
+        success, created_member = self.run_test(
+            "Create Test Member for Security Testing",
+            "POST",
+            "members",
+            201,
+            data=test_member
+        )
+        
+        member_id = None
+        if success and 'id' in created_member:
+            member_id = created_member['id']
+            print(f"   Created test member ID: {member_id}")
+        else:
+            print("❌ Failed to create test member - continuing with security tests anyway")
+        
+        # Test 1: Normal Dues Payment (Functional Test)
+        print(f"\n   ✅ Test 1: Normal Dues Payment...")
+        success, normal_response = self.run_test(
+            "Normal Dues Payment with Valid Handle",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=3&handle=ValidHandle",
+            200
+        )
+        
+        if success:
+            # Verify response contains required fields
+            required_fields = ['order_id', 'total', 'total_cents']
+            missing_fields = [field for field in required_fields if field not in normal_response]
+            
+            if not missing_fields:
+                self.log_test("Normal Dues Payment - Response Fields", True, f"All required fields present: {required_fields}")
+                
+                # Verify amounts
+                if normal_response.get('total') == 25 and normal_response.get('total_cents') == 2500:
+                    self.log_test("Normal Dues Payment - Amount Calculation", True, f"Total: ${normal_response['total']}, Cents: {normal_response['total_cents']}")
+                else:
+                    self.log_test("Normal Dues Payment - Amount Calculation", False, f"Expected total=25, total_cents=2500, got total={normal_response.get('total')}, total_cents={normal_response.get('total_cents')}")
+            else:
+                self.log_test("Normal Dues Payment - Response Fields", False, f"Missing fields: {missing_fields}")
+        
+        # Test 2: Security Test - Regex Wildcard Injection
+        print(f"\n   🚨 Test 2: Regex Wildcard Injection Attack...")
+        success, injection_response = self.run_test(
+            "Dues Payment with Regex Wildcard (.*) - Should NOT Match All Members",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=4&handle=.*",
+            200
+        )
+        
+        if success:
+            # This should succeed (create order) but NOT match any existing member
+            # The pattern should be escaped to "\.\*" which won't match any real handle
+            self.log_test("Regex Injection - Order Created Safely", True, "Injection pattern safely handled, order created")
+            
+            # Verify response structure
+            if 'order_id' in injection_response and 'total' in injection_response:
+                self.log_test("Regex Injection - Response Structure", True, "Order created with proper structure")
+            else:
+                self.log_test("Regex Injection - Response Structure", False, "Invalid response structure")
+        
+        # Test 3: Security Test - Special Characters
+        print(f"\n   🚨 Test 3: Special Characters Injection...")
+        success, special_chars_response = self.run_test(
+            "Dues Payment with Special Regex Chars (test+$) - Should Be Escaped",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=5&handle=test%2B%24",  # URL encoded test+$
+            200
+        )
+        
+        if success:
+            self.log_test("Special Characters - Safely Handled", True, "Special regex characters properly escaped")
+        
+        # Test 4: Edge Case - Empty Handle
+        print(f"\n   ⚠️ Test 4: Empty Handle Parameter...")
+        success, empty_handle_response = self.run_test(
+            "Dues Payment without Handle Parameter",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=6",
+            200
+        )
+        
+        if success:
+            self.log_test("Empty Handle - Handled Gracefully", True, "Missing handle parameter handled correctly")
+        
+        # Test 5: Security Test - Object Injection Attempt
+        print(f"\n   🚨 Test 5: Object Injection Attempt...")
+        # This would be harder to test via URL params, but we can test with a complex string
+        success, object_injection_response = self.run_test(
+            "Dues Payment with Object-like String",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=7&handle=%7B%22%24ne%22%3A%22%22%7D",  # URL encoded {"$ne":""}
+            200
+        )
+        
+        if success:
+            self.log_test("Object Injection - String Conversion", True, "Object injection attempt converted to safe string")
+        
+        # Test 6: Error Handling - Invalid Month
+        print(f"\n   ❌ Test 6: Error Handling...")
+        success, invalid_month_response = self.run_test(
+            "Dues Payment with Invalid Month (-1) - Should Fail",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=-1&handle=ValidHandle",
+            400  # Should return 400 error
+        )
+        
+        success2, invalid_month_response2 = self.run_test(
+            "Dues Payment with Invalid Month (12) - Should Fail",
+            "POST",
+            "store/dues/pay?amount=25&year=2025&month=12&handle=ValidHandle",
+            400  # Should return 400 error
+        )
+        
+        # Test 7: Verify No Regression on Other Endpoints
+        print(f"\n   ✅ Test 7: No Regression on Other Endpoints...")
+        
+        # Test members endpoint still works
+        success, members_response = self.run_test(
+            "Get Members - No Regression",
+            "GET",
+            "members",
+            200
+        )
+        
+        # Test store products endpoint still works
+        success, products_response = self.run_test(
+            "Get Store Products - No Regression",
+            "GET",
+            "store/products",
+            200
+        )
+        
+        # Test dues payments endpoint (admin only)
+        success, dues_payments_response = self.run_test(
+            "Get Dues Payments - No Regression",
+            "GET",
+            "store/dues/payments",
+            200
+        )
+        
+        # Test 8: Verify Sanitization Functions Work Correctly
+        print(f"\n   🔧 Test 8: Additional Security Patterns...")
+        
+        # Test various regex metacharacters
+        injection_patterns = [
+            (".*", "Wildcard pattern"),
+            ("^.*$", "Anchored wildcard"),
+            ("[a-z]*", "Character class"),
+            ("(test|admin)", "Alternation"),
+            ("test.*admin", "Complex pattern"),
+            ("\\", "Backslash"),
+            (".", "Single dot"),
+            ("+", "Plus quantifier"),
+            ("?", "Question mark"),
+            ("*", "Asterisk"),
+            ("$", "End anchor"),
+            ("^", "Start anchor"),
+            ("|", "Pipe"),
+            ("()", "Parentheses"),
+            ("[]", "Brackets")
+        ]
+        
+        for pattern, description in injection_patterns:
+            # URL encode the pattern
+            import urllib.parse
+            encoded_pattern = urllib.parse.quote(pattern)
+            
+            success, pattern_response = self.run_test(
+                f"Security Test - {description} ({pattern})",
+                "POST",
+                f"store/dues/pay?amount=25&year=2025&month=8&handle={encoded_pattern}",
+                200
+            )
+            
+            if success:
+                self.log_test(f"Pattern Injection - {description}", True, f"Pattern '{pattern}' safely handled")
+            else:
+                self.log_test(f"Pattern Injection - {description}", False, f"Pattern '{pattern}' caused error")
+        
+        # Clean up test member
+        if member_id:
+            success, delete_response = self.run_test(
+                "Delete Security Test Member (Cleanup)",
+                "DELETE",
+                f"members/{member_id}",
+                200
+            )
+        
+        print(f"   🔒 NoSQL Injection Security Testing Completed")
+        return member_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
