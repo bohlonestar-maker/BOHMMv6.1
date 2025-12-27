@@ -621,6 +621,13 @@ export default function Store({ userRole, userChapter }) {
               <span className="hidden sm:inline">My Orders</span>
               <span className="sm:hidden">Orders</span>
             </TabsTrigger>
+            {canManageStore && (
+              <TabsTrigger value="settings" className="data-[state=active]:bg-slate-700 text-xs sm:text-sm px-2 sm:px-4">
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Settings</span>
+                <span className="sm:hidden">⚙️</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Merchandise Tab */}
