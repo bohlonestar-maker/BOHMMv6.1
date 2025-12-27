@@ -8999,6 +8999,197 @@ class BOHDirectoryAPITester:
         
         print(f"   🏪 Store Admin Management and Auto-Sync testing completed")
 
+    def test_discord_channel_selection(self):
+        """Test Discord channel selection feature for Event Calendar"""
+        print(f"\n📢 Testing Discord Channel Selection Feature...")
+        
+        # Test 1: Get Discord Channels Endpoint
+        success, channels_response = self.run_test(
+            "GET /api/events/discord-channels",
+            "GET",
+            "events/discord-channels",
+            200
+        )
+        
+        if success:
+            # Verify response structure
+            required_fields = ['channels', 'can_schedule']
+            missing_fields = [field for field in required_fields if field not in channels_response]
+            
+            if not missing_fields:
+                self.log_test("Discord Channels - Response Structure", True, f"All required fields present: {required_fields}")
+                
+                # Check if user can schedule (should be true for National Prez)
+                can_schedule = channels_response.get('can_schedule', False)
+                if can_schedule:
+                    self.log_test("Discord Channels - Can Schedule Permission", True, "User has permission to schedule events")
+                else:
+                    self.log_test("Discord Channels - Can Schedule Permission", False, "User does not have permission to schedule events")
+                
+                # Verify channels list
+                channels = channels_response.get('channels', [])
+                if isinstance(channels, list) and len(channels) > 0:
+                    self.log_test("Discord Channels - Channels List", True, f"Found {len(channels)} available channels")
+                    
+                    # Check channel structure
+                    for channel in channels:
+                        if isinstance(channel, dict) and 'id' in channel and 'name' in channel:
+                            self.log_test(f"Channel Structure - {channel.get('name')}", True, f"ID: {channel.get('id')}, Available: {channel.get('available', False)}")
+                        else:
+                            self.log_test(f"Channel Structure - Invalid", False, f"Channel missing required fields: {channel}")
+                else:
+                    self.log_test("Discord Channels - Channels List", False, "No channels found or invalid format")
+            else:
+                self.log_test("Discord Channels - Response Structure", False, f"Missing fields: {missing_fields}")
+        
+        # Test 2: Create Event with Discord Channel
+        test_event_data = {
+            "title": "Test Event with Discord Channel",
+            "description": "Testing Discord channel selection",
+            "date": "2025-12-31",
+            "time": "18:00",
+            "location": "Test Location",
+            "chapter": None,
+            "title_filter": None,
+            "discord_notifications_enabled": True,
+            "discord_channel": "officers"
+        }
+        
+        success, created_event = self.run_test(
+            "Create Event with Discord Channel",
+            "POST",
+            "events",
+            201,
+            data=test_event_data
+        )
+        
+        event_id = None
+        if success and 'id' in created_event:
+            event_id = created_event['id']
+            print(f"   Created event ID: {event_id}")
+            
+            # Verify discord_channel was saved
+            if created_event.get('discord_channel') == test_event_data['discord_channel']:
+                self.log_test("Event Creation - Discord Channel Saved", True, f"Channel: {created_event.get('discord_channel')}")
+            else:
+                self.log_test("Event Creation - Discord Channel Saved", False, f"Expected: {test_event_data['discord_channel']}, Got: {created_event.get('discord_channel')}")
+            
+            # Verify discord_notifications_enabled was saved
+            if created_event.get('discord_notifications_enabled') == test_event_data['discord_notifications_enabled']:
+                self.log_test("Event Creation - Discord Notifications Enabled", True, f"Enabled: {created_event.get('discord_notifications_enabled')}")
+            else:
+                self.log_test("Event Creation - Discord Notifications Enabled", False, f"Expected: {test_event_data['discord_notifications_enabled']}, Got: {created_event.get('discord_notifications_enabled')}")
+        
+        # Test 3: Update Event with Different Discord Channel
+        if event_id:
+            update_data = {
+                "discord_channel": "national-board"
+            }
+            
+            success, updated_event = self.run_test(
+                "Update Event Discord Channel",
+                "PUT",
+                f"events/{event_id}",
+                200,
+                data=update_data
+            )
+            
+            if success:
+                if updated_event.get('discord_channel') == update_data['discord_channel']:
+                    self.log_test("Event Update - Discord Channel Updated", True, f"New channel: {updated_event.get('discord_channel')}")
+                else:
+                    self.log_test("Event Update - Discord Channel Updated", False, f"Expected: {update_data['discord_channel']}, Got: {updated_event.get('discord_channel')}")
+        
+        # Test 4: Verify Event Storage with Discord Channel
+        success, all_events = self.run_test(
+            "Get All Events - Verify Discord Channel Storage",
+            "GET",
+            "events",
+            200
+        )
+        
+        if success and isinstance(all_events, list):
+            # Find our test event
+            test_event = None
+            for event in all_events:
+                if event.get('id') == event_id:
+                    test_event = event
+                    break
+            
+            if test_event:
+                if test_event.get('discord_channel') == "national-board":
+                    self.log_test("Event Storage - Discord Channel Persisted", True, f"Channel correctly stored: {test_event.get('discord_channel')}")
+                else:
+                    self.log_test("Event Storage - Discord Channel Persisted", False, f"Channel not correctly stored: {test_event.get('discord_channel')}")
+            else:
+                self.log_test("Event Storage - Find Test Event", False, "Test event not found in events list")
+        
+        # Test 5: Manual Discord Notification
+        if event_id:
+            success, notification_response = self.run_test(
+                "Send Manual Discord Notification",
+                "POST",
+                f"events/{event_id}/send-discord-notification",
+                200
+            )
+            
+            if success:
+                if 'message' in notification_response:
+                    self.log_test("Manual Discord Notification", True, f"Response: {notification_response.get('message')}")
+                else:
+                    self.log_test("Manual Discord Notification", False, "No message in response")
+        
+        # Test 6: Test with Different Discord Channels
+        test_channels = ["member-chat", "officers", "national-board"]
+        
+        for channel in test_channels:
+            channel_event_data = {
+                "title": f"Test Event for {channel}",
+                "description": f"Testing {channel} channel",
+                "date": "2025-12-31",
+                "time": "19:00",
+                "location": "Test Location",
+                "discord_notifications_enabled": True,
+                "discord_channel": channel
+            }
+            
+            success, channel_event = self.run_test(
+                f"Create Event for {channel} Channel",
+                "POST",
+                "events",
+                201,
+                data=channel_event_data
+            )
+            
+            if success and 'id' in channel_event:
+                channel_event_id = channel_event['id']
+                
+                # Verify channel was saved correctly
+                if channel_event.get('discord_channel') == channel:
+                    self.log_test(f"Channel Test - {channel}", True, f"Channel correctly saved: {channel}")
+                else:
+                    self.log_test(f"Channel Test - {channel}", False, f"Expected: {channel}, Got: {channel_event.get('discord_channel')}")
+                
+                # Clean up - delete test event
+                self.run_test(
+                    f"Delete Test Event for {channel}",
+                    "DELETE",
+                    f"events/{channel_event_id}",
+                    200
+                )
+        
+        # Clean up main test event
+        if event_id:
+            success, delete_response = self.run_test(
+                "Delete Test Event (Cleanup)",
+                "DELETE",
+                f"events/{event_id}",
+                200
+            )
+        
+        print(f"   📢 Discord channel selection testing completed")
+        return event_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
