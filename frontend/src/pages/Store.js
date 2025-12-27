@@ -387,6 +387,7 @@ export default function Store({ userRole, userChapter }) {
         member_price: productForm.member_price ? parseFloat(productForm.member_price) : null,
         inventory_count: parseInt(productForm.inventory_count),
         show_in_supporter_store: productForm.show_in_supporter_store,
+        allows_customization: productForm.allows_customization,
       };
       
       if (editingProduct) {
@@ -414,6 +415,7 @@ export default function Store({ userRole, userChapter }) {
         inventory_count: 0,
         member_price: "",
         show_in_supporter_store: true,
+        allows_customization: false,
       });
       await fetchProducts();
     } catch (error) {
