@@ -698,48 +698,62 @@ export default function Store({ userRole, userChapter }) {
               <CardHeader className="p-3 sm:p-4">
                 <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
                   <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Pay Annual Dues
+                  Pay Monthly Dues
                 </CardTitle>
                 <CardDescription className="text-slate-400 text-xs sm:text-sm">
-                  Pay your membership dues securely online
+                  Pay your monthly membership dues ($30.00/month)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 pt-0">
-                <div>
-                  <Label className="text-slate-200 text-xs sm:text-sm">Year</Label>
-                  <Select value={duesYear.toString()} onValueChange={(v) => setDuesYear(parseInt(v))}>
-                    <SelectTrigger className="bg-slate-700 border-slate-600 text-white text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      {[2024, 2025, 2026].map((year) => (
-                        <SelectItem key={year} value={year.toString()} className="text-white">
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-slate-200 text-xs sm:text-sm">Year</Label>
+                    <Select value={duesYear.toString()} onValueChange={(v) => setDuesYear(parseInt(v))}>
+                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {[2024, 2025, 2026].map((year) => (
+                          <SelectItem key={year} value={year.toString()} className="text-white">
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-slate-200 text-xs sm:text-sm">Month</Label>
+                    <Select value={duesMonth.toString()} onValueChange={(v) => setDuesMonth(parseInt(v))}>
+                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {monthNames.map((month, idx) => (
+                          <SelectItem key={idx} value={idx.toString()} className="text-white">
+                            {month}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-slate-200 text-xs sm:text-sm">Amount ($)</Label>
-                  <Input
-                    type="number"
-                    value={duesAmount}
-                    onChange={(e) => setDuesAmount(parseFloat(e.target.value) || 0)}
-                    className="bg-slate-700 border-slate-600 text-white text-sm"
-                    min="0"
-                    step="0.01"
-                  />
+                <div className="bg-slate-700/50 rounded-lg p-3 text-center">
+                  <div className="text-slate-400 text-xs sm:text-sm">Amount Due</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-green-400">
+                    ${MONTHLY_DUES_AMOUNT.toFixed(2)}
+                  </div>
+                  <div className="text-slate-500 text-xs mt-1">
+                    for {monthNames[duesMonth]} {duesYear}
+                  </div>
                 </div>
               </CardContent>
               <CardFooter className="p-3 sm:p-4 pt-0">
                 <Button
                   onClick={createDuesOrder}
                   className="w-full bg-green-600 hover:bg-green-700 text-sm"
-                  disabled={duesAmount <= 0}
                 >
                   <CreditCardIcon className="w-4 h-4 mr-2" />
-                  Pay ${duesAmount.toFixed(2)}
+                  Pay ${MONTHLY_DUES_AMOUNT.toFixed(2)} for {monthNames[duesMonth]}
                 </Button>
               </CardFooter>
             </Card>
