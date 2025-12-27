@@ -14,7 +14,7 @@ except:
 
 sys.stderr.write("  [INIT] Importing FastAPI...\n")
 sys.stderr.flush()
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Response, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Response, UploadFile, File, Request
 sys.stderr.write("  [INIT] Importing security...\n")
 sys.stderr.flush()
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
