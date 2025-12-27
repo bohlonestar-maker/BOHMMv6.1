@@ -14,7 +14,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class EventCalendarTester:
-    def __init__(self, base_url="https://club-ecommerce.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://moto-store-admin.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         
