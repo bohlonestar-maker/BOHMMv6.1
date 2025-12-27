@@ -385,6 +385,7 @@ export default function Store({ userRole, userChapter }) {
         price: parseFloat(productForm.price),
         member_price: productForm.member_price ? parseFloat(productForm.member_price) : null,
         inventory_count: parseInt(productForm.inventory_count),
+        show_in_supporter_store: productForm.show_in_supporter_store,
       };
       
       if (editingProduct) {
@@ -411,6 +412,7 @@ export default function Store({ userRole, userChapter }) {
         image_url: "",
         inventory_count: 0,
         member_price: "",
+        show_in_supporter_store: true,
       });
       await fetchProducts();
     } catch (error) {
