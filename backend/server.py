@@ -7949,7 +7949,9 @@ async def pay_dues(amount: float, year: int, month: int = 0, handle: str = None,
     # Find the member record for this user - try handle first, then username/email
     member = None
     if handle:
-        member = await db.members.find_one({"handle": {"$regex": f"^{handle}$", "$options": "i"}})
+        # Sanitize handle for regex to prevent NoSQL injection
+        safe_handle = sanitize_for_regex(sanitize_string_input(handle))
+        member = await db.members.find_one({"handle": {"$regex": f"^{safe_handle}$", "$options": "i"}})
     
     if not member:
         member = await db.members.find_one({"$or": [
