@@ -6390,17 +6390,57 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import timedelta
 
+# Discord channel webhook configuration
 DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
 
-async def send_discord_notification(event: dict, hours_before: int):
+# Discord channel webhooks mapping
+DISCORD_CHANNEL_WEBHOOKS = {
+    "member-chat": os.environ.get('DISCORD_WEBHOOK_MEMBER_CHAT'),
+    "officers": os.environ.get('DISCORD_WEBHOOK_OFFICERS'),
+    "hapm": os.environ.get('DISCORD_WEBHOOK_HAPM'),
+    "ha-coc": os.environ.get('DISCORD_WEBHOOK_HA_COC'),
+    "ad-coc": os.environ.get('DISCORD_WEBHOOK_AD_COC'),
+    "hs-coc": os.environ.get('DISCORD_WEBHOOK_HS_COC'),
+    "ncd-coc": os.environ.get('DISCORD_WEBHOOK_NCD_COC'),
+    "national-board": os.environ.get('DISCORD_WEBHOOK_NATIONAL_BOARD'),
+    "national-aoh-boh": os.environ.get('DISCORD_WEBHOOK_NATIONAL_AOH_BOH'),
+    "national-budget-cmte": os.environ.get('DISCORD_WEBHOOK_NATIONAL_BUDGET'),
+}
+
+# Channels available per chapter
+# Officers with titles: Prez, VP, S@A, ENF, SEC, T, CD can schedule events
+DISCORD_CHANNELS_BY_CHAPTER = {
+    "National": list(DISCORD_CHANNEL_WEBHOOKS.keys()),  # National can post anywhere
+    "HA": ["member-chat", "hapm", "ha-coc", "officers"],
+    "AD": ["member-chat", "ad-coc", "officers"],
+    "HS": ["member-chat", "hs-coc", "officers"],
+}
+
+# Titles that can schedule events
+EVENT_SCHEDULER_TITLES = ["Prez", "VP", "S@A", "ENF", "SEC", "T", "CD"]
+
+def get_available_discord_channels(chapter: str) -> list:
+    """Get list of Discord channels available for a chapter"""
+    return DISCORD_CHANNELS_BY_CHAPTER.get(chapter, ["member-chat"])
+
+def get_discord_webhook_url(channel: str) -> str:
+    """Get webhook URL for a specific channel"""
+    return DISCORD_CHANNEL_WEBHOOKS.get(channel, DISCORD_WEBHOOK_URL)
+
+async def send_discord_notification(event: dict, hours_before: int, channel: str = None):
     """Send Discord notification for an event
     
     Args:
         event: Event dictionary
         hours_before: 24, 3, or 0 (0 = send now/manual trigger)
+        channel: Discord channel to send to (defaults to event's discord_channel or member-chat)
     """
-    if not DISCORD_WEBHOOK_URL:
-        print("⚠️  Discord webhook URL not configured")
+    # Get the channel from event or parameter
+    target_channel = channel or event.get('discord_channel', 'member-chat')
+    webhook_url = get_discord_webhook_url(target_channel)
+    
+    if not webhook_url:
+        print(f"⚠️  Discord webhook URL not configured for channel: {target_channel}")
         return False
     
     try:
