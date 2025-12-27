@@ -912,6 +912,156 @@ export default function Store({ userRole, userChapter }) {
               </div>
             )}
           </TabsContent>
+
+          {/* Settings Tab (Admin Only) */}
+          {canManageStore && (
+            <TabsContent value="settings">
+              <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+                {/* Webhook Settings Card */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                      <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Square Webhook Settings
+                    </CardTitle>
+                    <CardDescription className="text-slate-400 text-xs sm:text-sm">
+                      Configure webhooks to automatically update order statuses when payments are completed
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0 space-y-4">
+                    {webhookInfo ? (
+                      <>
+                        {/* Webhook URL */}
+                        <div>
+                          <Label className="text-slate-200 text-xs sm:text-sm font-medium">Webhook URL</Label>
+                          <div className="mt-1 flex items-center gap-2">
+                            <div className="flex-1 bg-slate-700 border border-slate-600 rounded-md p-2 sm:p-3 font-mono text-xs sm:text-sm text-green-400 break-all">
+                              {webhookInfo.webhook_url}
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => copyToClipboard(webhookInfo.webhook_url, 'url')}
+                              className="border-slate-600 shrink-0"
+                            >
+                              {copiedField === 'url' ? (
+                                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Events to Subscribe */}
+                        <div>
+                          <Label className="text-slate-200 text-xs sm:text-sm font-medium">Events to Subscribe</Label>
+                          <div className="mt-1 flex flex-wrap gap-2">
+                            {webhookInfo.events_to_subscribe.map((event) => (
+                              <Badge 
+                                key={event} 
+                                className="bg-blue-600 text-white text-xs cursor-pointer hover:bg-blue-700"
+                                onClick={() => copyToClipboard(event, event)}
+                              >
+                                {copiedField === event ? '✓ Copied' : event}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Signature Key Status */}
+                        <div>
+                          <Label className="text-slate-200 text-xs sm:text-sm font-medium">Signature Verification</Label>
+                          <div className="mt-1">
+                            {webhookInfo.signature_key_configured ? (
+                              <Badge className="bg-green-600 text-white">
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                Configured
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-yellow-600 text-white">
+                                ⚠️ Not Configured (Optional)
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500 mt-1">
+                            Add SQUARE_WEBHOOK_SIGNATURE_KEY to .env for signature verification
+                          </p>
+                        </div>
+
+                        {/* Setup Instructions */}
+                        <div className="border-t border-slate-700 pt-4">
+                          <Label className="text-slate-200 text-xs sm:text-sm font-medium mb-2 block">Setup Instructions</Label>
+                          <ol className="space-y-2 text-xs sm:text-sm text-slate-300">
+                            {Object.entries(webhookInfo.instructions).map(([key, value]) => (
+                              <li key={key} className="flex gap-2">
+                                <span className="text-blue-400 font-medium shrink-0">
+                                  {key.replace('step', '')}. 
+                                </span>
+                                <span>{value}</span>
+                              </li>
+                            ))}
+                          </ol>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 border-slate-600"
+                            onClick={() => window.open('https://developer.squareup.com/apps', '_blank')}
+                          >
+                            <ExternalLink className="w-3 h-3 mr-2" />
+                            Open Square Dashboard
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-slate-400">
+                        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
+                        Loading webhook settings...
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Store Sync Card */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                      <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Square Catalog Sync
+                    </CardTitle>
+                    <CardDescription className="text-slate-400 text-xs sm:text-sm">
+                      Sync products and inventory from your Square catalog
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <Button
+                      onClick={async () => {
+                        try {
+                          const token = localStorage.getItem("token");
+                          const response = await axios.post(
+                            `${API_URL}/api/store/sync-square-catalog`,
+                            null,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          toast.success(`Synced ${response.data.count} products from Square`);
+                          await fetchProducts();
+                        } catch (error) {
+                          toast.error(error.response?.data?.detail || "Sync failed");
+                        }
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Sync Products from Square
+                    </Button>
+                    <p className="text-xs text-slate-500 mt-2">
+                      This will update products, prices, and inventory from your Square catalog
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
