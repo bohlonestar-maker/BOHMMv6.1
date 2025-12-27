@@ -1100,6 +1100,28 @@ export default function Store({ userRole, userChapter }) {
                 placeholder="https://example.com/image.jpg"
               />
             </div>
+            {/* Supporter Store Toggle */}
+            <div className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+              <div>
+                <Label className="text-slate-200 font-medium">Show in Supporter Store</Label>
+                <p className="text-xs text-slate-400 mt-1">
+                  Allow non-members to purchase this item
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProductForm({ ...productForm, show_in_supporter_store: !productForm.show_in_supporter_store })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  productForm.show_in_supporter_store ? 'bg-green-600' : 'bg-slate-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    productForm.show_in_supporter_store ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddProductOpen(false)} className="border-slate-600">
