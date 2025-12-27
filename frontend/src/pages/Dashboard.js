@@ -774,10 +774,12 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   <DropdownMenuSeparator className="bg-slate-700" />
                   
                   {/* Activity Section */}
-                  <DropdownMenuItem onClick={() => navigate("/discord-analytics")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
-                    <Headphones className="w-4 h-4 mr-2" />
-                    Discord Analytics
-                  </DropdownMenuItem>
+                  {userRole === 'admin' && (
+                    <DropdownMenuItem onClick={() => navigate("/discord-analytics")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                      <Headphones className="w-4 h-4 mr-2" />
+                      Discord Analytics
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => navigate("/events")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
                     <Calendar className="w-4 h-4 mr-2" />
                     Events
