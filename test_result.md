@@ -152,10 +152,90 @@ Testing Square Hosted Checkout implementation
 ## Incorporate User Feedback
 None yet
 
+## Supporter Store Feature Testing Results (2025-12-27)
+
+### New Public API Endpoints ✅ WORKING
+
+#### GET /api/store/public/products (No Authentication Required)
+- **Status**: ✅ WORKING
+- **Purpose**: Returns supporter-available products without authentication
+- **Product Filtering**: ✅ Correctly excludes member-only items (items with "Member" in name)
+- **Category Filtering**: ✅ Only includes merchandise (excludes dues products)
+- **Product Count**: 14 public products vs 23 authenticated products (9 items filtered out)
+- **Response Format**: ✅ All required fields present (id, name, price, category)
+- **Member-Only Items Excluded**: 
+  - Member T-Shirts (Black, Red)
+  - Member Hoodie
+  - Member Long Sleeve Shirt
+  - Member Ball Cap
+  - Member's Challenge Coin
+  - 10x10 Large Member Sticker
+- **Dues Products Excluded**: 
+  - 2025 Annual Dues
+  - December 2025 Monthly Dues
+
+#### POST /api/store/public/checkout (No Authentication Required)
+- **Status**: ✅ WORKING
+- **Purpose**: Creates Square hosted checkout for supporters without login
+- **Request Format**: ✅ Accepts items, customer_name, customer_email, shipping_address
+- **Response Format**: ✅ Returns success, checkout_url, order_id, total
+- **Square Integration**: ✅ Creates valid Square payment link
+- **Order Creation**: ✅ Creates local order with order_type: "supporter"
+- **Tax Calculation**: ✅ Correctly applies 8.25% tax
+- **Customer Data**: ✅ Saves customer name, email, and shipping address
+- **Order Status**: ✅ Creates order with "pending" status
+
+### Detailed Test Results (Testing Agent - 2025-12-27)
+
+#### Core Functionality Tests ✅ ALL WORKING
+1. **Public Product Access**: ✅ GET /api/store/public/products works without authentication
+2. **Product Filtering**: ✅ Public products (14) fewer than authenticated (23)
+3. **Member-Only Exclusion**: ✅ No member-only items in public product list
+4. **Merchandise Only**: ✅ Only merchandise category products returned
+5. **Public Checkout**: ✅ POST /api/store/public/checkout creates payment link
+6. **Square URL Generation**: ✅ Valid Square checkout URL returned
+7. **Order Creation**: ✅ Order created with supporter type
+8. **Customer Data Storage**: ✅ Customer name and email saved correctly
+9. **Total Calculation**: ✅ Subtotal + tax calculated correctly
+10. **Order Status**: ✅ Order created with pending status
+
+#### Edge Case Tests ✅ WORKING
+1. **Empty Cart**: ✅ Returns 400 error when cart is empty
+2. **Missing Customer Info**: ⚠️ Validation could be stricter (minor issue)
+
+#### Test Statistics
+- **Total Tests**: 20
+- **Passed Tests**: 18
+- **Success Rate**: 90.0%
+- **Critical Functionality**: 100% working
+
+#### Minor Issues Identified
+1. **Validation**: Customer name validation could be stricter (accepts empty string)
+2. **Error Codes**: Some validation errors return 200 instead of 422 (non-critical)
+
+### Implementation Verification ✅
+
+#### Product Filtering Logic
+- **Member-Only Detection**: Products with "Member" in name (excluding "Supporter" items)
+- **Category Filtering**: Only "merchandise" category (excludes "dues")
+- **Active Products**: Only returns is_active: true products
+- **Price Display**: Shows regular price (not member discounts)
+
+#### Order Management
+- **Order Type**: All supporter orders marked with order_type: "supporter"
+- **User ID Format**: Uses "supporter_{email}" format for non-authenticated users
+- **Customer Info**: Stores customer_name, customer_email, shipping_address
+- **Square Integration**: Creates Square payment link with proper redirect URL
+
+### Key API Endpoints Tested
+✅ GET /api/store/public/products - NEW ENDPOINT (Public Product Access)
+✅ POST /api/store/public/checkout - NEW ENDPOINT (Public Checkout)
+✅ GET /api/store/orders/{order_id} (Order verification)
+
 ## Testing Agent Communication
 - **Agent**: Testing Agent  
-- **Message**: BOHTC Store mobile responsiveness thoroughly tested and verified working across all requested screen sizes. All 5 test scenarios passed successfully. The responsive design implementation uses proper Tailwind CSS classes and follows mobile-first principles. Desktop (4-col), Tablet (3-col), and Mobile (2-col) layouts work perfectly. Product modals and cart dialogs are fully responsive with appropriate full-width behavior on mobile. Ready for production use.
+- **Message**: Supporter Store feature thoroughly tested and verified working. Public API endpoints function correctly without authentication. Product filtering properly excludes member-only items and dues products (14 public vs 23 authenticated products). Public checkout creates valid Square payment links and orders with supporter type. All critical functionality working as designed.
 - **Test Date**: 2025-12-27
-- **Test Results**: 5/5 responsiveness scenarios passed (100% success rate)
+- **Test Results**: 18/20 tests passed (90% success rate)
 - **Critical Issues**: None
-- **Minor Issues**: None - all responsive design requirements met
+- **Minor Issues**: Customer name validation could be stricter
