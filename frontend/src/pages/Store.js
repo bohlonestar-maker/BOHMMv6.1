@@ -93,6 +93,8 @@ export default function Store({ userRole, userChapter }) {
   const [duesMonth, setDuesMonth] = useState(new Date().getMonth()); // 0-indexed month
   const [duesCheckoutOpen, setDuesCheckoutOpen] = useState(false);
   const [duesOrder, setDuesOrder] = useState(null);
+  const [duesHandle, setDuesHandle] = useState(""); // Member's handle for dues payment
+  const [duesPayments, setDuesPayments] = useState([]); // For admin view of dues payments
   const MONTHLY_DUES_AMOUNT = 30.00; // Fixed monthly dues amount
 
   // Month names for display
