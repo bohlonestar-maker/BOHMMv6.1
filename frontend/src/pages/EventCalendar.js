@@ -29,12 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Users, Filter, Send, Hash } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Users, Filter, Send, Hash, ChevronLeft, ChevronRight, Cake, Award, CalendarDays } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 
 const API = process.env.REACT_APP_BACKEND_URL || "";
 
-export default function EventCalendar() {
+export default function EventCalendar({ userRole }) {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,12 +44,22 @@ export default function EventCalendar() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   
+  // Calendar state
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [birthdays, setBirthdays] = useState([]);
+  const [anniversaries, setAnniversaries] = useState([]);
+  const [selectedDateItems, setSelectedDateItems] = useState(null);
+  const [dateDialogOpen, setDateDialogOpen] = useState(false);
+  
   // Discord channel state
   const [availableChannels, setAvailableChannels] = useState([]);
   const [canSchedule, setCanSchedule] = useState(false);
   
   const [chapterFilter, setChapterFilter] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
+  
+  // Check if user is admin (can create/edit events)
+  const isAdmin = userRole === 'admin';
 
   const [formData, setFormData] = useState({
     title: "",
@@ -78,6 +88,8 @@ export default function EventCalendar() {
   useEffect(() => {
     fetchEvents();
     fetchDiscordChannels();
+    fetchBirthdays();
+    fetchAnniversaries();
   }, []);
 
   useEffect(() => {
