@@ -8203,6 +8203,35 @@ async def update_member_dues_from_webhook(dues_info: dict):
     except Exception as e:
         logger.error(f"Error updating member dues from webhook: {str(e)}")
 
+@api_router.get("/webhooks/square/info")
+async def get_square_webhook_info(current_user: dict = Depends(verify_token)):
+    """Get Square webhook configuration info (admin only)"""
+    # Check if user can manage store
+    if not can_manage_store(current_user):
+        raise HTTPException(status_code=403, detail="Only National Prez, VP, or SEC can view webhook info")
+    
+    webhook_url = f"{os.environ.get('REACT_APP_BACKEND_URL', '')}/api/webhooks/square"
+    signature_configured = bool(SQUARE_WEBHOOK_SIGNATURE_KEY)
+    
+    return {
+        "webhook_url": webhook_url,
+        "signature_key_configured": signature_configured,
+        "events_to_subscribe": [
+            "payment.completed",
+            "payment.updated",
+            "order.updated"
+        ],
+        "instructions": {
+            "step1": "Go to Square Developer Dashboard (https://developer.squareup.com/apps)",
+            "step2": "Select your application",
+            "step3": "Click on 'Webhooks' in the left menu",
+            "step4": f"Add a new webhook subscription with URL: {webhook_url}",
+            "step5": "Subscribe to events: payment.completed, payment.updated, order.updated",
+            "step6": "Copy the Signature Key and add it to your .env as SQUARE_WEBHOOK_SIGNATURE_KEY",
+            "step7": "Save and test the webhook"
+        }
+    }
+
 # ==================== END STORE API ENDPOINTS ====================
 
 # Include the router in the main app
