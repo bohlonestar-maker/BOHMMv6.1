@@ -733,119 +733,23 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
       <nav className="bg-slate-800 border-b border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+          <div className="flex justify-between items-center">
             <h1 className="text-xl sm:text-2xl font-bold text-white">Brothers of the Highway</h1>
-            <div className="flex items-center justify-between gap-2 flex-wrap w-full sm:w-auto">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs sm:text-sm text-slate-300">
-                  {localStorage.getItem("username")} ({userRole}{userChapter ? ` - ${userChapter}` : ''})
-                </span>
-                {userRole === 'admin' && (
-                  <>
-                    {canAccessProspects && (
-                      <Button
-                        onClick={() => navigate("/prospects")}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                      >
-                        <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Prospects</span>
-                        <span className="sm:hidden">Prospects</span>
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => navigate("/users")}
-                      variant="outline"
-                      size="sm"
-                      data-testid="user-management-button"
-                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                    >
-                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Admin</span>
-                      <span className="sm:hidden">Admin</span>
-                    </Button>
-                    <Button
-                      onClick={() => navigate("/update-log")}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                    >
-                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Updates</span>
-                    </Button>
-                  </>
-                )}
-                {localStorage.getItem("username") === "Lonestar" && (
-                  <Button
-                    onClick={() => navigate("/message-monitor")}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                  >
-                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Monitor</span>
-                  </Button>
-                )}
-                <Button
-                  onClick={() => navigate("/events")}
-                  variant="outline"
-                  size="sm"
-                  className="relative flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                >
-                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Events</span>
-                  {upcomingEventsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {upcomingEventsCount > 99 ? '99+' : upcomingEventsCount}
-                    </span>
-                  )}
-                </Button>
-                <Button
-                  onClick={() => navigate("/store")}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-green-900/30 text-green-400 border-green-600/50 hover:bg-green-900/50"
-                >
-                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Store</span>
-                  <span className="sm:hidden">Store</span>
-                </Button>
-                <Button
-                  onClick={() => navigate("/wall-of-honor")}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-amber-900/30 text-amber-400 border-amber-600/50 hover:bg-amber-900/50"
-                >
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Wall of Honor</span>
-                  <span className="sm:hidden">Honor</span>
-                </Button>
-                <Button
-                  onClick={() => navigate("/messages")}
-                  variant="outline"
-                  size="sm"
-                  className="relative flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
-                >
-                  <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Messages</span>
-                  {unreadPrivateCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadPrivateCount > 99 ? '99+' : unreadPrivateCount}
-                    </span>
-                  )}
-                </Button>
-              </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs sm:text-sm text-slate-300">
+                {localStorage.getItem("username")} ({userRole}{userChapter ? ` - ${userChapter}` : ''})
+              </span>
               <Button
                 onClick={onLogout}
                 variant="outline"
                 size="sm"
                 data-testid="logout-button"
-                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+                className="flex items-center gap-2 text-xs sm:text-sm bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
               >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                <LogOut className="w-4 h-4" />
                 Logout
               </Button>
             </div>
@@ -853,6 +757,133 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
         </div>
       </nav>
 
+      {/* Navigation Grid */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+        <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
+          {/* Row 1: People Management */}
+          <Button
+            onClick={() => navigate("/members")}
+            variant="outline"
+            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+          >
+            <Users className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Members</span>
+          </Button>
+          
+          {canAccessProspects ? (
+            <Button
+              onClick={() => navigate("/prospects")}
+              variant="outline"
+              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            >
+              <Users className="w-6 h-6 sm:w-7 sm:h-7" />
+              <span className="text-xs sm:text-sm font-medium">Prospects</span>
+            </Button>
+          ) : (
+            <div className="h-20 sm:h-24" /> // Empty placeholder
+          )}
+          
+          {userRole === 'admin' ? (
+            <Button
+              onClick={() => navigate("/users")}
+              variant="outline"
+              data-testid="user-management-button"
+              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            >
+              <Settings className="w-6 h-6 sm:w-7 sm:h-7" />
+              <span className="text-xs sm:text-sm font-medium">Admin</span>
+            </Button>
+          ) : (
+            <div className="h-20 sm:h-24" /> // Empty placeholder
+          )}
+
+          {/* Row 2: Activity & Communication */}
+          <Button
+            onClick={() => navigate("/discord-analytics")}
+            variant="outline"
+            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+          >
+            <Headphones className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Discord</span>
+          </Button>
+          
+          <Button
+            onClick={() => navigate("/events")}
+            variant="outline"
+            className="relative flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+          >
+            <Calendar className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Events</span>
+            {upcomingEventsCount > 0 && (
+              <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {upcomingEventsCount > 99 ? '99+' : upcomingEventsCount}
+              </span>
+            )}
+          </Button>
+          
+          <Button
+            onClick={() => navigate("/messages")}
+            variant="outline"
+            className="relative flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+          >
+            <Mail className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Messages</span>
+            {unreadPrivateCount > 0 && (
+              <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadPrivateCount > 99 ? '99+' : unreadPrivateCount}
+              </span>
+            )}
+          </Button>
+
+          {/* Row 3: Features */}
+          <Button
+            onClick={() => navigate("/store")}
+            variant="outline"
+            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-green-900/40 text-green-400 border-green-600/50 hover:bg-green-900/60 hover:border-green-500"
+          >
+            <DollarSign className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Store</span>
+          </Button>
+          
+          <Button
+            onClick={() => navigate("/wall-of-honor")}
+            variant="outline"
+            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-amber-900/40 text-amber-400 border-amber-600/50 hover:bg-amber-900/60 hover:border-amber-500"
+          >
+            <Star className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-xs sm:text-sm font-medium">Wall of Honor</span>
+          </Button>
+          
+          {userRole === 'admin' ? (
+            <Button
+              onClick={() => navigate("/update-log")}
+              variant="outline"
+              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            >
+              <Clock className="w-6 h-6 sm:w-7 sm:h-7" />
+              <span className="text-xs sm:text-sm font-medium">Change Log</span>
+            </Button>
+          ) : (
+            <div className="h-20 sm:h-24" /> // Empty placeholder
+          )}
+        </div>
+        
+        {/* Lonestar Monitor Button (if applicable) */}
+        {localStorage.getItem("username") === "Lonestar" && (
+          <div className="mt-4">
+            <Button
+              onClick={() => navigate("/message-monitor")}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 h-12 bg-purple-900/40 text-purple-400 border-purple-600/50 hover:bg-purple-900/60"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Message Monitor</span>
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Members Table Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
