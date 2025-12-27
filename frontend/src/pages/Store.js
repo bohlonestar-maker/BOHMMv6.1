@@ -147,6 +147,30 @@ export default function Store({ userRole, userChapter }) {
     }
   }, []);
 
+  const fetchWebhookInfo = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_URL}/api/webhooks/square/info`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWebhookInfo(response.data);
+    } catch (error) {
+      // User doesn't have permission or endpoint error - that's ok
+      console.error("Error fetching webhook info:", error);
+    }
+  }, []);
+
+  const copyToClipboard = async (text, field) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      toast.success("Copied to clipboard!");
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (error) {
+      toast.error("Failed to copy");
+    }
+  };
+
   // Handle return from Square hosted checkout
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
