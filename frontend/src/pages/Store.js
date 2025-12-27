@@ -95,6 +95,7 @@ export default function Store({ userRole, userChapter }) {
     inventory_count: 0,
     member_price: "",
     show_in_supporter_store: true, // Default to showing in supporter store
+    allows_customization: false, // Default to no customization
   });
 
   const isAdmin = userRole === "admin";
