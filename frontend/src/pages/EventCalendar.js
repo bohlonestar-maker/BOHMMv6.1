@@ -917,6 +917,22 @@ export default function EventCalendar() {
                   </div>
                 </div>
 
+                {/* Discord Channel Info */}
+                {selectedEvent.discord_notifications_enabled && (
+                  <div className="flex items-start gap-3 bg-blue-900/20 p-4 rounded-lg border border-blue-600/30">
+                    <Hash className="w-6 h-6 text-blue-400 mt-1" />
+                    <div>
+                      <div className="text-sm text-slate-400 mb-1">Discord Channel</div>
+                      <div className="text-lg font-semibold text-blue-400">
+                        #{(selectedEvent.discord_channel || "member-chat").replace("-", " ").replace(/\b\w/g, l => l.toUpperCase()).replace(" ", "-")}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1">
+                        Notifications will be sent to this channel
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex justify-between items-center pt-4">
                   {selectedEvent.discord_notifications_enabled ? (
