@@ -758,70 +758,70 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
       </nav>
 
       {/* Navigation Grid */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {/* Row 1: People Management */}
           {canAccessProspects ? (
             <Button
               onClick={() => navigate("/prospects")}
-              variant="outline"
-              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+              variant="ghost"
+              className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
             >
-              <Users className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="text-xs sm:text-sm font-medium">Prospects</span>
+              <Users className="w-5 h-5" />
+              <span className="text-xs font-medium">Prospects</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" />
+            <div className="h-14 sm:h-16" />
           )}
           
           {userRole === 'admin' ? (
             <Button
               onClick={() => navigate("/users")}
-              variant="outline"
+              variant="ghost"
               data-testid="user-management-button"
-              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+              className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
             >
-              <Settings className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="text-xs sm:text-sm font-medium">Admin</span>
+              <Settings className="w-5 h-5" />
+              <span className="text-xs font-medium">Admin</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" />
+            <div className="h-14 sm:h-16" />
           )}
 
           {/* Row 2: Activity & Communication */}
           <Button
             onClick={() => navigate("/discord-analytics")}
-            variant="outline"
-            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            variant="ghost"
+            className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
           >
-            <Headphones className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Discord</span>
+            <Headphones className="w-5 h-5" />
+            <span className="text-xs font-medium">Discord</span>
           </Button>
           
           <Button
             onClick={() => navigate("/events")}
-            variant="outline"
-            className="relative flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            variant="ghost"
+            className="relative flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
           >
-            <Calendar className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Events</span>
+            <Calendar className="w-5 h-5" />
+            <span className="text-xs font-medium">Events</span>
             {upcomingEventsCount > 0 && (
-              <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {upcomingEventsCount > 99 ? '99+' : upcomingEventsCount}
+              <span className="absolute top-1 right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {upcomingEventsCount > 9 ? '9+' : upcomingEventsCount}
               </span>
             )}
           </Button>
           
           <Button
             onClick={() => navigate("/messages")}
-            variant="outline"
-            className="relative flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+            variant="ghost"
+            className="relative flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
           >
-            <Mail className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Messages</span>
+            <Mail className="w-5 h-5" />
+            <span className="text-xs font-medium">Messages</span>
             {unreadPrivateCount > 0 && (
-              <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadPrivateCount > 99 ? '99+' : unreadPrivateCount}
+              <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {unreadPrivateCount > 9 ? '9+' : unreadPrivateCount}
               </span>
             )}
           </Button>
@@ -829,46 +829,46 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
           {/* Row 3: Features */}
           <Button
             onClick={() => navigate("/store")}
-            variant="outline"
-            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-green-900/40 text-green-400 border-green-600/50 hover:bg-green-900/60 hover:border-green-500"
+            variant="ghost"
+            className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-green-400 hover:text-green-300 hover:bg-green-900/30"
           >
-            <DollarSign className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Store</span>
+            <DollarSign className="w-5 h-5" />
+            <span className="text-xs font-medium">Store</span>
           </Button>
           
           <Button
             onClick={() => navigate("/wall-of-honor")}
-            variant="outline"
-            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-amber-900/40 text-amber-400 border-amber-600/50 hover:bg-amber-900/60 hover:border-amber-500"
+            variant="ghost"
+            className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-amber-400 hover:text-amber-300 hover:bg-amber-900/30"
           >
-            <Star className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Wall of Honor</span>
+            <Star className="w-5 h-5" />
+            <span className="text-xs font-medium">Honor</span>
           </Button>
           
           {userRole === 'admin' ? (
             <Button
               onClick={() => navigate("/update-log")}
-              variant="outline"
-              className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
+              variant="ghost"
+              className="flex flex-col items-center justify-center gap-1 h-14 sm:h-16 text-slate-300 hover:text-white hover:bg-slate-700/50"
             >
-              <Clock className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="text-xs sm:text-sm font-medium">Change Log</span>
+              <Clock className="w-5 h-5" />
+              <span className="text-xs font-medium">Change Log</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" />
+            <div className="h-14 sm:h-16" />
           )}
         </div>
         
         {/* Lonestar Monitor Button (if applicable) */}
         {localStorage.getItem("username") === "Lonestar" && (
-          <div className="mt-4">
+          <div className="mt-3">
             <Button
               onClick={() => navigate("/message-monitor")}
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 h-12 bg-purple-900/40 text-purple-400 border-purple-600/50 hover:bg-purple-900/60"
+              variant="ghost"
+              className="w-full flex items-center justify-center gap-2 h-10 text-purple-400 hover:text-purple-300 hover:bg-purple-900/30"
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">Message Monitor</span>
+              <MessageCircle className="w-4 h-4" />
+              <span className="text-xs font-medium">Message Monitor</span>
             </Button>
           </div>
         )}
