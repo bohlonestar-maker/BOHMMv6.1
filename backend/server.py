@@ -7450,6 +7450,42 @@ async def process_payment(order_id: str, payment: PaymentRequest, current_user: 
                         {"$inc": {"inventory_count": -item["quantity"]}}
                     )
             
+            # Update member dues status if this is a dues payment
+            dues_info = order.get("dues_info")
+            if dues_info and dues_info.get("member_id"):
+                member_id = dues_info["member_id"]
+                year = str(dues_info["year"])
+                month = dues_info["month"]
+                
+                # Get current member dues
+                member = await db.members.find_one({"id": member_id})
+                if member:
+                    dues = member.get("dues", {})
+                    
+                    # Initialize year if not exists
+                    if year not in dues:
+                        dues[year] = [{"status": "unpaid", "note": ""} for _ in range(12)]
+                    
+                    # Update the specific month to paid
+                    if isinstance(dues[year], list) and len(dues[year]) > month:
+                        dues[year][month] = {"status": "paid", "note": f"Paid via store on {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"}
+                    
+                    # Update member record
+                    await db.members.update_one(
+                        {"id": member_id},
+                        {"$set": {
+                            "dues": dues,
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }}
+                    )
+                    
+                    # Log the dues update
+                    await log_activity(
+                        current_user["username"],
+                        "dues_paid",
+                        f"Dues paid for {year}-{month+1:02d} via store payment"
+                    )
+            
             # Clear cart
             await db.store_carts.delete_one({"user_id": current_user["username"]})
             
