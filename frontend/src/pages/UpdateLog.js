@@ -8,6 +8,16 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v5.6",
+      date: "December 27, 2025",
+      changes: [
+        "Security Patch: Fixed NoSQL injection vulnerability in dues payment endpoint",
+        "Input Sanitization: Added regex escaping for all user-supplied search patterns",
+        "Object Injection Prevention: New validation ensures only string inputs reach database queries",
+        "Security Testing: Comprehensive security audit with 25 tests passed (100% success rate)"
+      ]
+    },
+    {
       version: "v5.5",
       date: "December 27, 2025",
       changes: [
