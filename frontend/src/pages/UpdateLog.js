@@ -8,7 +8,21 @@ export default function UpdateLog() {
 
   const updates = [
     {
-      version: "v.5.1",
+      version: "v5.5",
+      date: "December 27, 2025",
+      changes: [
+        "Store Admin Management: Primary admins (Prez, VP, SEC) can now delegate store management access to other National members",
+        "Dynamic Permission System: New async permission checker supports both primary and delegated store admins",
+        "Auto-Sync on Login: Square catalog automatically syncs when any user logs in (runs in background)",
+        "New Items Hidden by Default: Products synced from Square are hidden from Supporter Store until admin enables them",
+        "Store Admin UI: New management card in Settings tab to add/remove delegated store admins",
+        "Square Webhook Security: Added signature verification key for webhook authentication",
+        "Supporter Store Button: Moved to top of login page for better visibility",
+        "Login Page Cleanup: Removed 'browse merchandise without logging in' text"
+      ]
+    },
+    {
+      version: "v5.1",
       date: "December 25, 2025",
       changes: [
         "Wall of Honor: New memorial page to honor fallen brothers with photo upload, tribute messages, and service badges",
