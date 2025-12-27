@@ -1090,42 +1090,44 @@ export default function Store({ userRole, userChapter }) {
 
       {/* Product Options Modal (Size/Customization) */}
       <Dialog open={productModalOpen} onOpenChange={setProductModalOpen}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-[95vw] sm:max-w-md mx-2 sm:mx-auto max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <Package className="w-5 h-5" />
-              {selectedProduct?.name}
+            <DialogTitle className="text-white flex items-center gap-2 text-sm sm:text-base">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="line-clamp-1">{selectedProduct?.name}</span>
             </DialogTitle>
             {selectedProduct?.description && (
-              <DialogDescription className="text-slate-400 text-sm">
+              <DialogDescription className="text-slate-400 text-xs sm:text-sm line-clamp-2">
                 {selectedProduct.description}
               </DialogDescription>
             )}
           </DialogHeader>
           
           {selectedProduct && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Product Image */}
               {selectedProduct.image_url && (
                 <img
                   src={selectedProduct.image_url}
                   alt={selectedProduct.name}
-                  className="w-full h-48 object-cover rounded-md"
+                  className="w-full h-32 sm:h-48 object-cover rounded-md"
                 />
               )}
               
               {/* Size Selection */}
               {selectedProduct.has_variations && selectedProduct.variations && (
                 <div>
-                  <Label className="text-slate-200 mb-2 block">Select Size *</Label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <Label className="text-slate-200 mb-2 block text-xs sm:text-sm">Select Size *</Label>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-1 sm:gap-2">
                     {selectedProduct.variations.map((variation) => (
                       <Button
                         key={variation.id}
                         variant={selectedVariation?.id === variation.id ? "default" : "outline"}
                         disabled={variation.sold_out || variation.inventory_count === 0}
                         onClick={() => setSelectedVariation(variation)}
+                        size="sm"
                         className={`
+                          text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2
                           ${selectedVariation?.id === variation.id 
                             ? 'bg-blue-600 text-white' 
                             : 'border-slate-600 text-slate-300 hover:bg-slate-700'}
@@ -1137,7 +1139,7 @@ export default function Store({ userRole, userChapter }) {
                     ))}
                   </div>
                   {selectedVariation && (
-                    <div className="mt-2 text-sm text-slate-400">
+                    <div className="mt-2 text-xs sm:text-sm text-slate-400">
                       Price: <span className="text-green-400 font-bold">${selectedVariation.price.toFixed(2)}</span>
                       {selectedVariation.inventory_count > 0 && (
                         <span className="ml-2">({selectedVariation.inventory_count} in stock)</span>
@@ -1149,12 +1151,12 @@ export default function Store({ userRole, userChapter }) {
               
               {/* Add Text Options (Handle and Rank) */}
               {selectedProduct.allows_customization && (
-                <div className="space-y-3 border border-slate-600 rounded-lg p-4 bg-slate-700/30">
-                  <Label className="text-slate-200 font-semibold block">Add Text</Label>
+                <div className="space-y-2 sm:space-y-3 border border-slate-600 rounded-lg p-2 sm:p-4 bg-slate-700/30">
+                  <Label className="text-slate-200 font-semibold block text-xs sm:text-sm">Add Text</Label>
                   
                   {/* Add Handle Checkbox */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <input
                         type="checkbox"
                         id="addHandle"
@@ -1165,25 +1167,25 @@ export default function Store({ userRole, userChapter }) {
                         }}
                         className="w-4 h-4 rounded border-slate-500 bg-slate-700 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="addHandle" className="text-slate-300 flex-1">
+                      <label htmlFor="addHandle" className="text-slate-300 flex-1 text-xs sm:text-sm">
                         Add your Handle
                       </label>
-                      <span className="text-green-400 font-semibold">+$5.00</span>
+                      <span className="text-green-400 font-semibold text-xs sm:text-sm">+$5.00</span>
                     </div>
                     {addHandle && (
                       <Input
                         value={handleText}
                         onChange={(e) => setHandleText(e.target.value)}
                         placeholder="Enter your handle"
-                        className="bg-slate-700 border-slate-600 text-white"
+                        className="bg-slate-700 border-slate-600 text-white text-sm"
                         maxLength={30}
                       />
                     )}
                   </div>
                   
                   {/* Add Rank Checkbox */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <input
                         type="checkbox"
                         id="addRank"
@@ -1194,48 +1196,48 @@ export default function Store({ userRole, userChapter }) {
                         }}
                         className="w-4 h-4 rounded border-slate-500 bg-slate-700 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="addRank" className="text-slate-300 flex-1">
-                        Add your Rank <span className="text-slate-500">(Officer&apos;s Only)</span>
+                      <label htmlFor="addRank" className="text-slate-300 flex-1 text-xs sm:text-sm">
+                        Add your Rank <span className="text-slate-500 text-[10px] sm:text-xs">(Officer&apos;s Only)</span>
                       </label>
-                      <span className="text-green-400 font-semibold">+$5.00</span>
+                      <span className="text-green-400 font-semibold text-xs sm:text-sm">+$5.00</span>
                     </div>
                     {addRank && (
                       <Input
                         value={rankText}
                         onChange={(e) => setRankText(e.target.value)}
                         placeholder="Enter your rank"
-                        className="bg-slate-700 border-slate-600 text-white"
+                        className="bg-slate-700 border-slate-600 text-white text-sm"
                         maxLength={30}
                       />
                     )}
                   </div>
                   
-                  <p className="text-xs text-amber-400 mt-2">
-                    ⚠️ If you add your rank or handle without checking the box to add it, your item WILL NOT include your rank or handle.
+                  <p className="text-[10px] sm:text-xs text-amber-400 mt-2">
+                    ⚠️ If you add your rank or handle without checking the box, your item WILL NOT include it.
                   </p>
                 </div>
               )}
               
               {/* Price Summary */}
-              <div className="border-t border-slate-700 pt-3">
+              <div className="border-t border-slate-700 pt-2 sm:pt-3">
                 <div className="space-y-1">
-                  <div className="flex justify-between text-sm text-slate-400">
+                  <div className="flex justify-between text-xs sm:text-sm text-slate-400">
                     <span>Base Price:</span>
                     <span>${(selectedVariation?.price || selectedProduct.display_price || selectedProduct.price).toFixed(2)}</span>
                   </div>
                   {addHandle && (
-                    <div className="flex justify-between text-sm text-slate-400">
+                    <div className="flex justify-between text-xs sm:text-sm text-slate-400">
                       <span>Handle:</span>
                       <span>+$5.00</span>
                     </div>
                   )}
                   {addRank && (
-                    <div className="flex justify-between text-sm text-slate-400">
+                    <div className="flex justify-between text-xs sm:text-sm text-slate-400">
                       <span>Rank:</span>
                       <span>+$5.00</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-lg font-bold border-t border-slate-600 pt-2">
+                  <div className="flex justify-between text-base sm:text-lg font-bold border-t border-slate-600 pt-2">
                     <span className="text-slate-200">Total:</span>
                     <span className="text-green-400">
                       ${calculateTotalPrice().toFixed(2)}
@@ -1246,13 +1248,13 @@ export default function Store({ userRole, userChapter }) {
             </div>
           )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setProductModalOpen(false)} className="border-slate-600">
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setProductModalOpen(false)} className="border-slate-600 w-full sm:w-auto text-sm">
               Cancel
             </Button>
             <Button 
               onClick={handleConfirmAddToCart} 
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto text-sm"
               disabled={selectedProduct?.has_variations && !selectedVariation}
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
