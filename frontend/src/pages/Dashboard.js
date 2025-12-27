@@ -761,15 +761,6 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
           {/* Row 1: People Management */}
-          <Button
-            onClick={() => navigate("/members")}
-            variant="outline"
-            className="flex flex-col items-center justify-center gap-2 h-20 sm:h-24 bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700 hover:border-slate-500"
-          >
-            <Users className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="text-xs sm:text-sm font-medium">Members</span>
-          </Button>
-          
           {canAccessProspects ? (
             <Button
               onClick={() => navigate("/prospects")}
@@ -780,7 +771,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
               <span className="text-xs sm:text-sm font-medium">Prospects</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" /> // Empty placeholder
+            <div className="h-20 sm:h-24" />
           )}
           
           {userRole === 'admin' ? (
@@ -794,7 +785,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
               <span className="text-xs sm:text-sm font-medium">Admin</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" /> // Empty placeholder
+            <div className="h-20 sm:h-24" />
           )}
 
           {/* Row 2: Activity & Communication */}
@@ -864,7 +855,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
               <span className="text-xs sm:text-sm font-medium">Change Log</span>
             </Button>
           ) : (
-            <div className="h-20 sm:h-24" /> // Empty placeholder
+            <div className="h-20 sm:h-24" />
           )}
         </div>
         
