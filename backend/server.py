@@ -1221,6 +1221,7 @@ class StoreProductUpdate(BaseModel):
     inventory_count: Optional[int] = None
     is_active: Optional[bool] = None
     member_price: Optional[float] = None
+    show_in_supporter_store: Optional[bool] = None
 
 class CartItem(BaseModel):
     product_id: str
