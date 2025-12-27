@@ -745,8 +745,6 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-white">Brothers of the Highway</h1>
-              
               {/* Navigation Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -832,6 +830,8 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Brothers of the Highway</h1>
             </div>
             
             <div className="flex items-center gap-3">
