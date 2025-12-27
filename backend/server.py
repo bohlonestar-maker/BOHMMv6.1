@@ -1198,6 +1198,7 @@ class StoreProduct(BaseModel):
     variations: List[dict] = []  # List of size/variation options
     has_variations: bool = False  # True if product has multiple sizes
     allows_customization: bool = False  # True if handle/name can be added
+    show_in_supporter_store: bool = True  # True if available in public supporter store
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -1209,6 +1210,7 @@ class StoreProductCreate(BaseModel):
     image_url: Optional[str] = None
     inventory_count: int = 0
     member_price: Optional[float] = None
+    show_in_supporter_store: bool = True
 
 class StoreProductUpdate(BaseModel):
     name: Optional[str] = None
