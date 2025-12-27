@@ -8290,6 +8290,24 @@ async def get_square_webhook_info(current_user: dict = Depends(verify_token)):
 
 # ==================== STORE ADMIN MANAGEMENT ENDPOINTS ====================
 
+@api_router.get("/store/admins/status")
+async def get_store_admin_status(current_user: dict = Depends(verify_token)):
+    """Get current user's store admin status"""
+    is_primary = is_primary_store_admin(current_user)
+    is_delegated = False
+    
+    if not is_primary:
+        # Check if delegated admin
+        delegated = await db.store_admins.find_one({"username": current_user.get("username", "")})
+        is_delegated = delegated is not None
+    
+    return {
+        "can_manage_store": is_primary or is_delegated,
+        "is_primary_admin": is_primary,
+        "is_delegated_admin": is_delegated,
+        "can_manage_admins": is_primary  # Only primary admins can manage the admin list
+    }
+
 @api_router.get("/store/admins")
 async def get_store_admins(current_user: dict = Depends(verify_token)):
     """Get list of store admins (Primary admins only)"""
