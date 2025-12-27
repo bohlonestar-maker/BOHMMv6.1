@@ -72,6 +72,7 @@ export default function EventCalendar() {
     chapter: "all",
     title_filter: "all",
     discord_notifications_enabled: true,
+    discord_channel: "member-chat",
   });
 
   useEffect(() => {
