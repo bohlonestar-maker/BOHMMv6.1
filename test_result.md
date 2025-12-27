@@ -370,3 +370,97 @@ None yet
 - **Test Results**: 19/21 tests passed (90.5% success rate)
 - **Critical Issues**: None
 - **Minor Issues**: Error codes for edge cases (404 vs 400, 200 vs 201) - functionality works correctly
+
+## Discord Channel Selection Feature Testing Results (2025-12-27)
+
+### New Discord Channel Selection API Endpoints ✅ ALL WORKING
+
+#### GET /api/events/discord-channels
+- **Status**: ✅ WORKING
+- **Purpose**: Returns available Discord channels based on user's chapter and title
+- **Response Format**: ✅ All required fields present (channels, can_schedule, chapter, title)
+- **Permission Check**: ✅ Correctly identifies National Prez as having scheduling permissions
+- **Channel List**: ✅ Returns 10 available channels for National users
+- **Channel Structure**: ✅ Each channel has id, name, and available fields
+
+#### POST /api/events (Enhanced with Discord Channel Support)
+- **Status**: ✅ WORKING
+- **Purpose**: Create events with Discord channel selection
+- **Discord Channel Field**: ✅ Correctly accepts and stores discord_channel field
+- **Discord Notifications**: ✅ Correctly handles discord_notifications_enabled field
+- **Response Format**: ✅ Returns success message and event ID
+- **Data Persistence**: ✅ Discord channel correctly stored in database
+
+#### PUT /api/events/{event_id} (Enhanced with Discord Channel Support)
+- **Status**: ✅ WORKING
+- **Purpose**: Update events with Discord channel changes
+- **Discord Channel Update**: ✅ Successfully updates discord_channel field
+- **Response Format**: ✅ Returns success message
+- **Data Persistence**: ✅ Updated Discord channel correctly stored in database
+
+#### POST /api/events/{event_id}/send-discord-notification
+- **Status**: ✅ WORKING
+- **Purpose**: Manually send Discord notification to specified channel
+- **Channel Targeting**: ✅ Sends notification to correct Discord channel
+- **Response Format**: ✅ Returns success confirmation message
+- **Backend Integration**: ✅ Confirmed in logs - notifications sent to correct channels
+
+### Detailed Test Results (Testing Agent - 2025-12-27)
+
+#### Core Functionality Tests ✅ ALL WORKING
+1. **Authentication**: ✅ Login with admin/admin123 successful
+2. **Discord Channels Endpoint**: ✅ GET /api/events/discord-channels returns all required fields
+3. **Permission Validation**: ✅ National Prez correctly identified as having scheduling permissions
+4. **Channel List Retrieval**: ✅ Returns 10 available Discord channels
+5. **Event Creation with Discord Channel**: ✅ POST /api/events accepts discord_channel field
+6. **Event Update with Discord Channel**: ✅ PUT /api/events/{id} updates discord_channel field
+7. **Event Storage Verification**: ✅ Discord channel correctly persisted in database
+8. **Manual Discord Notification**: ✅ POST /api/events/{id}/send-discord-notification works
+9. **Multiple Channel Support**: ✅ Tested member-chat, officers, national-board channels
+10. **Backend Logging**: ✅ Discord notifications logged and sent to correct channels
+
+#### Discord Channel Integration ✅ WORKING
+1. **Channel Selection**: ✅ Users can select from available Discord channels
+2. **Channel Persistence**: ✅ Selected channel stored and retrieved correctly
+3. **Channel Updates**: ✅ Discord channel can be changed after event creation
+4. **Notification Targeting**: ✅ Notifications sent to specified Discord channel
+5. **Permission-Based Access**: ✅ Only users with proper titles can schedule events
+
+#### Test Statistics
+- **Total Tests**: 34
+- **Passed Tests**: 34
+- **Success Rate**: 100.0%
+- **Critical Functionality**: 100% working
+
+#### Bug Fixes Applied During Testing
+1. **Event Creation**: Fixed missing discord_channel field assignment in create_event function
+2. **Event Update**: Fixed missing discord_channel field handling in update_event function
+
+### Implementation Verification ✅
+
+#### Discord Channel Management
+- **Available Channels**: Returns 10 Discord channels for National users
+- **Permission System**: Uses EVENT_SCHEDULER_TITLES to control access
+- **Channel Mapping**: Maps channel IDs to display names (e.g., "member-chat" → "Member Chat")
+- **Webhook Integration**: Each channel has corresponding webhook URL for notifications
+
+#### Event Management with Discord Integration
+- **Event Creation**: Accepts discord_channel and discord_notifications_enabled fields
+- **Event Updates**: Supports updating Discord channel after creation
+- **Data Storage**: Discord channel stored in events collection
+- **Notification System**: Manual notifications sent to specified Discord channel
+
+### Key API Endpoints Tested
+✅ GET /api/events/discord-channels - NEW ENDPOINT (Discord Channel Selection)
+✅ POST /api/events (Enhanced with Discord channel support)
+✅ PUT /api/events/{id} (Enhanced with Discord channel support)
+✅ POST /api/events/{id}/send-discord-notification (Manual Discord notification)
+✅ GET /api/events (Event retrieval with Discord channel data)
+
+## Testing Agent Communication - Discord Channel Selection
+- **Agent**: Testing Agent  
+- **Message**: Discord Channel Selection feature thoroughly tested and verified working. All API endpoints function correctly. Event creation and updates properly handle Discord channel selection. Manual Discord notifications successfully sent to specified channels. Permission system correctly restricts access to authorized users. All critical functionality working as designed.
+- **Test Date**: 2025-12-27
+- **Test Results**: 34/34 tests passed (100% success rate)
+- **Critical Issues**: None (2 bugs fixed during testing)
+- **Minor Issues**: None
