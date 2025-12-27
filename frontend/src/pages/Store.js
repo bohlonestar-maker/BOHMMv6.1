@@ -54,6 +54,7 @@ import {
   CheckCircle2,
   ExternalLink,
 } from "lucide-react";
+import { UserPlus, Users, Shield, UserMinus } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
@@ -79,6 +80,13 @@ export default function Store({ userRole, userChapter }) {
   const [redirectingToCheckout, setRedirectingToCheckout] = useState(false);
   const [webhookInfo, setWebhookInfo] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
+  
+  // Store Admin Management state
+  const [isPrimaryAdmin, setIsPrimaryAdmin] = useState(false);
+  const [storeAdmins, setStoreAdmins] = useState([]);
+  const [eligibleUsers, setEligibleUsers] = useState([]);
+  const [selectedUserToAdd, setSelectedUserToAdd] = useState("");
+  const [addingAdmin, setAddingAdmin] = useState(false);
   
   // Dues state
   const [duesYear, setDuesYear] = useState(new Date().getFullYear());
