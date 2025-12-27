@@ -196,6 +196,15 @@ export default function Store({ userRole, userChapter }) {
     loadData();
   }, [fetchProducts, fetchCart, fetchOrders]);
 
+  // Fetch webhook info when canManageStore becomes true
+  useEffect(() => {
+    if (canManageStore) {
+      fetchWebhookInfo();
+    }
+  }, [canManageStore, fetchWebhookInfo]);};
+    loadData();
+  }, [fetchProducts, fetchCart, fetchOrders]);
+
   // Product selection state for size/customization modal
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productModalOpen, setProductModalOpen] = useState(false);
