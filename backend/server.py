@@ -6755,9 +6755,11 @@ def run_notification_check():
 # ==================== BIRTHDAY NOTIFICATIONS ====================
 
 async def send_birthday_notification(member: dict):
-    """Send Discord notification for a member's birthday"""
-    if not DISCORD_WEBHOOK_URL:
-        print("⚠️  Discord webhook URL not configured for birthday notification")
+    """Send Discord notification for a member's birthday to member-chat channel"""
+    # Always use member-chat webhook for birthday notifications
+    webhook_url = get_discord_webhook_url("member-chat")
+    if not webhook_url:
+        print("⚠️  Discord webhook URL not configured for member-chat channel (birthday notification)")
         return False
     
     try:
@@ -6812,10 +6814,10 @@ async def send_birthday_notification(member: dict):
             "embeds": [embed]
         }
         
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        response = requests.post(webhook_url, json=payload)
         
         if response.status_code == 204:
-            print(f"✅ Birthday notification sent for: {member_name}")
+            print(f"✅ Birthday notification sent to #member-chat for: {member_name}")
             return True
         else:
             print(f"❌ Birthday notification failed: {response.status_code} - {response.text}")
