@@ -466,13 +466,17 @@ export default function Store({ userRole, userChapter }) {
 
   // Dues payment handlers
   const createDuesOrder = async () => {
+    if (!duesHandle.trim()) {
+      toast.error("Please enter your handle");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         `${API_URL}/api/store/dues/pay`,
         null,
         {
-          params: { amount: MONTHLY_DUES_AMOUNT, year: duesYear, month: duesMonth },
+          params: { amount: MONTHLY_DUES_AMOUNT, year: duesYear, month: duesMonth, handle: duesHandle.trim() },
           headers: { Authorization: `Bearer ${token}` },
         }
       );
@@ -503,12 +507,26 @@ export default function Store({ userRole, userChapter }) {
         toast.success("Dues payment successful! Your member record has been updated.");
         setDuesCheckoutOpen(false);
         setDuesOrder(null);
+        setDuesHandle(""); // Clear handle after successful payment
         await fetchOrders();
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || "Dues payment failed");
     } finally {
       setProcessingPayment(false);
+    }
+  };
+
+  // Fetch dues payments (admin only)
+  const fetchDuesPayments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_URL}/api/store/dues/payments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDuesPayments(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch dues payments:", error);
     }
   };
 
