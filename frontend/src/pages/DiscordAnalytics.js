@@ -614,14 +614,30 @@ export default function DiscordAnalytics() {
                         </div>
                         <div className="text-right flex-shrink-0 ml-2">
                           <div className="flex gap-1 sm:gap-2 flex-wrap justify-end">
-                            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-600 text-white text-[10px] sm:text-xs rounded">
-                              No Voice
-                            </span>
-                            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-600 text-white text-[10px] sm:text-xs rounded">
-                              No Text
-                            </span>
+                            {member.voice_activity ? (
+                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-600 text-white text-[10px] sm:text-xs rounded">
+                                {Math.round((member.voice_duration || 0) / 60)}m Voice
+                              </span>
+                            ) : (
+                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-600 text-white text-[10px] sm:text-xs rounded">
+                                No Voice
+                              </span>
+                            )}
+                            {member.text_activity ? (
+                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-600 text-white text-[10px] sm:text-xs rounded">
+                                {member.text_messages || 0} Msgs
+                              </span>
+                            ) : (
+                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-600 text-white text-[10px] sm:text-xs rounded">
+                                No Text
+                              </span>
+                            )}
                           </div>
-                          <p className="text-[10px] sm:text-sm text-slate-400 mt-1 hidden sm:block">No activity in 30 days</p>
+                          <p className="text-[10px] sm:text-sm text-slate-400 mt-1">
+                            {member.last_active 
+                              ? `Last active: ${new Date(member.last_active).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                              : 'Never active'}
+                          </p>
                         </div>
                       </div>
                     ))}
