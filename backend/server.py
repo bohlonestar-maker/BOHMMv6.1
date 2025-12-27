@@ -6086,6 +6086,36 @@ async def update_event(
     
     return {"message": "Event updated successfully"}
 
+@api_router.get("/events/discord-channels")
+async def get_discord_channels(current_user: dict = Depends(verify_admin)):
+    """Get available Discord channels based on user's chapter and title"""
+    chapter = current_user.get("chapter", "")
+    title = current_user.get("title", "")
+    
+    # Check if user has a title that can schedule events
+    if title not in EVENT_SCHEDULER_TITLES:
+        return {"channels": [], "can_schedule": False, "message": "Your title does not have permission to schedule events"}
+    
+    # Get available channels for the user's chapter
+    channels = get_available_discord_channels(chapter)
+    
+    # Format channel list with display names
+    channel_list = []
+    for ch in channels:
+        display_name = ch.replace("-", " ").title()
+        channel_list.append({
+            "id": ch,
+            "name": display_name,
+            "available": DISCORD_CHANNEL_WEBHOOKS.get(ch) is not None
+        })
+    
+    return {
+        "channels": channel_list,
+        "can_schedule": True,
+        "chapter": chapter,
+        "title": title
+    }
+
 @api_router.post("/events/{event_id}/send-discord-notification")
 async def send_event_discord_notification_now(event_id: str, current_user: dict = Depends(verify_admin)):
     """Manually send Discord notification for an event immediately (admin only)"""
