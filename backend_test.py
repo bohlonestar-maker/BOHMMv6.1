@@ -9664,21 +9664,252 @@ class BOHDirectoryAPITester:
         
         print(f"   🚀 Bulk promotion functionality testing completed")
 
+    def test_supporter_store_feature(self):
+        """Test the new Supporter Store feature implementation"""
+        print(f"\n🛒 Testing Supporter Store Feature...")
+        
+        # First, let's test authenticated store endpoints to compare
+        print(f"\n   📋 Step 1: Testing Authenticated Store Products (for comparison)...")
+        
+        # Get authenticated products list
+        success, auth_products = self.run_test(
+            "Get Authenticated Store Products",
+            "GET",
+            "store/products",
+            200
+        )
+        
+        auth_product_count = len(auth_products) if success and isinstance(auth_products, list) else 0
+        print(f"   Authenticated products count: {auth_product_count}")
+        
+        # Test 1: Public Products Endpoint (No Authentication)
+        print(f"\n   🌐 Step 2: Testing Public Store Products (No Auth Required)...")
+        
+        # Save current token and remove it for public test
+        original_token = self.token
+        self.token = None
+        
+        success, public_products = self.run_test(
+            "Get Public Store Products (No Auth)",
+            "GET",
+            "store/public/products",
+            200
+        )
+        
+        public_product_count = 0
+        member_only_found = False
+        
+        if success and isinstance(public_products, list):
+            public_product_count = len(public_products)
+            print(f"   Public products count: {public_product_count}")
+            
+            # Check that public products exclude member-only items
+            for product in public_products:
+                product_name = product.get("name", "").lower()
+                if "member" in product_name and "supporter" not in product_name:
+                    member_only_found = True
+                    break
+            
+            # Verify public products are fewer than authenticated products
+            if public_product_count < auth_product_count:
+                self.log_test("Public Products - Fewer Than Authenticated", True, f"Public: {public_product_count}, Auth: {auth_product_count}")
+            elif public_product_count == auth_product_count:
+                self.log_test("Public Products - Same Count as Authenticated", False, "Public should exclude member-only items")
+            else:
+                self.log_test("Public Products - Count Comparison", False, f"Public ({public_product_count}) > Auth ({auth_product_count})")
+            
+            # Verify no member-only items in public list
+            if not member_only_found:
+                self.log_test("Public Products - No Member-Only Items", True, "No member-only products found in public list")
+            else:
+                self.log_test("Public Products - No Member-Only Items", False, "Found member-only products in public list")
+            
+            # Verify products have required fields
+            if public_products:
+                sample_product = public_products[0]
+                required_fields = ['id', 'name', 'price', 'category']
+                missing_fields = [field for field in required_fields if field not in sample_product]
+                
+                if not missing_fields:
+                    self.log_test("Public Products - Required Fields", True, f"All required fields present: {required_fields}")
+                else:
+                    self.log_test("Public Products - Required Fields", False, f"Missing fields: {missing_fields}")
+                
+                # Verify category is merchandise (not dues)
+                if sample_product.get('category') == 'merchandise':
+                    self.log_test("Public Products - Merchandise Only", True, "Products are merchandise category")
+                else:
+                    self.log_test("Public Products - Merchandise Only", False, f"Found category: {sample_product.get('category')}")
+        else:
+            self.log_test("Get Public Store Products", False, "Failed to get public products or invalid response")
+        
+        # Test 2: Public Checkout Endpoint (No Authentication)
+        print(f"\n   💳 Step 3: Testing Public Checkout (No Auth Required)...")
+        
+        # Create test checkout data
+        test_checkout_data = {
+            "items": [
+                {
+                    "product_id": "test-product-1",
+                    "name": "Test Supporter T-Shirt",
+                    "price": 25.00,
+                    "quantity": 2,
+                    "variation_name": "L"
+                },
+                {
+                    "product_id": "test-product-2", 
+                    "name": "Test Supporter Sticker",
+                    "price": 5.00,
+                    "quantity": 1
+                }
+            ],
+            "customer_name": "John Supporter",
+            "customer_email": "john.supporter@example.com",
+            "shipping_address": "123 Supporter Street, Support City, SC 12345"
+        }
+        
+        success, checkout_response = self.run_test(
+            "Create Public Checkout (No Auth)",
+            "POST",
+            "store/public/checkout",
+            200,
+            data=test_checkout_data
+        )
+        
+        order_id = None
+        if success:
+            # Verify checkout response has required fields
+            required_fields = ['success', 'checkout_url', 'order_id', 'total']
+            missing_fields = [field for field in required_fields if field not in checkout_response]
+            
+            if not missing_fields:
+                self.log_test("Public Checkout - Response Fields", True, f"All required fields present: {required_fields}")
+                order_id = checkout_response.get('order_id')
+                
+                # Verify success is True
+                if checkout_response.get('success') is True:
+                    self.log_test("Public Checkout - Success Flag", True, "Success flag is True")
+                else:
+                    self.log_test("Public Checkout - Success Flag", False, f"Success flag: {checkout_response.get('success')}")
+                
+                # Verify checkout_url is a valid Square URL
+                checkout_url = checkout_response.get('checkout_url', '')
+                if checkout_url.startswith('https://') and 'square' in checkout_url.lower():
+                    self.log_test("Public Checkout - Valid Square URL", True, f"URL: {checkout_url[:50]}...")
+                else:
+                    self.log_test("Public Checkout - Valid Square URL", False, f"Invalid URL: {checkout_url}")
+                
+                # Verify total calculation (25*2 + 5 = 55, plus tax)
+                expected_subtotal = 55.00
+                expected_tax = round(expected_subtotal * 0.0825, 2)  # 8.25% tax
+                expected_total = round(expected_subtotal + expected_tax, 2)
+                actual_total = checkout_response.get('total', 0)
+                
+                if abs(actual_total - expected_total) < 0.01:  # Allow for rounding differences
+                    self.log_test("Public Checkout - Total Calculation", True, f"Total: ${actual_total} (expected: ${expected_total})")
+                else:
+                    self.log_test("Public Checkout - Total Calculation", False, f"Total: ${actual_total}, expected: ${expected_total}")
+            else:
+                self.log_test("Public Checkout - Response Fields", False, f"Missing fields: {missing_fields}")
+        else:
+            self.log_test("Create Public Checkout", False, "Failed to create public checkout")
+        
+        # Test 3: Verify Order Creation with Supporter Type
+        print(f"\n   📋 Step 4: Verifying Order Creation...")
+        
+        # Restore admin token to check order
+        self.token = original_token
+        
+        if order_id:
+            success, order_details = self.run_test(
+                "Get Created Order Details",
+                "GET",
+                f"store/orders/{order_id}",
+                200
+            )
+            
+            if success:
+                # Verify order has supporter type
+                if order_details.get('order_type') == 'supporter':
+                    self.log_test("Order Creation - Supporter Type", True, "Order marked as supporter type")
+                else:
+                    self.log_test("Order Creation - Supporter Type", False, f"Order type: {order_details.get('order_type')}")
+                
+                # Verify customer information
+                if order_details.get('customer_email') == test_checkout_data['customer_email']:
+                    self.log_test("Order Creation - Customer Email", True, "Customer email saved correctly")
+                else:
+                    self.log_test("Order Creation - Customer Email", False, f"Email mismatch")
+                
+                if order_details.get('user_name') == test_checkout_data['customer_name']:
+                    self.log_test("Order Creation - Customer Name", True, "Customer name saved correctly")
+                else:
+                    self.log_test("Order Creation - Customer Name", False, f"Name mismatch")
+                
+                # Verify order status is pending
+                if order_details.get('status') == 'pending':
+                    self.log_test("Order Creation - Pending Status", True, "Order status is pending")
+                else:
+                    self.log_test("Order Creation - Pending Status", False, f"Status: {order_details.get('status')}")
+            else:
+                self.log_test("Get Created Order Details", False, "Failed to retrieve order details")
+        
+        # Test 4: Edge Cases
+        print(f"\n   ⚠️  Step 5: Testing Edge Cases...")
+        
+        # Remove token for public tests
+        self.token = None
+        
+        # Test empty cart
+        empty_checkout_data = {
+            "items": [],
+            "customer_name": "Empty Cart User",
+            "customer_email": "empty@example.com"
+        }
+        
+        success, empty_response = self.run_test(
+            "Public Checkout - Empty Cart (Should Fail)",
+            "POST",
+            "store/public/checkout",
+            400,
+            data=empty_checkout_data
+        )
+        
+        # Test missing customer info
+        missing_info_data = {
+            "items": [{"product_id": "test", "name": "Test", "price": 10, "quantity": 1}],
+            "customer_name": "",  # Missing name
+            "customer_email": "test@example.com"
+        }
+        
+        success, missing_response = self.run_test(
+            "Public Checkout - Missing Customer Name (Should Fail)",
+            "POST", 
+            "store/public/checkout",
+            422,  # Validation error
+            data=missing_info_data
+        )
+        
+        # Restore admin token
+        self.token = original_token
+        
+        print(f"   🛒 Supporter Store feature testing completed")
+        return public_product_count, order_id
+
     def run_review_request_tests(self):
         """Run the specific tests requested in the review"""
-        print("🔍 Starting Review Request Testing - 3-Role System & Bulk Promotion...")
+        print("🔍 Starting Review Request Testing - Supporter Store Feature...")
         print(f"   Base URL: {self.base_url}")
         print(f"   Testing started at: {datetime.now()}")
         
-        # Test authentication first with testadmin/testpass123
-        success, login_response = self.test_login("testadmin", "testpass123")
+        # Test authentication first
+        success, login_response = self.test_login("admin", "admin123")
         if not success:
             print("❌ Authentication failed - cannot continue tests")
             return
         
-        # Run the specific tests requested in the review
-        self.test_3_role_system_access_control()
-        self.test_bulk_promotion_comprehensive()
+        # Run the supporter store tests
+        self.test_supporter_store_feature()
         
         # Print final results
         print(f"\n📊 Review Request Test Results:")
