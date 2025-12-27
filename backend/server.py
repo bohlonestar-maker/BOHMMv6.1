@@ -7114,9 +7114,9 @@ async def create_store_product(product_data: StoreProductCreate, current_user: d
 
 @api_router.put("/store/products/{product_id}")
 async def update_store_product(product_id: str, product_data: StoreProductUpdate, current_user: dict = Depends(verify_token)):
-    """Update a store product (National Prez, VP, SEC only)"""
-    if not can_manage_store(current_user):
-        raise HTTPException(status_code=403, detail="Only National Prez, VP, and SEC can edit store products")
+    """Update a store product (Store admins only)"""
+    if not await can_manage_store_async(current_user):
+        raise HTTPException(status_code=403, detail="Only store admins can edit store products")
     
     product = await db.store_products.find_one({"id": product_id})
     if not product:
