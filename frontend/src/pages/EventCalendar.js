@@ -759,6 +759,40 @@ export default function EventCalendar() {
                 </label>
               </div>
 
+              {/* Discord Channel Selector for Edit */}
+              {editFormData.discord_notifications_enabled && availableChannels.length > 0 && (
+                <div className="bg-slate-700/30 p-4 rounded-lg">
+                  <Label className="flex items-center gap-2 mb-2">
+                    <Hash className="w-4 h-4 text-blue-400" />
+                    Discord Channel
+                  </Label>
+                  <Select
+                    value={editFormData.discord_channel}
+                    onValueChange={(value) =>
+                      setEditFormData({ ...editFormData, discord_channel: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-slate-700 border-slate-600">
+                      <SelectValue placeholder="Select channel" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      {availableChannels.map((channel) => (
+                        <SelectItem 
+                          key={channel.id} 
+                          value={channel.id}
+                          className="text-white"
+                        >
+                          #{channel.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Choose which Discord channel to post the event notification
+                  </p>
+                </div>
+              )}
+
               <div className="flex justify-end gap-2 mt-6">
                 <Button
                   type="button"
