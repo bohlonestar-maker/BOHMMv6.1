@@ -1105,6 +1105,28 @@ export default function Store({ userRole, userChapter }) {
                 placeholder="https://example.com/image.jpg"
               />
             </div>
+            {/* Customization Toggle */}
+            <div className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+              <div>
+                <Label className="text-slate-200 font-medium">Allow Handle/Rank Customization</Label>
+                <p className="text-xs text-slate-400 mt-1">
+                  Let customers add their handle or rank (+$5 each)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProductForm({ ...productForm, allows_customization: !productForm.allows_customization })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  productForm.allows_customization ? 'bg-purple-600' : 'bg-slate-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    productForm.allows_customization ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
             {/* Supporter Store Toggle */}
             <div className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg border border-slate-600">
               <div>
