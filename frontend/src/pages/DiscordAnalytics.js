@@ -599,7 +599,9 @@ export default function DiscordAnalytics() {
 
                 {analytics?.least_active_members?.length > 0 ? (
                   <div className="space-y-2 sm:space-y-3">
-                    {analytics.least_active_members.map((member, index) => (
+                    {analytics.least_active_members
+                      .filter(member => member.display_name !== "BOH Admin" && member.username !== "bohadmin")
+                      .map((member, index) => (
                       <div key={member.discord_id} className="flex items-center justify-between p-2 sm:p-3 bg-slate-900 rounded-lg border-l-4 border-orange-500">
                         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                           <div className="w-7 h-7 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">
