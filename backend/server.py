@@ -7010,39 +7010,26 @@ async def get_store_products(category: Optional[str] = None, current_user: dict 
 async def get_public_store_products():
     """Get supporter-available store products (no authentication required)"""
     try:
-        # Get only merchandise products that are available to supporters (not dues, not member-only)
+        # Get only merchandise products that are marked for supporter store
         query = {
             "is_active": True,
             "category": "merchandise",
-            # Exclude member-only items - items with "Member" in name but not "Supporter"
+            "show_in_supporter_store": True  # Only show products marked for supporter store
         }
         
         products = await db.store_products.find(query, {"_id": 0}).to_list(1000)
         
-        # Filter out member-only products (products with "Member" in name that aren't supporter items)
-        supporter_products = []
         for product in products:
-            name_lower = product.get("name", "").lower()
-            # Include supporter items and general merchandise
-            # Exclude items specifically for members only
-            is_member_only = (
-                "member" in name_lower and 
-                "supporter" not in name_lower and
-                not any(word in name_lower for word in ["supporter", "support"])
-            )
-            
-            if not is_member_only:
-                if isinstance(product.get('created_at'), str):
-                    product['created_at'] = datetime.fromisoformat(product['created_at'])
-                if isinstance(product.get('updated_at'), str):
-                    product['updated_at'] = datetime.fromisoformat(product['updated_at'])
-                # Public store always shows regular price
-                product['display_price'] = product.get('price', 0)
-                product['is_member_price'] = False
-                product['can_manage'] = False
-                supporter_products.append(product)
+            if isinstance(product.get('created_at'), str):
+                product['created_at'] = datetime.fromisoformat(product['created_at'])
+            if isinstance(product.get('updated_at'), str):
+                product['updated_at'] = datetime.fromisoformat(product['updated_at'])
+            # Public store always shows regular price
+            product['display_price'] = product.get('price', 0)
+            product['is_member_price'] = False
+            product['can_manage'] = False
         
-        return supporter_products
+        return products
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
