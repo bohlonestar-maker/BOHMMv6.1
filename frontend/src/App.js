@@ -150,6 +150,10 @@ function App() {
             element={<AcceptInvite />}
           />
           <Route
+            path="/supporter-store"
+            element={<SupporterStore />}
+          />
+          <Route
             path="/"
             element={
               isAuthenticated ? (
