@@ -77,6 +77,8 @@ export default function Store({ userRole, userChapter }) {
   const [orderNotes, setOrderNotes] = useState("");
   const [canManageStore, setCanManageStore] = useState(false);
   const [redirectingToCheckout, setRedirectingToCheckout] = useState(false);
+  const [webhookInfo, setWebhookInfo] = useState(null);
+  const [copiedField, setCopiedField] = useState(null);
   
   // Dues state
   const [duesYear, setDuesYear] = useState(new Date().getFullYear());
