@@ -793,81 +793,81 @@ export default function EventCalendar({ userRole }) {
             </div>
 
         {/* Events Table */}
-        <div className="bg-slate-800 rounded-lg shadow-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Event</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Chapter</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEvents.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-slate-400 py-8">
-                    No events found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredEvents.map((event) => (
-                  <TableRow
-                    key={event.id}
-                    onClick={() => handleViewDetails(event)}
-                    className={`cursor-pointer transition-colors ${
-                      isUpcoming(event.date) 
-                        ? "bg-slate-700/30 hover:bg-slate-700/50" 
-                        : "hover:bg-slate-700/30"
-                    }`}
-                  >
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{formatDate(event.date)}</span>
-                        {isUpcoming(event.date) && (
-                          <span className="text-xs text-green-400">Upcoming</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{event.title}</div>
-                        {event.description && (
-                          <div className="text-sm text-slate-400 mt-1 line-clamp-2">
-                            {event.description}
+            <div className="bg-slate-800 rounded-lg shadow-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Event</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Chapter</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-slate-400 py-8">
+                        No events found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <TableRow
+                        key={event.id}
+                        onClick={() => handleViewDetails(event)}
+                        className={`cursor-pointer transition-colors ${
+                          isUpcoming(event.date) 
+                            ? "bg-slate-700/30 hover:bg-slate-700/50" 
+                            : "hover:bg-slate-700/30"
+                        }`}
+                      >
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{formatDate(event.date)}</span>
+                            {isUpcoming(event.date) && (
+                              <span className="text-xs text-green-400">Upcoming</span>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {event.time ? (
-                        <div className="flex items-center gap-1 text-sm">
-                          <Clock className="w-3 h-3 text-slate-400" />
-                          {event.time}
-                        </div>
-                      ) : (
-                        <span className="text-slate-500">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {event.location ? (
-                        <div className="flex items-center gap-1 text-sm">
-                          <MapPin className="w-3 h-3 text-slate-400" />
-                          {event.location}
-                        </div>
-                      ) : (
-                        <span className="text-slate-500">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {event.chapter || <span className="text-slate-500">All</span>}
-                    </TableCell>
-                    <TableCell>
-                      {event.title_filter || <span className="text-slate-500">All</span>}
-                    </TableCell>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{event.title}</div>
+                            {event.description && (
+                              <div className="text-sm text-slate-400 mt-1 line-clamp-2">
+                                {event.description}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {event.time ? (
+                            <div className="flex items-center gap-1 text-sm">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              {event.time}
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {event.location ? (
+                            <div className="flex items-center gap-1 text-sm">
+                              <MapPin className="w-3 h-3 text-slate-400" />
+                              {event.location}
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {event.chapter || <span className="text-slate-500">All</span>}
+                        </TableCell>
+                        <TableCell>
+                          {event.title_filter || <span className="text-slate-500">All</span>}
+                        </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {event.discord_notifications_enabled && (
