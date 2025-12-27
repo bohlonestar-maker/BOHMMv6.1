@@ -250,7 +250,7 @@ export default function Login({ onLogin }) {
                 required
                 className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
               />
-              <p className="text-xs text-slate-500 mt-1">We'll use this to respond to your request</p>
+              <p className="text-xs text-slate-500 mt-1">We&apos;ll use this to respond to your request</p>
             </div>
 
             <div>
