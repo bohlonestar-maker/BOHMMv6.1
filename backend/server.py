@@ -1735,11 +1735,15 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     user_chapter = current_user.get('chapter')
     user_title = current_user.get('title', '')
     
+    # Non-National users cannot view National chapter members
+    is_national_member = user_chapter == 'National'
+    if not is_national_member and member.get('chapter') == 'National':
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     # Titles that can see private emails
     officer_titles = ['Prez', 'VP', 'S@A', 'Enf', 'SEC']
     
     # Check if user can see private emails
-    is_national_member = user_chapter == 'National'
     is_officer = user_title in officer_titles
     can_see_private_emails = is_national_member or is_officer
     
