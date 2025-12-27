@@ -278,11 +278,11 @@ export default function Store({ userRole, userChapter }) {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchProducts(), fetchCart(), fetchOrders()]);
+      await Promise.all([fetchProducts(), fetchCart(), fetchOrders(), fetchStoreAdminStatus()]);
       setLoading(false);
     };
     loadData();
-  }, [fetchProducts, fetchCart, fetchOrders]);
+  }, [fetchProducts, fetchCart, fetchOrders, fetchStoreAdminStatus]);
 
   // Fetch webhook info when canManageStore becomes true
   useEffect(() => {
@@ -290,6 +290,14 @@ export default function Store({ userRole, userChapter }) {
       fetchWebhookInfo();
     }
   }, [canManageStore, fetchWebhookInfo]);
+
+  // Fetch store admin list when isPrimaryAdmin becomes true
+  useEffect(() => {
+    if (isPrimaryAdmin) {
+      fetchStoreAdmins();
+      fetchEligibleUsers();
+    }
+  }, [isPrimaryAdmin, fetchStoreAdmins, fetchEligibleUsers]);
 
   // Product selection state for size/customization modal
   const [selectedProduct, setSelectedProduct] = useState(null);
