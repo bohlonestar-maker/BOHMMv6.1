@@ -201,9 +201,7 @@ export default function Store({ userRole, userChapter }) {
     if (canManageStore) {
       fetchWebhookInfo();
     }
-  }, [canManageStore, fetchWebhookInfo]);};
-    loadData();
-  }, [fetchProducts, fetchCart, fetchOrders]);
+  }, [canManageStore, fetchWebhookInfo]);
 
   // Product selection state for size/customization modal
   const [selectedProduct, setSelectedProduct] = useState(null);
