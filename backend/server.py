@@ -8253,10 +8253,10 @@ async def update_member_dues_from_webhook(dues_info: dict):
 
 @api_router.get("/webhooks/square/info")
 async def get_square_webhook_info(current_user: dict = Depends(verify_token)):
-    """Get Square webhook configuration info (admin only)"""
+    """Get Square webhook configuration info (Store admins only)"""
     # Check if user can manage store
-    if not can_manage_store(current_user):
-        raise HTTPException(status_code=403, detail="Only National Prez, VP, or SEC can view webhook info")
+    if not await can_manage_store_async(current_user):
+        raise HTTPException(status_code=403, detail="Only store admins can view webhook info")
     
     webhook_url = f"{os.environ.get('REACT_APP_BACKEND_URL', '')}/api/webhooks/square"
     signature_configured = bool(SQUARE_WEBHOOK_SIGNATURE_KEY)
