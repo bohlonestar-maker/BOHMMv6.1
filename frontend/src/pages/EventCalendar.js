@@ -734,7 +734,7 @@ export default function EventCalendar({ userRole }) {
                   <div className="space-y-2">
                     {selectedDateItems.anniversaries.map((anniv, idx) => (
                       <div key={idx} className="bg-purple-900/30 border border-purple-600/30 rounded-lg p-3">
-                        <div className="font-medium text-white">🎉 {anniv.name}</div>
+                        <div className="font-medium text-white">🎉 {anniv.handle}</div>
                         <div className="text-sm text-slate-400">{anniv.chapter} {anniv.title && `• ${anniv.title}`}</div>
                         <div className="text-sm text-purple-300">{anniv.years} years with the Brotherhood</div>
                       </div>
