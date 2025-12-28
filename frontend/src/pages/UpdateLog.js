@@ -8,6 +8,19 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v5.7",
+      date: "December 28, 2025",
+      changes: [
+        "Security Headers: Added Strict-Transport-Security (HSTS) to force HTTPS connections",
+        "Content Security Policy: Implemented CSP headers to prevent XSS attacks",
+        "Clickjacking Protection: Added X-Frame-Options header to prevent iframe embedding attacks",
+        "Cookie Security: Enhanced security with SameSite cookie attributes via CSP frame-ancestors",
+        "Additional Headers: Added X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, and Permissions-Policy",
+        "Event Calendar: Fixed to display handles instead of names for birthdays and anniversaries",
+        "Calendar Enhancement: Added Chapter and Title display for birthdays and anniversaries"
+      ]
+    },
+    {
       version: "v5.6",
       date: "December 27, 2025",
       changes: [
