@@ -746,7 +746,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               {/* Navigation Dropdown */}
-              <DropdownMenu>
+              <DropdownMenu modal={true}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="flex items-center gap-2 bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600">
                     <Menu className="w-4 h-4" />
