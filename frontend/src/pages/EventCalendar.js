@@ -426,12 +426,12 @@ export default function EventCalendar({ userRole }) {
             ))}
             {items.birthdays.slice(0, 2).map((bday, idx) => (
               <div key={`b-${idx}`} className="text-[9px] sm:text-[10px] px-1 py-0.5 bg-pink-600/80 text-white rounded truncate">
-                🎂 {bday.handle}
+                🎂 {bday.handle} ({bday.chapter}{bday.title ? ` - ${bday.title}` : ''})
               </div>
             ))}
             {items.anniversaries.slice(0, 2).map((anniv, idx) => (
               <div key={`a-${idx}`} className="text-[9px] sm:text-[10px] px-1 py-0.5 bg-purple-600/80 text-white rounded truncate">
-                🎉 {anniv.handle}
+                🎉 {anniv.handle} ({anniv.chapter}{anniv.title ? ` - ${anniv.title}` : ''})
               </div>
             ))}
             {(items.events.length + items.birthdays.length + items.anniversaries.length > 2) && (
