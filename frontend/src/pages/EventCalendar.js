@@ -190,22 +190,17 @@ export default function EventCalendar({ userRole }) {
       }
     });
     
-    // Check birthdays (compare month and day)
+    // Check birthdays (compare full date from API)
     birthdays.forEach(bday => {
       if (bday.birthday_date === dateStr) {
         items.birthdays.push(bday);
       }
     });
     
-    // Check anniversaries (compare month only for anniversary month)
+    // Check anniversaries (show on first day of the month)
     anniversaries.forEach(anniv => {
-      const joinParts = anniv.join_date?.split('/');
-      if (joinParts && joinParts.length === 2) {
-        const joinMonth = parseInt(joinParts[0]);
-        // Show on first day of anniversary month
-        if (joinMonth === currentMonth.getMonth() + 1 && day === 1) {
-          items.anniversaries.push(anniv);
-        }
+      if (day === 1) {
+        items.anniversaries.push(anniv);
       }
     });
     
