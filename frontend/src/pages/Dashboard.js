@@ -756,16 +756,22 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 bg-slate-800 border-slate-700">
+                <DropdownMenuContent align="start" className="w-56 bg-slate-800 border-slate-700" sideOffset={8}>
                   {/* People Section */}
                   {canAccessProspects && (
-                    <DropdownMenuItem onClick={() => navigate("/prospects")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                    <DropdownMenuItem 
+                      onSelect={(e) => { e.preventDefault(); navigate("/prospects"); }} 
+                      className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                    >
                       <Users className="w-4 h-4 mr-2" />
                       Prospects
                     </DropdownMenuItem>
                   )}
                   {userRole === 'admin' && (
-                    <DropdownMenuItem onClick={() => navigate("/users")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                    <DropdownMenuItem 
+                      onSelect={(e) => { e.preventDefault(); navigate("/users"); }} 
+                      className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                    >
                       <Settings className="w-4 h-4 mr-2" />
                       Admin
                     </DropdownMenuItem>
@@ -775,12 +781,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   
                   {/* Activity Section */}
                   {userRole === 'admin' && (
-                    <DropdownMenuItem onClick={() => navigate("/discord-analytics")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                    <DropdownMenuItem 
+                      onSelect={(e) => { e.preventDefault(); navigate("/discord-analytics"); }} 
+                      className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                    >
                       <Headphones className="w-4 h-4 mr-2" />
                       Discord Analytics
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => navigate("/events")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                  <DropdownMenuItem 
+                    onSelect={(e) => { e.preventDefault(); navigate("/events"); }} 
+                    className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     Events
                     {upcomingEventsCount > 0 && (
@@ -789,7 +801,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                       </span>
                     )}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/messages")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                  <DropdownMenuItem 
+                    onSelect={(e) => { e.preventDefault(); navigate("/messages"); }} 
+                    className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                  >
                     <Mail className="w-4 h-4 mr-2" />
                     Messages
                     {unreadPrivateCount > 0 && (
@@ -802,11 +817,17 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   <DropdownMenuSeparator className="bg-slate-700" />
                   
                   {/* Features Section */}
-                  <DropdownMenuItem onClick={() => navigate("/store")} className="text-green-400 focus:bg-green-900/30 focus:text-green-300 cursor-pointer">
+                  <DropdownMenuItem 
+                    onSelect={(e) => { e.preventDefault(); navigate("/store"); }} 
+                    className="text-green-400 focus:bg-green-900/30 focus:text-green-300 cursor-pointer"
+                  >
                     <DollarSign className="w-4 h-4 mr-2" />
                     Store
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/wall-of-honor")} className="text-amber-400 focus:bg-amber-900/30 focus:text-amber-300 cursor-pointer">
+                  <DropdownMenuItem 
+                    onSelect={(e) => { e.preventDefault(); navigate("/wall-of-honor"); }} 
+                    className="text-amber-400 focus:bg-amber-900/30 focus:text-amber-300 cursor-pointer"
+                  >
                     <Star className="w-4 h-4 mr-2" />
                     Wall of Honor
                   </DropdownMenuItem>
@@ -814,7 +835,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   {userRole === 'admin' && (
                     <>
                       <DropdownMenuSeparator className="bg-slate-700" />
-                      <DropdownMenuItem onClick={() => navigate("/update-log")} className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer">
+                      <DropdownMenuItem 
+                        onSelect={(e) => { e.preventDefault(); navigate("/update-log"); }} 
+                        className="text-slate-200 focus:bg-slate-700 focus:text-white cursor-pointer"
+                      >
                         <Clock className="w-4 h-4 mr-2" />
                         Change Log
                       </DropdownMenuItem>
@@ -824,7 +848,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                   {localStorage.getItem("username") === "Lonestar" && (
                     <>
                       <DropdownMenuSeparator className="bg-slate-700" />
-                      <DropdownMenuItem onClick={() => navigate("/message-monitor")} className="text-purple-400 focus:bg-purple-900/30 focus:text-purple-300 cursor-pointer">
+                      <DropdownMenuItem 
+                        onSelect={(e) => { e.preventDefault(); navigate("/message-monitor"); }} 
+                        className="text-purple-400 focus:bg-purple-900/30 focus:text-purple-300 cursor-pointer"
+                      >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Message Monitor
                       </DropdownMenuItem>
