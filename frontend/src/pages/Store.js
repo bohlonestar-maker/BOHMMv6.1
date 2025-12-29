@@ -322,11 +322,11 @@ export default function Store({ userRole, userChapter, userTitle }) {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchProducts(), fetchCart(), fetchOrders(), fetchStoreAdminStatus()]);
+      await Promise.all([fetchProducts(), fetchCart(), fetchOrders(), fetchStoreAdminStatus(), fetchStoreSettings()]);
       setLoading(false);
     };
     loadData();
-  }, [fetchProducts, fetchCart, fetchOrders, fetchStoreAdminStatus]);
+  }, [fetchProducts, fetchCart, fetchOrders, fetchStoreAdminStatus, fetchStoreSettings]);
 
   // Fetch webhook info when canManageStore becomes true
   useEffect(() => {
