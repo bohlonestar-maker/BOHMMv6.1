@@ -101,7 +101,7 @@ const sortMembers = (members) => {
   });
 };
 
-export default function Dashboard({ onLogout, userRole, userPermissions, userChapter }) {
+export default function Dashboard({ onLogout, userRole, userPermissions, userChapter, userTitle }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -132,11 +132,26 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
   // Check if user is National Admin
   const isNationalAdmin = userRole === 'admin' && userChapter === 'National';
   
-  // Check if user can edit a specific member (based on chapter)
+  // National officer titles that can perform actions on National members
+  const NATIONAL_OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'ENF', 'CD', 'T', 'SEC'];
+  
+  // Check if current user is a National officer who can act on National members
+  const isNationalOfficer = userChapter === 'National' && NATIONAL_OFFICER_TITLES.includes(userTitle);
+  
+  // Check if user can edit a specific member (based on chapter and title restrictions)
   const canEditMember = (memberChapter) => {
     if (userRole !== 'admin') return false;
-    if (userChapter === 'National') return true;  // National Admin can edit all
-    return userChapter === memberChapter;  // Chapter admins can only edit their own chapter
+    
+    // For National chapter members, only specific National officers can edit
+    if (memberChapter === 'National') {
+      return isNationalOfficer;
+    }
+    
+    // National officers can edit any non-National chapter
+    if (userChapter === 'National') return true;
+    
+    // Chapter admins can only edit their own chapter
+    return userChapter === memberChapter;
   };
 
   // Check if user can access prospects (National or HA Admin)
