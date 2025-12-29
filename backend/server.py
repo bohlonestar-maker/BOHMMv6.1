@@ -1087,6 +1087,7 @@ class MemberUpdate(BaseModel):
     phone_private: Optional[bool] = None
     address_private: Optional[bool] = None
     email_private: Optional[bool] = None
+    name_private: Optional[bool] = None
     # Military Service
     military_service: Optional[bool] = None
     military_branch: Optional[str] = None
