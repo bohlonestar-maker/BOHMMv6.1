@@ -127,6 +127,10 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
   const [newMeetingDate, setNewMeetingDate] = useState("");
   const [newMeetingStatus, setNewMeetingStatus] = useState(1);
   const [newMeetingNote, setNewMeetingNote] = useState("");
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
   const navigate = useNavigate();
 
   // Check if user is National Admin
