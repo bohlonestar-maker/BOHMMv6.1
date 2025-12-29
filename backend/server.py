@@ -1733,9 +1733,8 @@ async def get_members(current_user: dict = Depends(verify_token)):
     is_officer = user_title in officer_titles
     can_see_private_emails = is_national_admin or is_officer
     
-    # Filter out National chapter members if user is not in National chapter
-    if not is_national_member:
-        members = [m for m in members if m.get('chapter') != 'National']
+    # NOTE: National members are visible to all users, but action buttons are restricted
+    # to specific National officers (handled by can_edit_member function)
     
     # Debug logging
     print(f"[EMAIL PRIVACY DEBUG] User: chapter={user_chapter}, title={user_title}, is_national={is_national_admin}, is_officer={is_officer}, can_see_private={can_see_private_emails}")
