@@ -1,7 +1,40 @@
 # Test Results
 
 ## Current Testing Focus
-NoSQL Injection Security Fix - Testing Dues Endpoint
+Store Open/Close Controls Feature - Testing Store Status Management
+
+## Store Status Feature Test Cases (2025-12-29)
+
+### Feature Summary
+- Added ability for National Prez, VP, SEC to open/close both Supporter Store and Member Store
+- Closed stores show "Under Construction" message to regular users
+- Privileged users (National Prez/VP/SEC) can bypass closed stores
+- Settings UI added in Store Settings tab
+
+### Test Cases to Verify
+
+#### API Tests
+1. **GET /api/store/settings/public** - Public endpoint returns store status
+2. **GET /api/store/settings** - Authenticated endpoint returns status with can_bypass flag
+3. **PUT /api/store/settings** - Update store status (only by National Prez/VP/SEC)
+4. **PUT /api/store/settings** - Should fail for non-privileged users (403)
+
+#### UI Tests
+1. **Login Page** - Supporter Store button should hide when supporter_store_open=false
+2. **Supporter Store** - Should show "Under Construction" when closed
+3. **Member Store** - Should show "Under Construction" when closed (for non-privileged users)
+4. **Member Store** - Should show products when closed (for National Prez/VP/SEC)
+5. **Settings Tab** - Only visible to store admins
+6. **Store Status Card** - Only visible to Primary Admins (National Prez/VP/SEC)
+7. **Toggles** - Should update store status correctly
+
+### Credentials for Testing
+- **National Prez**: admin / admin123 (CAN bypass closed stores)
+- **National SEC**: Lonestar / (check password)
+- **AD VP**: adadmin / test (CANNOT bypass)
+- **HA Prez**: haofficer / (check password)
+
+---
 
 ## Security Audit - NoSQL Injection Prevention (2025-12-27)
 
