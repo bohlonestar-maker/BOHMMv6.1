@@ -100,8 +100,12 @@ export default function Prospects({ onLogout, userRole, userChapter }) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const navigate = useNavigate();
   
-  // Check if user can edit prospects (National or HA Admin)
-  const canEditProspects = userRole === 'admin' && (userChapter === 'National' || userChapter === 'HA');
+  // Check if user can edit prospects - will be updated from API response
+  // PM title has view-only access, so they cannot edit
+  const userTitle = localStorage.getItem('title') || '';
+  const canEditProspects = userRole === 'admin' && 
+                           (userChapter === 'National' || userChapter === 'HA') && 
+                           userTitle !== 'PM';
 
   const [formData, setFormData] = useState({
     handle: "",
