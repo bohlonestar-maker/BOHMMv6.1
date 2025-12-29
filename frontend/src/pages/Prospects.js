@@ -771,6 +771,7 @@ export default function Prospects({ onLogout, userRole, userChapter }) {
                 </Button>
               )}
 
+              {canEditProspects && (
               <Dialog open={dialogOpen} onOpenChange={(open) => {
                 setDialogOpen(open);
                 if (!open) resetForm();
