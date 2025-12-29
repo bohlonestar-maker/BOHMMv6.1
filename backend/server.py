@@ -2380,9 +2380,8 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     
     members = await db.members.find({}, {"_id": 0}).to_list(10000)
     
-    # Filter out National chapter members for non-National users
-    if not is_national_member:
-        members = [m for m in members if m.get('chapter') != 'National']
+    # NOTE: National members are included in export for all users
+    # Action restrictions are handled separately in the UI
     
     # Decrypt sensitive data for all members
     decrypted_members = [decrypt_member_sensitive_data(member) for member in members]
