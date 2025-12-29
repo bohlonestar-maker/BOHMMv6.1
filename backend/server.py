@@ -706,6 +706,11 @@ def can_view_prospects(user: dict) -> bool:
     """Check if user can view prospects list"""
     role = user.get("role", "")
     chapter = user.get("chapter", "")
+    user_title = user.get("title", "")
+    
+    # PM (Prospect Master) can view prospects (read-only)
+    if user_title == "PM":
+        return True
     
     # National Admin and HA Admin can view prospects
     if role == "admin" and chapter in ["National", "HA"]:
