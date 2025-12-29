@@ -1066,6 +1066,7 @@ class MemberCreate(BaseModel):
     phone_private: bool = False
     address_private: bool = False
     email_private: bool = False
+    name_private: bool = False
     # Military Service
     military_service: bool = False
     military_branch: Optional[str] = None
