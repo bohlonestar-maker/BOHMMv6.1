@@ -8969,12 +8969,24 @@ app.include_router(api_router)
 # Mount static files for uploaded images
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
+# Get allowed origins from environment variable
+cors_origins_str = os.environ.get('CORS_ORIGINS', '')
+cors_origins = [origin.strip() for origin in cors_origins_str.split(',') if origin.strip()]
+
+# If no origins specified or only '*', use a restrictive default
+if not cors_origins or cors_origins == ['*']:
+    cors_origins = [
+        "https://boh-membership.preview.emergentagent.com",
+        "https://www.bohhub.com",
+        "https://bohhub.com"
+    ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_origins,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 @app.on_event("shutdown")
