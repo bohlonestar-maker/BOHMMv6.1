@@ -1814,6 +1814,10 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     if user_role == 'prospect':
         member['name'] = 'Hidden'
     
+    # Apply name privacy settings (same rules as email)
+    if member.get('name_private', False) and not can_see_private_emails:
+        member['name'] = 'Private'
+    
     # Apply email privacy settings
     if member.get('email_private', False) and not can_see_private_emails:
         member['email'] = 'Private'
