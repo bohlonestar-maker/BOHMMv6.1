@@ -1086,6 +1086,91 @@ export default function Store({ userRole, userChapter, userTitle }) {
           {canManageStore && (
             <TabsContent value="settings">
               <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+                {/* Store Status Card - Only for Primary Admins (Prez, VP, SEC) */}
+                {isPrimaryAdmin && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardHeader className="p-3 sm:p-4">
+                      <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                        <StoreIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        Store Status
+                      </CardTitle>
+                      <CardDescription className="text-slate-400 text-xs sm:text-sm">
+                        Open or close the stores. Closed stores show &quot;Under Construction&quot; to visitors.
+                        National Prez, VP, and SEC can still access closed stores.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-4 pt-0 space-y-4">
+                      {/* Supporter Store Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {storeSettings.supporter_store_open ? (
+                            <Unlock className="w-5 h-5 text-green-400" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-red-400" />
+                          )}
+                          <div>
+                            <div className="text-white font-medium text-sm">Supporter Store</div>
+                            <div className="text-slate-400 text-xs">Public store on login page</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => updateStoreSettings('supporter_store_open', !storeSettings.supporter_store_open)}
+                          disabled={updatingSettings}
+                          className={`relative w-14 h-7 rounded-full transition-colors ${
+                            storeSettings.supporter_store_open ? 'bg-green-600' : 'bg-red-600'
+                          } ${updatingSettings ? 'opacity-50' : ''}`}
+                        >
+                          <span 
+                            className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                              storeSettings.supporter_store_open ? 'translate-x-8' : 'translate-x-1'
+                            }`} 
+                          />
+                        </button>
+                      </div>
+                      
+                      {/* Member Store Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {storeSettings.member_store_open ? (
+                            <Unlock className="w-5 h-5 text-green-400" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-red-400" />
+                          )}
+                          <div>
+                            <div className="text-white font-medium text-sm">Member Store</div>
+                            <div className="text-slate-400 text-xs">Store for logged-in members</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => updateStoreSettings('member_store_open', !storeSettings.member_store_open)}
+                          disabled={updatingSettings}
+                          className={`relative w-14 h-7 rounded-full transition-colors ${
+                            storeSettings.member_store_open ? 'bg-green-600' : 'bg-red-600'
+                          } ${updatingSettings ? 'opacity-50' : ''}`}
+                        >
+                          <span 
+                            className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                              storeSettings.member_store_open ? 'translate-x-8' : 'translate-x-1'
+                            }`} 
+                          />
+                        </button>
+                      </div>
+                      
+                      {/* Status Summary */}
+                      <div className="text-xs text-slate-500 pt-2 border-t border-slate-700">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`w-2 h-2 rounded-full ${storeSettings.supporter_store_open ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span>Supporter Store is {storeSettings.supporter_store_open ? 'OPEN' : 'CLOSED'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${storeSettings.member_store_open ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span>Member Store is {storeSettings.member_store_open ? 'OPEN' : 'CLOSED'}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Webhook Settings Card */}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardHeader className="p-3 sm:p-4">
