@@ -499,6 +499,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
       phone_private: member.phone_private || false,
       address_private: member.address_private || false,
       email_private: member.email_private || false,
+      name_private: member.name_private || false,
       military_service: member.military_service || false,
       military_branch: member.military_branch || "",
       is_first_responder: member.is_first_responder || false,
