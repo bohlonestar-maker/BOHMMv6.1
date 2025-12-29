@@ -54,13 +54,13 @@ import {
   CheckCircle2,
   ExternalLink,
 } from "lucide-react";
-import { UserPlus, Users, Shield, UserMinus } from "lucide-react";
+import { UserPlus, Users, Shield, UserMinus, Store as StoreIcon, Lock, Unlock } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
 const SQUARE_LOCATION_ID = process.env.REACT_APP_SQUARE_LOCATION_ID;
 
-export default function Store({ userRole, userChapter }) {
+export default function Store({ userRole, userChapter, userTitle }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("merchandise");
@@ -87,6 +87,14 @@ export default function Store({ userRole, userChapter }) {
   const [eligibleUsers, setEligibleUsers] = useState([]);
   const [selectedUserToAdd, setSelectedUserToAdd] = useState("");
   const [addingAdmin, setAddingAdmin] = useState(false);
+  
+  // Store Settings state
+  const [storeSettings, setStoreSettings] = useState({
+    supporter_store_open: true,
+    member_store_open: true,
+    can_bypass: false
+  });
+  const [updatingSettings, setUpdatingSettings] = useState(false);
   
   // Dues state
   const [duesYear, setDuesYear] = useState(new Date().getFullYear());
