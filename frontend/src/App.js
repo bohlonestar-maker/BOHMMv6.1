@@ -286,7 +286,7 @@ function App() {
             path="/store"
             element={
               isAuthenticated ? (
-                <Store userRole={userRole} userChapter={userChapter} />
+                <Store userRole={userRole} userChapter={userChapter} userTitle={userTitle} />
               ) : (
                 <Navigate to="/login" replace />
               )
