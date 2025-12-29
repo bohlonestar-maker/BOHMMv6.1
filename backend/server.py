@@ -1607,6 +1607,7 @@ async def verify(current_user: dict = Depends(verify_token)):
         "username": user["username"],
         "role": user["role"],
         "chapter": current_user.get("chapter"),  # Include chapter from JWT token
+        "title": user.get("title", ""),  # Include title for permission checks
         "permissions": user.get("permissions", {
             "basic_info": True,
             "email": False,
