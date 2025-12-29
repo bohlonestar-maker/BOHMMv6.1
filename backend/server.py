@@ -8948,8 +8948,8 @@ async def update_store_settings(
     if not is_primary_store_admin(current_user):
         raise HTTPException(status_code=403, detail="Only National Prez, VP, or SEC can update store settings")
     
-    # Get current settings
-    settings = await db.store_settings.find_one({"id": "store_status"})
+    # Get current settings (exclude _id)
+    settings = await db.store_settings.find_one({"id": "store_status"}, {"_id": 0})
     
     if not settings:
         settings = {
