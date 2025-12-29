@@ -1034,6 +1034,7 @@ class Member(BaseModel):
     phone_private: bool = False  # If True, only admins can see phone
     address_private: bool = False  # If True, only admins can see address
     email_private: bool = False  # If True, only National members and chapter officers (Prez, VP, S@A, Enf, SEC) can see email
+    name_private: bool = False  # If True, only National members and chapter officers can see real name
     # Military Service
     military_service: bool = False  # If True, member has served in military
     military_branch: Optional[str] = None  # Army, Navy, Air Force, Marines, Coast Guard, Space Force, National Guard
