@@ -85,6 +85,7 @@ function App() {
   const [userRole, setUserRole] = useState(null);
   const [userPermissions, setUserPermissions] = useState(null);
   const [userChapter, setUserChapter] = useState(null);
+  const [userTitle, setUserTitle] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -92,16 +93,18 @@ function App() {
     const role = localStorage.getItem('role');
     const permissions = localStorage.getItem('permissions');
     const chapter = localStorage.getItem('chapter');
+    const title = localStorage.getItem('title');
     if (token && role) {
       setIsAuthenticated(true);
       setUserRole(role);
       setUserPermissions(permissions ? JSON.parse(permissions) : null);
       setUserChapter(chapter || null);
+      setUserTitle(title || null);
     }
     setLoading(false);
   }, []);
 
-  const handleLogin = (token, username, role, permissions, chapter) => {
+  const handleLogin = (token, username, role, permissions, chapter, title) => {
     localStorage.setItem('token', token);
     localStorage.setItem('username', username);
     localStorage.setItem('role', role);
@@ -109,10 +112,14 @@ function App() {
     if (chapter) {
       localStorage.setItem('chapter', chapter);
     }
+    if (title) {
+      localStorage.setItem('title', title);
+    }
     setIsAuthenticated(true);
     setUserRole(role);
     setUserPermissions(permissions);
     setUserChapter(chapter);
+    setUserTitle(title);
   };
 
   const handleLogout = () => {
@@ -121,10 +128,12 @@ function App() {
     localStorage.removeItem('role');
     localStorage.removeItem('permissions');
     localStorage.removeItem('chapter');
+    localStorage.removeItem('title');
     setIsAuthenticated(false);
     setUserRole(null);
     setUserPermissions(null);
     setUserChapter(null);
+    setUserTitle(null);
   };
 
   if (loading) {
