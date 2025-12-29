@@ -9712,6 +9712,9 @@ class BOHDirectoryAPITester:
         # Test role-based access control
         self.test_user_role_restrictions()
         
+        # NEW TEST: Store Open/Close Feature
+        self.test_store_open_close_feature()
+        
         return self.generate_report()
 
     def generate_report(self):
