@@ -4097,7 +4097,15 @@ class PasswordChange(BaseModel):
 
 @api_router.put("/users/{user_id}/password")
 async def change_user_password(user_id: str, password_data: PasswordChange, current_user: dict = Depends(verify_admin)):
-    """Change password for a user - admin only"""
+    """Change password for a user - Only National Prez, VP, or SEC can change other users' passwords"""
+    # Check if current user is authorized (National Prez, VP, or SEC)
+    user_chapter = current_user.get('chapter', '')
+    user_title = current_user.get('title', '')
+    AUTHORIZED_TITLES = ['Prez', 'VP', 'SEC']
+    
+    if user_chapter != 'National' or user_title not in AUTHORIZED_TITLES:
+        raise HTTPException(status_code=403, detail="Only National Prez, VP, or SEC can change other users' passwords")
+    
     # Validate password
     if len(password_data.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
@@ -4125,6 +4133,47 @@ async def change_user_password(user_id: str, password_data: PasswordChange, curr
     )
     
     return {"message": "Password changed successfully"}
+
+
+class OwnPasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@api_router.put("/auth/change-password")
+async def change_own_password(password_data: OwnPasswordChange, current_user: dict = Depends(verify_token)):
+    """Allow any user to change their own password"""
+    # Get the current user's full data
+    user = await db.users.find_one({"username": current_user["username"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify current password
+    if not verify_password(password_data.current_password, user.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Validate new password
+    if len(password_data.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+    
+    # Hash new password
+    new_password_hash = hash_password(password_data.new_password)
+    
+    # Update password
+    await db.users.update_one(
+        {"username": current_user["username"]},
+        {"$set": {"password_hash": new_password_hash}}
+    )
+    
+    # Log activity
+    await log_activity(
+        username=current_user["username"],
+        action="password_change",
+        details="User changed their own password"
+    )
+    
+    return {"message": "Password changed successfully"}
+
 
 # Invite endpoints
 @api_router.post("/invites")
