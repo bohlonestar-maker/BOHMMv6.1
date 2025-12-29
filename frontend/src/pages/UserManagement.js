@@ -923,6 +923,7 @@ export default function UserManagement({ onLogout }) {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
           </div>
         </div>
 
