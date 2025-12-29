@@ -414,6 +414,8 @@ export default function SupporterStore() {
             ))}
           </div>
         )}
+        </>
+        )}
       </div>
 
       {/* Cart Dialog */}
