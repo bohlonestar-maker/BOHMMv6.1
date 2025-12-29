@@ -1798,31 +1798,29 @@ async def get_member(member_id: str, current_user: dict = Depends(verify_token))
     # NOTE: National members are viewable by all users
     # Action buttons are restricted via can_edit_member function
     is_national_member = user_chapter == 'National'
+    member_chapter = member.get('chapter', '')
     
-    # Titles that can see private emails
-    officer_titles = ['Prez', 'VP', 'S@A', 'Enf', 'SEC']
+    # Officer titles that can see their chapter's private info (PM excluded)
+    officer_titles = ['Prez', 'VP', 'S@A', 'Enf', 'SEC', 'CD', 'T', 'ENF']
     
-    # Check if user can see private emails
-    is_officer = user_title in officer_titles
-    can_see_private_emails = is_national_member or is_officer
+    # Check if user is an officer (not PM)
+    is_officer = user_title in officer_titles and user_title != 'PM'
     
-    # For phone/address privacy, only National Chapter admins can see
-    is_national_admin = user_role == 'admin' and user_chapter == 'National'
+    # Determine if user can see this member's private info
+    # - National members can see ALL private info
+    # - Chapter officers (except PM) can see their OWN chapter's private info
+    can_see_member_private = is_national_member or (is_officer and user_chapter == member_chapter)
     
     # Hide names for prospect users
     if user_role == 'prospect':
         member['name'] = 'Hidden'
     
-    # Apply name privacy settings (same rules as email)
-    if member.get('name_private', False) and not can_see_private_emails:
-        member['name'] = 'Private'
-    
-    # Apply email privacy settings
-    if member.get('email_private', False) and not can_see_private_emails:
-        member['email'] = 'Private'
-    
-    # Apply phone/address privacy settings (only National Chapter admins can see)
-    if not is_national_admin:
+    # Apply privacy settings if user cannot see private info
+    if not can_see_member_private:
+        if member.get('name_private', False):
+            member['name'] = 'Private'
+        if member.get('email_private', False):
+            member['email'] = 'Private'
         if member.get('phone_private', False):
             member['phone'] = 'Private'
         if member.get('address_private', False):
