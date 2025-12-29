@@ -4004,6 +4004,15 @@ async def create_user(user_data: UserCreate, current_user: dict = Depends(verify
 
 @api_router.put("/users/{user_id}")
 async def update_user(user_id: str, user_data: UserUpdate, current_user: dict = Depends(verify_admin)):
+    """Update a user - Only National Prez, VP, or SEC can edit system users"""
+    # Check if current user is authorized (National Prez, VP, or SEC)
+    user_chapter = current_user.get('chapter', '')
+    user_title = current_user.get('title', '')
+    AUTHORIZED_TITLES = ['Prez', 'VP', 'SEC']
+    
+    if user_chapter != 'National' or user_title not in AUTHORIZED_TITLES:
+        raise HTTPException(status_code=403, detail="Only National Prez, VP, or SEC can edit system users")
+    
     user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
