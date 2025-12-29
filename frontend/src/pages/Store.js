@@ -922,6 +922,23 @@ export default function Store({ userRole, userChapter, userTitle }) {
 
           {/* Dues Tab */}
           <TabsContent value="dues">
+            {/* Under Construction for Member Store */}
+            {!storeSettings.member_store_open && !storeSettings.can_bypass ? (
+              <div className="flex flex-col items-center justify-center py-16 sm:py-24">
+                <div className="bg-slate-800 border border-yellow-600/30 rounded-xl p-8 sm:p-12 text-center max-w-md">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Under Construction</h2>
+                  <p className="text-slate-400 text-sm sm:text-base mb-4">
+                    The Member Store is currently closed for maintenance. Please check back soon!
+                  </p>
+                  <Badge className="bg-yellow-600/20 text-yellow-400 border border-yellow-600/30">
+                    Coming Soon
+                  </Badge>
+                </div>
+              </div>
+            ) : (
             <Card className="bg-slate-800 border-slate-700 max-w-md mx-auto">
               <CardHeader className="p-3 sm:p-4">
                 <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
@@ -998,6 +1015,7 @@ export default function Store({ userRole, userChapter, userTitle }) {
                 </Button>
               </CardFooter>
             </Card>
+            )}
           </TabsContent>
 
           {/* Orders Tab */}
