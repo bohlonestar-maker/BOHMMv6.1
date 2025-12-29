@@ -721,6 +721,10 @@ def can_edit_member(user: dict, member_chapter: str) -> bool:
     if role != "admin":
         return False
     
+    # PM (Prospect Master) cannot edit members - they have read-only access
+    if user_title == "PM":
+        return False
+    
     # For National chapter members, only specific National officers can edit
     # Authorized titles: Prez, VP, S@A, ENF, CD, T, SEC
     NATIONAL_OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'ENF', 'CD', 'T', 'SEC']
@@ -740,6 +744,11 @@ def can_edit_prospect(user: dict) -> bool:
     """Check if user can edit prospects"""
     role = user.get("role", "")
     chapter = user.get("chapter", "")
+    user_title = user.get("title", "")
+    
+    # PM (Prospect Master) cannot edit prospects - they have read-only access
+    if user_title == "PM":
+        return False
     
     # Only National Admin and HA Admin can edit prospects
     return role == "admin" and chapter in ["National", "HA"]
