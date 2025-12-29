@@ -713,14 +713,23 @@ def can_view_prospects(user: dict) -> bool:
     return False
 
 def can_edit_member(user: dict, member_chapter: str) -> bool:
-    """Check if user can edit a member based on their chapter"""
+    """Check if user can edit a member based on their chapter and title restrictions"""
     role = user.get("role", "")
     user_chapter = user.get("chapter", "")
+    user_title = user.get("title", "")
     
     if role != "admin":
         return False
     
-    # National Admin can edit all
+    # For National chapter members, only specific National officers can edit
+    # Authorized titles: Prez, VP, S@A, ENF, CD, T, SEC
+    NATIONAL_OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'ENF', 'CD', 'T', 'SEC']
+    
+    if member_chapter == "National":
+        # Only National officers with specific titles can edit National members
+        return user_chapter == "National" and user_title in NATIONAL_OFFICER_TITLES
+    
+    # National admins can edit all non-National members
     if user_chapter == "National":
         return True
     
