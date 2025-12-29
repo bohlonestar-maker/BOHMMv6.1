@@ -269,6 +269,40 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
     }
   };
 
+  const handleChangePassword = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+    
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters");
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`${API}/auth/change-password`, {
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setPasswordSuccess("Password changed successfully!");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setTimeout(() => {
+        setPasswordDialogOpen(false);
+        setPasswordSuccess("");
+      }, 2000);
+    } catch (error) {
+      setPasswordError(error.response?.data?.detail || "Failed to change password");
+    }
+  };
+
 
   // Update meeting dates whenever the year changes
   useEffect(() => {
