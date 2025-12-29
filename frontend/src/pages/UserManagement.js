@@ -1261,6 +1261,7 @@ export default function UserManagement({ onLogout }) {
                         {new Date(user.created_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
                       </TableCell>
                       <TableCell className="text-right">
+                        {canEditUsers ? (
                         <div className="flex justify-end gap-2">
                           <Button
                             size="sm"
@@ -1287,6 +1288,9 @@ export default function UserManagement({ onLogout }) {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                        ) : (
+                          <span className="text-slate-500 text-sm">-</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
