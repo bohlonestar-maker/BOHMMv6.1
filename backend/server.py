@@ -2860,7 +2860,10 @@ async def get_dues_quarterly_report(
     output.seek(0)
     csv_content = '\ufeff' + output.getvalue()
     
-    filename = f"dues_Q{quarter}_{year}"
+    if quarter == "all" or quarter is None:
+        filename = f"dues_{year}"
+    else:
+        filename = f"dues_Q{quarter}_{year}"
     if chapter and chapter != "All":
         filename += f"_{chapter}"
     filename += ".csv"
