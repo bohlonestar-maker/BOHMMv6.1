@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ export default function QuarterlyReports() {
   // Preview state
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState([]);
-  const [previewType, setPreviewType] = useState("");
+  const [previewType, setPreviewType] = useState(""); // "dues", "attendance", "prospects"
   const [previewLoading, setPreviewLoading] = useState(false);
 
   const token = localStorage.getItem('token');
@@ -125,6 +125,7 @@ export default function QuarterlyReports() {
     }
   };
 
+  // Preview Member Dues
   const previewDuesReport = async () => {
     setPreviewLoading(true);
     setPreviewType("dues");
@@ -135,12 +136,10 @@ export default function QuarterlyReports() {
       
       let members = response.data;
       
-      // Filter by chapter if not "All"
       if (selectedChapter !== "All") {
         members = members.filter(m => m.chapter === selectedChapter);
       }
       
-      // Sort by chapter order and then by title
       const chapterOrder = { "National": 0, "AD": 1, "HA": 2, "HS": 3 };
       members.sort((a, b) => {
         const chapterDiff = (chapterOrder[a.chapter] || 99) - (chapterOrder[b.chapter] || 99);
@@ -158,39 +157,105 @@ export default function QuarterlyReports() {
     }
   };
 
+  // Preview Member Attendance
+  const previewAttendanceReport = async () => {
+    setPreviewLoading(true);
+    setPreviewType("attendance");
+    try {
+      const response = await axios.get(`${API}/members`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      let members = response.data;
+      
+      if (selectedChapter !== "All") {
+        members = members.filter(m => m.chapter === selectedChapter);
+      }
+      
+      const chapterOrder = { "National": 0, "AD": 1, "HA": 2, "HS": 3 };
+      members.sort((a, b) => {
+        const chapterDiff = (chapterOrder[a.chapter] || 99) - (chapterOrder[b.chapter] || 99);
+        if (chapterDiff !== 0) return chapterDiff;
+        return (a.handle || '').localeCompare(b.handle || '');
+      });
+      
+      setPreviewData(members);
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error('Error loading preview:', error);
+      toast.error('Failed to load preview');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Preview Prospect Attendance
+  const previewProspectsReport = async () => {
+    setPreviewLoading(true);
+    setPreviewType("prospects");
+    try {
+      const response = await axios.get(`${API}/prospects`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      let prospects = response.data;
+      
+      // Sort by name
+      prospects.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      
+      setPreviewData(prospects);
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error('Error loading preview:', error);
+      toast.error('Failed to load preview');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const handlePrint = () => {
-    const printContent = document.getElementById('dues-preview-table');
+    const printContent = document.getElementById('preview-table');
     if (!printContent) return;
     
     const quarterLabel = selectedQuarter === "all" 
       ? `Full Year ${selectedYear}` 
       : `${QUARTERS.find(q => q.value === selectedQuarter)?.label} ${selectedYear}`;
     
+    const reportTitles = {
+      dues: "Dues Report",
+      attendance: "Meeting Attendance Report",
+      prospects: "Prospect Attendance Report"
+    };
+    
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
         <head>
-          <title>Dues Report - ${quarterLabel}</title>
+          <title>${reportTitles[previewType]} - ${quarterLabel}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; }
             h1 { font-size: 18px; margin-bottom: 5px; }
             h2 { font-size: 14px; color: #666; margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; font-size: 11px; }
-            th, td { border: 1px solid #333; padding: 4px 6px; text-align: center; }
+            table { width: 100%; border-collapse: collapse; font-size: 10px; }
+            th, td { border: 1px solid #333; padding: 3px 5px; text-align: center; }
             th { background-color: #1e293b; color: white; }
             .member-info { text-align: left; }
             .paid { background-color: #dcfce7; color: #166534; }
             .late { background-color: #fef3c7; color: #92400e; }
             .unpaid { background-color: #fee2e2; color: #991b1b; }
+            .present { background-color: #dcfce7; color: #166534; }
+            .excused { background-color: #fef3c7; color: #92400e; }
+            .absent { background-color: #fee2e2; color: #991b1b; }
             @media print {
               body { padding: 10px; }
-              table { font-size: 9px; }
+              table { font-size: 8px; }
+              th, td { padding: 2px 3px; }
             }
           </style>
         </head>
         <body>
-          <h1>Brothers of the Highway - Dues Report</h1>
-          <h2>${quarterLabel} ${selectedChapter !== 'All' ? '- ' + selectedChapter + ' Chapter' : '- All Chapters'}</h2>
+          <h1>Brothers of the Highway - ${reportTitles[previewType]}</h1>
+          <h2>${quarterLabel} ${selectedChapter !== 'All' && previewType !== 'prospects' ? '- ' + selectedChapter + ' Chapter' : previewType !== 'prospects' ? '- All Chapters' : ''}</h2>
           ${printContent.outerHTML}
         </body>
       </html>
@@ -199,6 +264,7 @@ export default function QuarterlyReports() {
     printWindow.print();
   };
 
+  // Get dues status for a member
   const getDuesStatus = (member, monthIndex) => {
     const yearData = member.dues?.[selectedYear];
     if (!yearData || !yearData[monthIndex]) return "unpaid";
@@ -210,6 +276,48 @@ export default function QuarterlyReports() {
     return monthData ? "paid" : "unpaid";
   };
 
+  // Get attendance for a member in a specific month
+  const getAttendanceForMonth = (member, monthIndex) => {
+    const yearData = member.meeting_attendance?.[selectedYear];
+    if (!yearData || !Array.isArray(yearData)) return { present: 0, excused: 0, absent: 0, total: 0 };
+    
+    // Filter meetings for this month
+    const monthMeetings = yearData.filter(meeting => {
+      if (!meeting.date) return false;
+      const meetingDate = new Date(meeting.date);
+      return meetingDate.getMonth() === monthIndex;
+    });
+    
+    let present = 0, excused = 0, absent = 0;
+    monthMeetings.forEach(m => {
+      const status = m.status || 0;
+      if (status === 1) present++;
+      else if (status === 2) excused++;
+      else absent++;
+    });
+    
+    return { present, excused, absent, total: monthMeetings.length };
+  };
+
+  // Get prospect attendance for a month
+  const getProspectAttendanceForMonth = (prospect, monthIndex) => {
+    const yearData = prospect.meeting_attendance?.[selectedYear];
+    if (!yearData || !Array.isArray(yearData)) return { present: 0, total: 0 };
+    
+    const monthMeetings = yearData.filter(meeting => {
+      if (!meeting.date) return false;
+      const meetingDate = new Date(meeting.date);
+      return meetingDate.getMonth() === monthIndex;
+    });
+    
+    let present = 0;
+    monthMeetings.forEach(m => {
+      if (m.status === 1) present++;
+    });
+    
+    return { present, total: monthMeetings.length };
+  };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case "paid": return "✓";
@@ -219,6 +327,9 @@ export default function QuarterlyReports() {
   };
 
   const quarterMonths = getQuarterMonths();
+  const quarterLabel = selectedQuarter === "all" 
+    ? `Full Year ${selectedYear}` 
+    : `${QUARTERS.find(q => q.value === selectedQuarter)?.label} ${selectedYear}`;
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -240,7 +351,7 @@ export default function QuarterlyReports() {
             Reports
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Download or print meeting attendance and dues reports by quarter, year, and chapter
+            Download or print meeting attendance and dues reports
           </p>
         </div>
 
@@ -254,7 +365,6 @@ export default function QuarterlyReports() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Year Select */}
               <div>
                 <Label className="text-slate-300 text-sm">Year</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -271,7 +381,6 @@ export default function QuarterlyReports() {
                 </Select>
               </div>
 
-              {/* Quarter Select */}
               <div>
                 <Label className="text-slate-300 text-sm">Period</Label>
                 <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
@@ -288,7 +397,6 @@ export default function QuarterlyReports() {
                 </Select>
               </div>
 
-              {/* Chapter Select */}
               <div>
                 <Label className="text-slate-300 text-sm">Chapter</Label>
                 <Select value={selectedChapter} onValueChange={setSelectedChapter}>
@@ -309,7 +417,7 @@ export default function QuarterlyReports() {
         </Card>
 
         {/* Report Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Member Attendance Report */}
           <Card className="bg-slate-800 border-slate-700 hover:border-green-500/50 transition-colors">
             <CardHeader className="pb-2">
@@ -320,16 +428,27 @@ export default function QuarterlyReports() {
             </CardHeader>
             <CardContent>
               <p className="text-slate-400 text-sm mb-4">
-                Meeting attendance by chapter for {QUARTERS.find(q => q.value === selectedQuarter)?.label} {selectedYear}
+                Meeting attendance for {quarterLabel}
               </p>
-              <Button
-                onClick={() => downloadReport('attendance')}
-                disabled={loading}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download CSV
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={previewAttendanceReport}
+                  disabled={loading || previewLoading}
+                  variant="outline"
+                  className="flex-1 border-green-600 text-green-400 hover:bg-green-900/30"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  Preview
+                </Button>
+                <Button
+                  onClick={() => downloadReport('attendance')}
+                  disabled={loading}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  CSV
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -343,7 +462,7 @@ export default function QuarterlyReports() {
             </CardHeader>
             <CardContent>
               <p className="text-slate-400 text-sm mb-4">
-                Dues payment status by chapter for {QUARTERS.find(q => q.value === selectedQuarter)?.label} {selectedYear}
+                Dues payment status for {quarterLabel}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -377,42 +496,62 @@ export default function QuarterlyReports() {
             </CardHeader>
             <CardContent>
               <p className="text-slate-400 text-sm mb-4">
-                Prospect meeting attendance for {QUARTERS.find(q => q.value === selectedQuarter)?.label} {selectedYear}
+                Prospect meetings for {quarterLabel}
               </p>
-              <Button
-                onClick={() => downloadReport('prospects')}
-                disabled={loading}
-                className="w-full bg-orange-600 hover:bg-orange-700"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download CSV
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={previewProspectsReport}
+                  disabled={loading || previewLoading}
+                  variant="outline"
+                  className="flex-1 border-orange-600 text-orange-400 hover:bg-orange-900/30"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  Preview
+                </Button>
+                <Button
+                  onClick={() => downloadReport('prospects')}
+                  disabled={loading}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  CSV
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Info Note */}
+        {/* Legend */}
         <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-          <h3 className="text-sm font-medium text-slate-300 mb-2">Report Details</h3>
-          <ul className="text-xs text-slate-400 space-y-1">
-            <li>• <strong>Full Year:</strong> Select &quot;Full Year&quot; to get all 12 months in one report</li>
-            <li>• <strong>Member Attendance:</strong> Shows meeting count, present/excused/absent stats per member</li>
-            <li>• <strong>Member Dues:</strong> Shows paid/late/unpaid status for each month - use Preview to see and Print</li>
-            <li>• <strong>Prospect Attendance:</strong> Shows prospect meeting attendance (chapter filter not applicable)</li>
-            <li>• Reports are sorted by chapter (National → AD → HA → HS) and then by handle</li>
-          </ul>
+          <h3 className="text-sm font-medium text-slate-300 mb-2">Legend</h3>
+          <div className="flex flex-wrap gap-4 text-xs text-slate-400">
+            <span className="inline-flex items-center gap-1">
+              <span className="w-3 h-3 bg-green-600 rounded"></span> Paid / Present
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="w-3 h-3 bg-yellow-600 rounded"></span> Late / Excused
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="w-3 h-3 bg-red-600 rounded"></span> Unpaid / Absent
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Dues Preview Dialog */}
+      {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden bg-slate-900 border-slate-700">
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-hidden bg-slate-900 border-slate-700">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-blue-400" />
-                Dues Report - {QUARTERS.find(q => q.value === selectedQuarter)?.label} {selectedYear}
-                {selectedChapter !== 'All' && ` - ${selectedChapter}`}
+                {previewType === "dues" && <DollarSign className="w-5 h-5 text-blue-400" />}
+                {previewType === "attendance" && <Users className="w-5 h-5 text-green-400" />}
+                {previewType === "prospects" && <UserCheck className="w-5 h-5 text-orange-400" />}
+                {previewType === "dues" && "Dues Report"}
+                {previewType === "attendance" && "Member Attendance Report"}
+                {previewType === "prospects" && "Prospect Attendance Report"}
+                {" - "}{quarterLabel}
+                {selectedChapter !== 'All' && previewType !== 'prospects' && ` - ${selectedChapter}`}
               </span>
               <Button
                 onClick={handlePrint}
@@ -426,11 +565,15 @@ export default function QuarterlyReports() {
           </DialogHeader>
           
           <div className="overflow-auto max-h-[70vh]">
-            <Table id="dues-preview-table" className="text-sm">
+            <Table id="preview-table" className="text-sm">
               <TableHeader>
                 <TableRow className="border-slate-700">
-                  <TableHead className="text-white bg-slate-800 sticky left-0 z-10">Member</TableHead>
-                  <TableHead className="text-white bg-slate-800">Chapter</TableHead>
+                  <TableHead className="text-white bg-slate-800 sticky left-0 z-10">
+                    {previewType === "prospects" ? "Prospect" : "Member"}
+                  </TableHead>
+                  {previewType !== "prospects" && (
+                    <TableHead className="text-white bg-slate-800">Chapter</TableHead>
+                  )}
                   {quarterMonths.map(monthIndex => (
                     <TableHead key={monthIndex} className="text-white bg-slate-800 text-center px-2">
                       {MONTHS[monthIndex]}
@@ -439,26 +582,73 @@ export default function QuarterlyReports() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {previewData.map((member, idx) => (
-                  <TableRow key={member.id || idx} className="border-slate-700">
+                {previewData.map((item, idx) => (
+                  <TableRow key={item.id || idx} className="border-slate-700">
                     <TableCell className="text-white font-medium sticky left-0 bg-slate-900 z-10 member-info">
-                      {member.handle || member.name}
+                      {item.handle || item.name}
                     </TableCell>
-                    <TableCell className="text-slate-300">{member.chapter}</TableCell>
+                    {previewType !== "prospects" && (
+                      <TableCell className="text-slate-300">{item.chapter}</TableCell>
+                    )}
                     {quarterMonths.map(monthIndex => {
-                      const status = getDuesStatus(member, monthIndex);
-                      return (
-                        <TableCell 
-                          key={monthIndex} 
-                          className={`text-center px-2 ${
-                            status === 'paid' ? 'bg-green-900/50 text-green-400 paid' :
-                            status === 'late' ? 'bg-yellow-900/50 text-yellow-400 late' :
-                            'bg-red-900/50 text-red-400 unpaid'
-                          }`}
-                        >
-                          {getStatusIcon(status)}
-                        </TableCell>
-                      );
+                      if (previewType === "dues") {
+                        const status = getDuesStatus(item, monthIndex);
+                        return (
+                          <TableCell 
+                            key={monthIndex} 
+                            className={`text-center px-2 ${
+                              status === 'paid' ? 'bg-green-900/50 text-green-400 paid' :
+                              status === 'late' ? 'bg-yellow-900/50 text-yellow-400 late' :
+                              'bg-red-900/50 text-red-400 unpaid'
+                            }`}
+                          >
+                            {getStatusIcon(status)}
+                          </TableCell>
+                        );
+                      } else if (previewType === "attendance") {
+                        const att = getAttendanceForMonth(item, monthIndex);
+                        if (att.total === 0) {
+                          return (
+                            <TableCell key={monthIndex} className="text-center px-2 text-slate-500">
+                              -
+                            </TableCell>
+                          );
+                        }
+                        return (
+                          <TableCell 
+                            key={monthIndex} 
+                            className={`text-center px-2 ${
+                              att.present === att.total ? 'bg-green-900/50 text-green-400 present' :
+                              att.present > 0 ? 'bg-yellow-900/50 text-yellow-400 excused' :
+                              'bg-red-900/50 text-red-400 absent'
+                            }`}
+                          >
+                            {att.present}/{att.total}
+                          </TableCell>
+                        );
+                      } else {
+                        // Prospects
+                        const att = getProspectAttendanceForMonth(item, monthIndex);
+                        if (att.total === 0) {
+                          return (
+                            <TableCell key={monthIndex} className="text-center px-2 text-slate-500">
+                              -
+                            </TableCell>
+                          );
+                        }
+                        return (
+                          <TableCell 
+                            key={monthIndex} 
+                            className={`text-center px-2 ${
+                              att.present === att.total ? 'bg-green-900/50 text-green-400 present' :
+                              att.present > 0 ? 'bg-yellow-900/50 text-yellow-400' :
+                              'bg-red-900/50 text-red-400 absent'
+                            }`}
+                          >
+                            {att.present}/{att.total}
+                          </TableCell>
+                        );
+                      }
                     })}
                   </TableRow>
                 ))}
@@ -467,25 +657,41 @@ export default function QuarterlyReports() {
             
             {previewData.length === 0 && (
               <div className="text-center py-8 text-slate-400">
-                No members found for the selected filters
+                No data found for the selected filters
               </div>
             )}
           </div>
           
           <div className="flex items-center justify-between pt-4 border-t border-slate-700">
             <div className="text-xs text-slate-400">
-              <span className="inline-flex items-center gap-1 mr-4">
-                <span className="w-3 h-3 bg-green-600 rounded"></span> Paid
-              </span>
-              <span className="inline-flex items-center gap-1 mr-4">
-                <span className="w-3 h-3 bg-yellow-600 rounded"></span> Late
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-3 h-3 bg-red-600 rounded"></span> Unpaid
-              </span>
+              {previewType === "dues" ? (
+                <>
+                  <span className="inline-flex items-center gap-1 mr-4">
+                    <span className="w-3 h-3 bg-green-600 rounded"></span> Paid
+                  </span>
+                  <span className="inline-flex items-center gap-1 mr-4">
+                    <span className="w-3 h-3 bg-yellow-600 rounded"></span> Late
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-3 h-3 bg-red-600 rounded"></span> Unpaid
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex items-center gap-1 mr-4">
+                    <span className="w-3 h-3 bg-green-600 rounded"></span> All Present
+                  </span>
+                  <span className="inline-flex items-center gap-1 mr-4">
+                    <span className="w-3 h-3 bg-yellow-600 rounded"></span> Partial
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-3 h-3 bg-red-600 rounded"></span> None
+                  </span>
+                </>
+              )}
             </div>
             <div className="text-xs text-slate-400">
-              {previewData.length} members
+              {previewData.length} {previewType === "prospects" ? "prospects" : "members"}
             </div>
           </div>
         </DialogContent>
