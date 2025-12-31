@@ -1046,6 +1046,7 @@ class Member(BaseModel):
     address: str
     dob: Optional[str] = None  # Date of Birth (YYYY-MM-DD format)
     join_date: Optional[str] = None  # Anniversary Date (MM/YYYY format)
+    experience_start: Optional[str] = None  # Trucking experience start date (MM/YYYY format)
     phone_private: bool = False  # If True, only admins can see phone
     address_private: bool = False  # If True, only admins can see address
     email_private: bool = False  # If True, only National members and chapter officers (Prez, VP, S@A, Enf, SEC) can see email
