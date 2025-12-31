@@ -2627,26 +2627,32 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
 @api_router.get("/reports/attendance/quarterly")
 async def get_attendance_quarterly_report(
     year: int = None,
-    quarter: int = None,
+    quarter: str = None,
     chapter: str = None,
     current_user: dict = Depends(verify_admin)
 ):
-    """Get quarterly meeting attendance report by chapter"""
+    """Get quarterly or yearly meeting attendance report by chapter"""
     if year is None:
         year = datetime.now(timezone.utc).year
-    if quarter is None:
-        quarter = (datetime.now(timezone.utc).month - 1) // 3 + 1
     
-    # Calculate quarter date range
-    quarter_months = {
-        1: (1, 2, 3),
-        2: (4, 5, 6),
-        3: (7, 8, 9),
-        4: (10, 11, 12)
-    }
-    months = quarter_months.get(quarter, (1, 2, 3))
-    start_date = f"{year}-{months[0]:02d}-01"
-    end_date = f"{year}-{months[2]:02d}-31"
+    # Determine months based on quarter or full year
+    if quarter == "all" or quarter is None:
+        months = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        period_name = f"Full Year {year}"
+        start_date = f"{year}-01-01"
+        end_date = f"{year}-12-31"
+    else:
+        quarter_int = int(quarter)
+        quarter_months = {
+            1: (1, 2, 3),
+            2: (4, 5, 6),
+            3: (7, 8, 9),
+            4: (10, 11, 12)
+        }
+        months = quarter_months.get(quarter_int, (1, 2, 3))
+        period_name = f"Q{quarter_int} {year}"
+        start_date = f"{year}-{months[0]:02d}-01"
+        end_date = f"{year}-{months[2]:02d}-31"
     
     # Build query
     query = {}
