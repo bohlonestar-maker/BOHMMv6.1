@@ -8,6 +8,26 @@ export default function UpdateLog() {
 
   const updates = [
     {
+      version: "v6.0",
+      date: "December 31, 2025",
+      changes: [
+        "Trucking Experience Tracking: New field for each member to record when they started trucking (MM/YYYY format)",
+        "Combined Experience Display: Login page and Dashboard now show total years of combined trucking experience",
+        "Reports Page: New dedicated reports page accessible from the Menu for officers",
+        "Full Year Reports: Can now generate dues and attendance reports for entire year, not just quarters",
+        "Dues Preview & Print: Visual preview of dues status with color-coded table and Print button",
+        "Extended History: Reports now go back 10 years instead of 5",
+        "Officer-Only Access: Reports restricted to officers only (excludes PM and Member titles)",
+        "Store Open/Close Controls: National Prez/VP/SEC can now open or close Supporter Store and Member Store",
+        "Under Construction Mode: Closed stores display maintenance message to visitors",
+        "Invite System Fix: Fixed bug preventing invited users from accepting invitations",
+        "Invite Chapter/Title: Invites now include Chapter and Title fields that carry over to new user accounts",
+        "Invite Email Update: Invite emails now display as from support@boh2158.org",
+        "Title Options Updated: Invite form now includes all officer titles (Prez, VP, S@A, ENF, T, CD, SEC, MD, CC, CCLC, PM, Member)",
+        "CSP Update: Fixed Content Security Policy to allow required external scripts"
+      ]
+    },
+    {
       version: "v5.9",
       date: "December 29, 2025",
       changes: [
