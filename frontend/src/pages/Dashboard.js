@@ -236,6 +236,7 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
     fetchMembers();
     fetchUnreadPrivateCount();
     fetchUpcomingEventsCount();
+    fetchTotalExperience();
     // Auto-refresh counts every 30 seconds
     const interval = setInterval(() => {
       fetchUnreadPrivateCount();
@@ -243,6 +244,18 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
     }, 30000);
     return () => clearInterval(interval);
   }, [userRole]);
+
+  const fetchTotalExperience = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/stats/experience`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTotalExperience(response.data);
+    } catch (error) {
+      console.error("Failed to fetch total experience:", error);
+    }
+  };
 
   const fetchUnreadPrivateCount = async () => {
     try {
