@@ -911,6 +911,17 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                     Wall of Honor
                   </DropdownMenuItem>
                   
+                  {/* Reports - Officers only (not PM or Member) */}
+                  {userTitle && !['PM', 'Member'].includes(userTitle) && (
+                    <DropdownMenuItem 
+                      onSelect={(e) => { e.preventDefault(); navigate("/quarterly-reports"); }} 
+                      className="text-blue-400 focus:bg-blue-900/30 focus:text-blue-300 cursor-pointer"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Reports
+                    </DropdownMenuItem>
+                  )}
+                  
                   {userRole === 'admin' && (
                     <>
                       <DropdownMenuSeparator className="bg-slate-700" />
