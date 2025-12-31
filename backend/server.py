@@ -1079,6 +1079,7 @@ class MemberCreate(BaseModel):
     address: str
     dob: Optional[str] = None
     join_date: Optional[str] = None
+    experience_start: Optional[str] = None  # Trucking experience start date (MM/YYYY format)
     phone_private: bool = False
     address_private: bool = False
     email_private: bool = False
