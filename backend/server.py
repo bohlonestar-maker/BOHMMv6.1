@@ -1134,6 +1134,7 @@ class Prospect(BaseModel):
     meeting_attendance: dict = Field(default_factory=lambda: {
         str(datetime.now(timezone.utc).year): [{"status": 0, "note": ""} for _ in range(24)]
     })  # Format: {"2025": [meetings], "2024": [meetings], ...}
+    can_edit: Optional[bool] = None  # Permission flag for frontend
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
