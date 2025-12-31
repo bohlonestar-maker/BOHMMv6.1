@@ -568,6 +568,8 @@ export default function UserManagement({ onLogout }) {
                             <SelectItem value="MD">MD</SelectItem>
                             <SelectItem value="CC">CC</SelectItem>
                             <SelectItem value="CCLC">CCLC</SelectItem>
+                            <SelectItem value="PM">PM</SelectItem>
+                            <SelectItem value="Member">Member</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
