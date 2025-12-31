@@ -1250,6 +1250,27 @@ export default function Dashboard({ onLogout, userRole, userPermissions, userCha
                         />
                       </div>
 
+                      <div>
+                        <Label className="text-white">🚛 Trucking Experience Start (MM/YYYY)</Label>
+                        <Input
+                          type="text"
+                          placeholder="MM/YYYY"
+                          value={formData.experience_start}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/[^\d/]/g, '');
+                            // Auto-add slash after 2 digits
+                            if (value.length === 2 && !value.includes('/') && formData.experience_start.length < value.length) {
+                              value = value + '/';
+                            }
+                            // Limit to 7 characters (MM/YYYY)
+                            if (value.length <= 7) {
+                              setFormData({ ...formData, experience_start: value });
+                            }
+                          }}
+                          className="text-white"
+                        />
+                      </div>
+
                       {/* Military Service Section */}
                       <div className="space-y-3 p-3 bg-slate-800 rounded-lg border border-slate-700">
                         <Label className="text-white font-semibold">🎖️ Military Service</Label>
