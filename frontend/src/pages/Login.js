@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { HelpCircle, Send, X, ShoppingBag } from "lucide-react";
+import { HelpCircle, Send, X, ShoppingBag, Truck } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -26,6 +26,9 @@ export default function Login({ onLogin }) {
   // Store status
   const [supporterStoreOpen, setSupporterStoreOpen] = useState(true);
   
+  // Experience stats
+  const [totalExperience, setTotalExperience] = useState(null);
+  
   // Support form state
   const [supportDialogOpen, setSupportDialogOpen] = useState(false);
   const [supportForm, setSupportForm] = useState({
@@ -36,19 +39,22 @@ export default function Login({ onLogin }) {
   });
   const [submittingSupport, setSubmittingSupport] = useState(false);
 
-  // Fetch store settings on mount
+  // Fetch store settings and experience stats on mount
   useEffect(() => {
-    const fetchStoreSettings = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}/store/settings/public`);
-        setSupporterStoreOpen(response.data.supporter_store_open);
+        const [storeResponse, experienceResponse] = await Promise.all([
+          axios.get(`${API}/store/settings/public`),
+          axios.get(`${API}/stats/experience`)
+        ]);
+        setSupporterStoreOpen(storeResponse.data.supporter_store_open);
+        setTotalExperience(experienceResponse.data);
       } catch (error) {
-        console.error("Error fetching store settings:", error);
-        // Default to open if can't fetch
+        console.error("Error fetching data:", error);
         setSupporterStoreOpen(true);
       }
     };
-    fetchStoreSettings();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e) => {
