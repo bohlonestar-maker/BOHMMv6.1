@@ -2685,7 +2685,7 @@ async def get_attendance_quarterly_report(
         header.append(f"{month_names[month_idx-1]} Meetings")
     header.extend(["Total Meetings", "Present", "Excused", "Absent", "Attendance %"])
     
-    writer.writerow([f"Meeting Attendance Report - {quarter_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
+    writer.writerow([f"Meeting Attendance Report - {period_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
     writer.writerow([])
     writer.writerow(header)
     
