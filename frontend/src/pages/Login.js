@@ -147,6 +147,16 @@ export default function Login({ onLogin }) {
             Member Management <span className="text-slate-500 ml-1">v5.9</span>
           </p>
           
+          {/* Total Experience Badge */}
+          {totalExperience && totalExperience.total_years > 0 && (
+            <div className="flex justify-center mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-900/50 text-blue-300 text-xs font-semibold rounded-full border border-blue-700/50">
+                <Truck className="w-3.5 h-3.5" />
+                {totalExperience.total_years_formatted}+ Years Combined Experience
+              </span>
+            </div>
+          )}
+          
           {/* Encryption badge - smaller */}
           <div className="flex justify-center mb-3">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-900/50 text-green-300 text-[10px] font-semibold rounded-full border border-green-700/50">
