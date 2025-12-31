@@ -1355,11 +1355,11 @@ export default function UserManagement({ onLogout }) {
       <Dialog open={invitesDialogOpen} onOpenChange={setInvitesDialogOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
           <DialogHeader>
-            <DialogTitle>Manage Invitation Links</DialogTitle>
+            <DialogTitle className="text-white">Manage Invitation Links</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-slate-600">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <p className="text-sm text-slate-400">
                 {invites.filter(i => !i.used).length} pending invite(s)
               </p>
               <Button
@@ -1375,66 +1375,121 @@ export default function UserManagement({ onLogout }) {
             {invites.length === 0 ? (
               <p className="text-center text-slate-500 py-8">No invites found</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Expires</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Mobile Card View */}
+                <div className="block sm:hidden space-y-3">
                   {invites.map((invite) => (
-                    <TableRow key={invite.token}>
-                      <TableCell className="font-medium">{invite.email}</TableCell>
-                      <TableCell className="capitalize">{invite.role}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    <div key={invite.token} className="bg-slate-700/50 border border-slate-600 rounded-lg p-3 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-white truncate">{invite.email}</p>
+                          <p className="text-xs text-slate-400 capitalize">{invite.role}</p>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${
                           invite.used 
-                            ? 'bg-green-100 text-green-800' 
+                            ? 'bg-green-900/50 text-green-400' 
                             : new Date(invite.expires_at) < new Date()
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-red-900/50 text-red-400'
+                            : 'bg-yellow-900/50 text-yellow-400'
                         }`}>
                           {invite.used ? 'Used' : new Date(invite.expires_at) < new Date() ? 'Expired' : 'Pending'}
                         </span>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-600">
-                        {new Date(invite.created_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-600">
-                        {new Date(invite.expires_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {/* Resend button - only show for unused and non-expired invites */}
-                          {!invite.used && new Date(invite.expires_at) >= new Date() && (
-                            <Button
-                              onClick={() => handleResendInvite(invite.token)}
-                              variant="ghost"
-                              size="sm"
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            >
-                              <Mail className="w-4 h-4" />
-                            </Button>
-                          )}
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-slate-400">
+                        <span>Created: {new Date(invite.created_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}</span>
+                        <span>Expires: {new Date(invite.expires_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}</span>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-1 border-t border-slate-600">
+                        {!invite.used && new Date(invite.expires_at) >= new Date() && (
                           <Button
-                            onClick={() => handleDeleteInvite(invite.token)}
+                            onClick={() => handleResendInvite(invite.token)}
                             variant="ghost"
                             size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Mail className="w-4 h-4 mr-1" />
+                            <span className="text-xs">Resend</span>
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                        )}
+                        <Button
+                          onClick={() => handleDeleteInvite(invite.token)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          <span className="text-xs">Delete</span>
+                        </Button>
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+
+                {/* Tablet/Desktop Table View */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-600">
+                        <TableHead className="text-slate-300">Email</TableHead>
+                        <TableHead className="text-slate-300">Role</TableHead>
+                        <TableHead className="text-slate-300">Status</TableHead>
+                        <TableHead className="text-slate-300 hidden md:table-cell">Created</TableHead>
+                        <TableHead className="text-slate-300 hidden md:table-cell">Expires</TableHead>
+                        <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {invites.map((invite) => (
+                        <TableRow key={invite.token} className="border-slate-600">
+                          <TableCell className="font-medium text-white text-sm max-w-[150px] truncate">{invite.email}</TableCell>
+                          <TableCell className="capitalize text-slate-300 text-sm">{invite.role}</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              invite.used 
+                                ? 'bg-green-900/50 text-green-400' 
+                                : new Date(invite.expires_at) < new Date()
+                                ? 'bg-red-900/50 text-red-400'
+                                : 'bg-yellow-900/50 text-yellow-400'
+                            }`}>
+                              {invite.used ? 'Used' : new Date(invite.expires_at) < new Date() ? 'Expired' : 'Pending'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-400 hidden md:table-cell">
+                            {new Date(invite.created_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-400 hidden md:table-cell">
+                            {new Date(invite.expires_at).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              {!invite.used && new Date(invite.expires_at) >= new Date() && (
+                                <Button
+                                  onClick={() => handleResendInvite(invite.token)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 p-1.5"
+                                  title="Resend invite"
+                                >
+                                  <Mail className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button
+                                onClick={() => handleDeleteInvite(invite.token)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-1.5"
+                                title="Delete invite"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
             )}
           </div>
         </DialogContent>
