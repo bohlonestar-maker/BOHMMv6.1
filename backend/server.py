@@ -2736,7 +2736,10 @@ async def get_attendance_quarterly_report(
     output.seek(0)
     csv_content = '\ufeff' + output.getvalue()
     
-    filename = f"attendance_Q{quarter}_{year}"
+    if quarter == "all" or quarter is None:
+        filename = f"attendance_{year}"
+    else:
+        filename = f"attendance_Q{quarter}_{year}"
     if chapter and chapter != "All":
         filename += f"_{chapter}"
     filename += ".csv"
