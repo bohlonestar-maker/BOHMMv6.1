@@ -1101,6 +1101,7 @@ class MemberUpdate(BaseModel):
     address: Optional[str] = None
     dob: Optional[str] = None
     join_date: Optional[str] = None
+    experience_start: Optional[str] = None  # Trucking experience start date (MM/YYYY format)
     phone_private: Optional[bool] = None
     address_private: Optional[bool] = None
     email_private: Optional[bool] = None
