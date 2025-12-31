@@ -560,11 +560,14 @@ export default function UserManagement({ onLogout }) {
                           <SelectContent>
                             <SelectItem value="Prez">Prez</SelectItem>
                             <SelectItem value="VP">VP</SelectItem>
-                            <SelectItem value="SEC">SEC</SelectItem>
-                            <SelectItem value="T">T</SelectItem>
                             <SelectItem value="S@A">S@A</SelectItem>
-                            <SelectItem value="PM">PM</SelectItem>
-                            <SelectItem value="Member">Member</SelectItem>
+                            <SelectItem value="ENF">ENF</SelectItem>
+                            <SelectItem value="T">T</SelectItem>
+                            <SelectItem value="CD">CD</SelectItem>
+                            <SelectItem value="SEC">SEC</SelectItem>
+                            <SelectItem value="MD">MD</SelectItem>
+                            <SelectItem value="CC">CC</SelectItem>
+                            <SelectItem value="CCLC">CCLC</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
