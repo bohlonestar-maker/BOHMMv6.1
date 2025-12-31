@@ -4295,11 +4295,14 @@ async def accept_invite(accept_data: InviteAccept):
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists")
     
-    # Create user
+    # Create user - include email from invite
     user = User(
         username=accept_data.username,
+        email=invite['email'],  # Use email from the invite
         password_hash=hash_password(accept_data.password),
         role=invite['role'],
+        chapter=invite.get('chapter'),  # Include chapter from invite
+        title=invite.get('title'),  # Include title from invite
         permissions=invite['permissions']
     )
     
