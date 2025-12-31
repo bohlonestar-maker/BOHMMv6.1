@@ -2795,16 +2795,15 @@ async def get_dues_quarterly_report(
     writer = csv.writer(output)
     
     # Header
-    quarter_name = f"Q{quarter} {year}"
     month_names = ["January", "February", "March", "April", "May", "June", 
                    "July", "August", "September", "October", "November", "December"]
     header = ["Chapter", "Title", "Handle", "Name"]
     
     for month_idx in months:
         header.append(month_names[month_idx - 1])
-    header.extend(["Quarter Paid", "Quarter Late", "Quarter Unpaid"])
+    header.extend(["Total Paid", "Total Late", "Total Unpaid"])
     
-    writer.writerow([f"Dues Report - {quarter_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
+    writer.writerow([f"Dues Report - {period_name}" + (f" - {chapter}" if chapter and chapter != "All" else " - All Chapters")])
     writer.writerow([])
     writer.writerow(header)
     
