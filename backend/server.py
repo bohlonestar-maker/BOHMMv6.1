@@ -2677,11 +2677,10 @@ async def get_attendance_quarterly_report(
     writer = csv.writer(output)
     
     # Header
-    quarter_name = f"Q{quarter} {year}"
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     header = ["Chapter", "Title", "Handle", "Name"]
     
-    # Add columns for each meeting in the quarter
+    # Add columns for each meeting in the period
     for month_idx in months:
         header.append(f"{month_names[month_idx-1]} Meetings")
     header.extend(["Total Meetings", "Present", "Excused", "Absent", "Attendance %"])
