@@ -459,22 +459,22 @@ export default function Login({ onLogin }) {
           </DialogHeader>
           
           {resetStep === 1 ? (
-            // Step 1: Enter email
+            // Step 1: Enter email or username
             <form onSubmit={handleRequestResetCode} className="space-y-4 mt-2">
               <p className="text-sm text-slate-400">
-                Enter your email address and we'll send you a reset code.
+                Enter your email address or username and we'll send a reset code to your registered email.
               </p>
               
               <div>
                 <Label htmlFor="reset-email" className="text-slate-200">
-                  Email Address <span className="text-red-400">*</span>
+                  Email or Username <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="reset-email"
-                  type="email"
+                  type="text"
                   value={resetEmail}
                   onChange={(e) => { setResetEmail(e.target.value); setResetError(""); }}
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or username"
                   required
                   className={`mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 ${resetError ? 'border-red-500' : ''}`}
                 />
