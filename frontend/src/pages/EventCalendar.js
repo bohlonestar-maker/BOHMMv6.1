@@ -269,13 +269,22 @@ export default function EventCalendar({ userRole }) {
       ...formData,
       chapter: formData.chapter === "all" ? null : formData.chapter,
       title_filter: formData.title_filter === "all" ? null : formData.title_filter,
+      repeat_type: formData.repeat_type === "none" ? null : formData.repeat_type,
+      repeat_interval: formData.repeat_interval || 1,
+      repeat_end_date: formData.repeat_end_date || null,
+      repeat_count: formData.repeat_count ? parseInt(formData.repeat_count) : null,
+      repeat_days: formData.repeat_days.length > 0 ? formData.repeat_days : null,
     };
 
     try {
-      await axios.post(`${API}/api/events`, apiData, {
+      const response = await axios.post(`${API}/api/events`, apiData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Event created successfully");
+      const occurrences = response.data.occurrences || 1;
+      toast.success(occurrences > 1 
+        ? `Recurring event created (${occurrences} occurrences)` 
+        : "Event created successfully"
+      );
       setDialogOpen(false);
       resetForm();
       fetchEvents();
