@@ -71,6 +71,11 @@ export default function EventCalendar({ userRole }) {
     title_filter: "all",
     discord_notifications_enabled: true,
     discord_channel: "member-chat",
+    repeat_type: "none",
+    repeat_interval: 1,
+    repeat_end_date: "",
+    repeat_count: "",
+    repeat_days: [],
   });
 
   const [editFormData, setEditFormData] = useState({
@@ -84,6 +89,8 @@ export default function EventCalendar({ userRole }) {
     discord_notifications_enabled: true,
     discord_channel: "member-chat",
   });
+
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   useEffect(() => {
     fetchEvents();
