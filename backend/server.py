@@ -1771,11 +1771,17 @@ If you did not request this password reset, please ignore this email.
 async def reset_password(request: PasswordResetConfirm):
     """Verify reset code and set new password"""
     
-    # Find the reset record
+    # Find the reset record by email or username
     reset_record = await db.password_resets.find_one({"email": request.email.lower()})
+    if not reset_record:
+        # Try finding by username stored in reset record
+        reset_record = await db.password_resets.find_one({"username": {"$regex": f"^{request.email}$", "$options": "i"}})
     
     if not reset_record:
-        raise HTTPException(status_code=400, detail="No reset request found for this email")
+        raise HTTPException(status_code=400, detail="No reset request found. Please request a new code.")
+    
+    # Get the actual email from the reset record
+    reset_email = reset_record.get("email")
     
     # Check if code has expired (handle both timezone-aware and naive datetimes)
     expires_at = reset_record.get("expires_at")
@@ -1784,25 +1790,25 @@ async def reset_password(request: PasswordResetConfirm):
         if expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=timezone.utc)
         if expires_at < datetime.now(timezone.utc):
-            await db.password_resets.delete_one({"email": request.email.lower()})
+            await db.password_resets.delete_one({"email": reset_email})
             raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
     
     # Check attempt count (max 5 attempts)
     if reset_record.get("attempts", 0) >= 5:
-        await db.password_resets.delete_one({"email": request.email.lower()})
+        await db.password_resets.delete_one({"email": reset_email})
         raise HTTPException(status_code=400, detail="Too many failed attempts. Please request a new code.")
     
     # Verify the code
     if reset_record.get("code") != request.code:
         # Increment attempt count
         await db.password_resets.update_one(
-            {"email": request.email.lower()},
+            {"email": reset_email},
             {"$inc": {"attempts": 1}}
         )
         raise HTTPException(status_code=400, detail="Invalid reset code")
     
     # Find the user and update password
-    user = await db.users.find_one({"email": request.email.lower()})
+    user = await db.users.find_one({"email": reset_email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -1811,12 +1817,12 @@ async def reset_password(request: PasswordResetConfirm):
     
     # Update user's password
     await db.users.update_one(
-        {"email": request.email.lower()},
+        {"email": reset_email},
         {"$set": {"password_hash": new_password_hash}}
     )
     
     # Delete the reset record
-    await db.password_resets.delete_one({"email": request.email.lower()})
+    await db.password_resets.delete_one({"email": reset_email})
     
     # Log the password reset
     await log_activity(
