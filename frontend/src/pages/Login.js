@@ -210,6 +210,7 @@ export default function Login({ onLogin }) {
     setNewPassword("");
     setConfirmNewPassword("");
     setShowNewPassword(false);
+    setResetError("");
   };
 
   return (
