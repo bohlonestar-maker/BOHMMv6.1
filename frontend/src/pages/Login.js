@@ -211,6 +211,7 @@ export default function Login({ onLogin }) {
     setResetDialogOpen(false);
     setResetStep(1);
     setResetEmail("");
+    setResetEmailDisplay("");
     setResetCode("");
     setNewPassword("");
     setConfirmNewPassword("");
