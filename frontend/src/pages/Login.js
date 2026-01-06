@@ -49,6 +49,7 @@ export default function Login({ onLogin }) {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState("");
 
   // Fetch store settings and experience stats on mount
   useEffect(() => {
