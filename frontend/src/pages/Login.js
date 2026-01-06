@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { HelpCircle, Send, X, ShoppingBag, Truck } from "lucide-react";
+import { HelpCircle, Send, X, ShoppingBag, Truck, Eye, EyeOff, KeyRound, Mail } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
