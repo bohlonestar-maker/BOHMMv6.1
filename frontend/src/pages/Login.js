@@ -279,16 +279,37 @@ export default function Login({ onLogin }) {
 
             <div>
               <Label htmlFor="password" className="text-slate-200 text-sm">Password</Label>
-              <Input
-                id="password"
-                data-testid="login-password-input"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className="mt-1 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 h-9"
-              />
+              <div className="relative mt-1">
+                <Input
+                  id="password"
+                  data-testid="login-password-input"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 h-9 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Forgot Password Link */}
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setResetDialogOpen(true)}
+                className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
+              >
+                Forgot Password?
+              </button>
             </div>
 
             <Button
