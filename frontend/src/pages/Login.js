@@ -22,6 +22,7 @@ export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Store status
   const [supporterStoreOpen, setSupporterStoreOpen] = useState(true);
@@ -38,6 +39,16 @@ export default function Login({ onLogin }) {
     reason: ""
   });
   const [submittingSupport, setSubmittingSupport] = useState(false);
+
+  // Password reset state
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetStep, setResetStep] = useState(1); // 1 = enter email, 2 = enter code & new password
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   // Fetch store settings and experience stats on mount
   useEffect(() => {
