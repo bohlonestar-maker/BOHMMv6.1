@@ -671,6 +671,125 @@ export default function EventCalendar({ userRole }) {
                     </div>
                   )}
 
+                  {/* Repeat/Recurring Event Options */}
+                  <div className="bg-slate-700/30 p-4 rounded-lg space-y-4">
+                    <Label className="flex items-center gap-2">
+                      <Repeat className="w-4 h-4 text-purple-400" />
+                      Repeat Event
+                    </Label>
+                    
+                    <Select
+                      value={formData.repeat_type}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, repeat_type: value, repeat_days: [] })
+                      }
+                    >
+                      <SelectTrigger className="bg-slate-700 border-slate-600">
+                        <SelectValue placeholder="Does not repeat" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        <SelectItem value="none">Does not repeat</SelectItem>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="custom">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {/* Repeat interval (for daily, weekly, monthly) */}
+                    {formData.repeat_type && formData.repeat_type !== "none" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm text-slate-300">Repeat every</Label>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Input
+                              type="number"
+                              min="1"
+                              max="30"
+                              value={formData.repeat_interval}
+                              onChange={(e) =>
+                                setFormData({ ...formData, repeat_interval: parseInt(e.target.value) || 1 })
+                              }
+                              className="w-20 bg-slate-700 border-slate-600"
+                            />
+                            <span className="text-slate-300">
+                              {formData.repeat_type === "daily" && "day(s)"}
+                              {formData.repeat_type === "weekly" && "week(s)"}
+                              {formData.repeat_type === "monthly" && "month(s)"}
+                              {formData.repeat_type === "custom" && "day(s)"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Day selection for weekly repeat */}
+                    {formData.repeat_type === "weekly" && (
+                      <div>
+                        <Label className="text-sm text-slate-300 mb-2 block">Repeat on (optional - leave empty for same day each week)</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {dayNames.map((day, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => {
+                                const days = formData.repeat_days.includes(index)
+                                  ? formData.repeat_days.filter(d => d !== index)
+                                  : [...formData.repeat_days, index];
+                                setFormData({ ...formData, repeat_days: days.sort() });
+                              }}
+                              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                                formData.repeat_days.includes(index)
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                              }`}
+                            >
+                              {day}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* End condition */}
+                    {formData.repeat_type && formData.repeat_type !== "none" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm text-slate-300">End date (optional)</Label>
+                          <Input
+                            type="date"
+                            value={formData.repeat_end_date}
+                            onChange={(e) =>
+                              setFormData({ ...formData, repeat_end_date: e.target.value, repeat_count: "" })
+                            }
+                            min={formData.date}
+                            className="mt-1 bg-slate-700 border-slate-600"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm text-slate-300">Or # of occurrences</Label>
+                          <Input
+                            type="number"
+                            min="2"
+                            max="52"
+                            placeholder="e.g., 12"
+                            value={formData.repeat_count}
+                            onChange={(e) =>
+                              setFormData({ ...formData, repeat_count: e.target.value, repeat_end_date: "" })
+                            }
+                            className="mt-1 bg-slate-700 border-slate-600"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.repeat_type && formData.repeat_type !== "none" && (
+                      <p className="text-xs text-slate-400">
+                        💡 Tip: If no end date or count is set, up to 52 occurrences will be created.
+                      </p>
+                    )}
+                  </div>
+
                   <div className="flex justify-end gap-2 mt-6">
                     <Button
                       type="button"
