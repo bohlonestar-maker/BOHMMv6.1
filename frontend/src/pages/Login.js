@@ -550,13 +550,25 @@ export default function Login({ onLogin }) {
                 <Input
                   id="reset-code"
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={resetCode}
-                  onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setResetCode(digits);
+                    setResetError("");
+                  }}
                   placeholder="Enter 6-digit code"
                   required
                   maxLength={6}
-                  className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 text-center tracking-widest text-lg font-mono"
+                  className={`mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 text-center tracking-widest text-lg font-mono ${resetError ? 'border-red-500' : ''}`}
                 />
+                {resetError && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                    <X className="w-4 h-4" />
+                    {resetError}
+                  </p>
+                )}
               </div>
 
               <div>
