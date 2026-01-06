@@ -521,7 +521,7 @@ export default function Login({ onLogin }) {
             // Step 2: Enter code and new password
             <form onSubmit={handleResetPassword} className="space-y-4 mt-2">
               <p className="text-sm text-slate-400">
-                Enter the 6-digit code sent to <span className="text-blue-400">{resetEmail}</span>
+                Enter the 6-digit code sent to <span className="text-blue-400">{resetEmailDisplay}</span>
               </p>
               
               <div>
