@@ -473,11 +473,17 @@ export default function Login({ onLogin }) {
                   id="reset-email"
                   type="email"
                   value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
+                  onChange={(e) => { setResetEmail(e.target.value); setResetError(""); }}
                   placeholder="Enter your email"
                   required
-                  className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className={`mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 ${resetError ? 'border-red-500' : ''}`}
                 />
+                {resetError && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                    <X className="w-4 h-4" />
+                    {resetError}
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">
