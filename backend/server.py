@@ -1657,6 +1657,160 @@ async def verify(current_user: dict = Depends(verify_token)):
         })
     }
 
+# Password Reset - Request reset code
+@api_router.post("/auth/request-reset")
+async def request_password_reset(request: PasswordResetRequest):
+    """Send a password reset code to the user's email"""
+    import random
+    
+    # Find user by email
+    user = await db.users.find_one({"email": request.email.lower()})
+    if not user:
+        # For security, don't reveal if email exists or not
+        # But still return success to prevent email enumeration
+        logger.info(f"Password reset requested for non-existent email: {request.email}")
+        raise HTTPException(status_code=404, detail="No account found with this email address")
+    
+    # Generate 6-digit reset code
+    reset_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Store reset code with expiration (15 minutes)
+    expiration = datetime.now(timezone.utc) + timedelta(minutes=15)
+    
+    await db.password_resets.update_one(
+        {"email": request.email.lower()},
+        {
+            "$set": {
+                "email": request.email.lower(),
+                "code": reset_code,
+                "expires_at": expiration,
+                "attempts": 0
+            }
+        },
+        upsert=True
+    )
+    
+    # Send reset code email
+    if SMTP_EMAIL and SMTP_PASSWORD:
+        try:
+            subject = "Brothers of the Highway - Password Reset Code"
+            body = f"""
+Password Reset Request
+
+Your password reset code is: {reset_code}
+
+This code will expire in 15 minutes.
+
+If you did not request this password reset, please ignore this email.
+
+- Brothers of the Highway Support
+            """.strip()
+            
+            message = MIMEMultipart("alternative")
+            message["Subject"] = subject
+            message["From"] = f"Brothers of the Highway <{SMTP_EMAIL}>"
+            message["To"] = request.email
+            
+            text_part = MIMEText(body, "plain")
+            message.attach(text_part)
+            
+            # HTML version
+            html_body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color: #1e293b; color: #f1f5f9; padding: 20px;">
+                <div style="max-width: 500px; margin: 0 auto; background-color: #334155; padding: 30px; border-radius: 10px;">
+                    <h2 style="color: #60a5fa; margin-bottom: 20px;">Password Reset Request</h2>
+                    <p>Your password reset code is:</p>
+                    <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #60a5fa;">{reset_code}</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 14px;">This code will expire in 15 minutes.</p>
+                    <p style="color: #94a3b8; font-size: 14px; margin-top: 20px;">If you did not request this password reset, please ignore this email.</p>
+                    <hr style="border-color: #475569; margin: 20px 0;">
+                    <p style="color: #64748b; font-size: 12px;">Brothers of the Highway Support</p>
+                </div>
+            </body>
+            </html>
+            """
+            html_part = MIMEText(html_body, "html")
+            message.attach(html_part)
+            
+            await aiosmtplib.send(
+                message,
+                hostname=SMTP_HOST,
+                port=SMTP_PORT,
+                username=SMTP_EMAIL,
+                password=SMTP_PASSWORD,
+                use_tls=True
+            )
+            
+            logger.info(f"Password reset code sent to {request.email}")
+        except Exception as e:
+            logger.error(f"Failed to send reset email: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to send reset email. Please try again.")
+    else:
+        raise HTTPException(status_code=500, detail="Email service not configured")
+    
+    return {"message": "Reset code sent to your email"}
+
+# Password Reset - Confirm and set new password
+@api_router.post("/auth/reset-password")
+async def reset_password(request: PasswordResetConfirm):
+    """Verify reset code and set new password"""
+    
+    # Find the reset record
+    reset_record = await db.password_resets.find_one({"email": request.email.lower()})
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="No reset request found for this email")
+    
+    # Check if code has expired
+    if reset_record.get("expires_at") < datetime.now(timezone.utc):
+        await db.password_resets.delete_one({"email": request.email.lower()})
+        raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
+    
+    # Check attempt count (max 5 attempts)
+    if reset_record.get("attempts", 0) >= 5:
+        await db.password_resets.delete_one({"email": request.email.lower()})
+        raise HTTPException(status_code=400, detail="Too many failed attempts. Please request a new code.")
+    
+    # Verify the code
+    if reset_record.get("code") != request.code:
+        # Increment attempt count
+        await db.password_resets.update_one(
+            {"email": request.email.lower()},
+            {"$inc": {"attempts": 1}}
+        )
+        raise HTTPException(status_code=400, detail="Invalid reset code")
+    
+    # Find the user and update password
+    user = await db.users.find_one({"email": request.email.lower()})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Hash the new password
+    new_password_hash = hash_password(request.new_password)
+    
+    # Update user's password
+    await db.users.update_one(
+        {"email": request.email.lower()},
+        {"$set": {"password_hash": new_password_hash}}
+    )
+    
+    # Delete the reset record
+    await db.password_resets.delete_one({"email": request.email.lower()})
+    
+    # Log the password reset
+    await log_activity(
+        username=user["username"],
+        action="password_reset",
+        details=f"Password reset via email verification"
+    )
+    
+    logger.info(f"Password reset successful for user: {user['username']}")
+    
+    return {"message": "Password reset successfully"}
+
 # Support request endpoint (no auth required - accessible from login page)
 @api_router.post("/support/request")
 async def submit_support_request(request: SupportRequest):
