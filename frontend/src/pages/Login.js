@@ -142,8 +142,10 @@ export default function Login({ onLogin }) {
   // Password reset functions
   const handleRequestResetCode = async (e) => {
     e.preventDefault();
+    setResetError("");
     
     if (!resetEmail.trim()) {
+      setResetError("Please enter your email address");
       toast.error("Please enter your email address");
       return;
     }
@@ -156,7 +158,9 @@ export default function Login({ onLogin }) {
       setResetStep(2);
     } catch (error) {
       console.error("Reset request error:", error);
-      toast.error(error.response?.data?.detail || "Failed to send reset code. Please verify your email is correct.");
+      const errorMsg = error.response?.data?.detail || "Failed to send reset code. Please verify your email is correct.";
+      setResetError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setResetLoading(false);
     }
