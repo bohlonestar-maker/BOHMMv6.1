@@ -138,6 +138,75 @@ export default function Login({ onLogin }) {
     }
   };
 
+  // Password reset functions
+  const handleRequestResetCode = async (e) => {
+    e.preventDefault();
+    
+    if (!resetEmail.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setResetLoading(true);
+    
+    try {
+      await axios.post(`${API}/auth/request-reset`, { email: resetEmail });
+      toast.success("Reset code sent! Check your email.");
+      setResetStep(2);
+    } catch (error) {
+      console.error("Reset request error:", error);
+      toast.error(error.response?.data?.detail || "Failed to send reset code. Please verify your email is correct.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    
+    if (!resetCode.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
+    if (newPassword !== confirmNewPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
+    setResetLoading(true);
+    
+    try {
+      await axios.post(`${API}/auth/reset-password`, {
+        email: resetEmail,
+        code: resetCode,
+        new_password: newPassword
+      });
+      toast.success("Password reset successfully! You can now log in.");
+      closeResetDialog();
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast.error(error.response?.data?.detail || "Failed to reset password. Please check your code and try again.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const closeResetDialog = () => {
+    setResetDialogOpen(false);
+    setResetStep(1);
+    setResetEmail("");
+    setResetCode("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setShowNewPassword(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 py-6">
       <div className="w-full max-w-sm">
