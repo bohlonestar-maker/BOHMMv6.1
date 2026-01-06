@@ -1764,10 +1764,15 @@ async def reset_password(request: PasswordResetConfirm):
     if not reset_record:
         raise HTTPException(status_code=400, detail="No reset request found for this email")
     
-    # Check if code has expired
-    if reset_record.get("expires_at") < datetime.now(timezone.utc):
-        await db.password_resets.delete_one({"email": request.email.lower()})
-        raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
+    # Check if code has expired (handle both timezone-aware and naive datetimes)
+    expires_at = reset_record.get("expires_at")
+    if expires_at:
+        # Make the comparison work regardless of timezone awareness
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            await db.password_resets.delete_one({"email": request.email.lower()})
+            raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
     
     # Check attempt count (max 5 attempts)
     if reset_record.get("attempts", 0) >= 5:
