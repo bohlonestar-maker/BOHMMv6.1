@@ -1705,6 +1705,8 @@ async def request_password_reset(request: PasswordResetRequest):
             body = f"""
 Password Reset Request
 
+Hi {user.get('username', 'Member')},
+
 Your password reset code is: {reset_code}
 
 This code will expire in 15 minutes.
@@ -1717,7 +1719,7 @@ If you did not request this password reset, please ignore this email.
             message = MIMEMultipart("alternative")
             message["Subject"] = subject
             message["From"] = f"Brothers of the Highway <{SMTP_EMAIL}>"
-            message["To"] = request.email
+            message["To"] = user_email
             
             text_part = MIMEText(body, "plain")
             message.attach(text_part)
@@ -1728,6 +1730,7 @@ If you did not request this password reset, please ignore this email.
             <body style="font-family: Arial, sans-serif; background-color: #1e293b; color: #f1f5f9; padding: 20px;">
                 <div style="max-width: 500px; margin: 0 auto; background-color: #334155; padding: 30px; border-radius: 10px;">
                     <h2 style="color: #60a5fa; margin-bottom: 20px;">Password Reset Request</h2>
+                    <p>Hi {user.get('username', 'Member')},</p>
                     <p>Your password reset code is:</p>
                     <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
                         <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #60a5fa;">{reset_code}</span>
@@ -1752,7 +1755,11 @@ If you did not request this password reset, please ignore this email.
                 use_tls=True
             )
             
-            logger.info(f"Password reset code sent to {request.email}")
+            # Return masked email for privacy
+            email_parts = user_email.split('@')
+            masked_email = email_parts[0][:2] + '***@' + email_parts[1] if len(email_parts) == 2 else user_email
+            logger.info(f"Password reset code sent to {user_email} for user {user.get('username')}")
+            return {"message": f"Reset code sent to {masked_email}"}
         except Exception as e:
             logger.error(f"Failed to send reset email: {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to send reset email. Please try again.")
