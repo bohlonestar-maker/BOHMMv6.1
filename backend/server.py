@@ -6512,16 +6512,11 @@ class AIKnowledgeUpdate(BaseModel):
     admin_only: Optional[bool] = None
 
 def check_ai_admin_access(current_user: dict):
-    """Check if user has access to AI knowledge management (NPrez, NVP, NSEC, or admin)"""
-    role = current_user.get('role', '')
-    title = current_user.get('title', '')
+    """Check if user has access to AI knowledge management (Nationals chapter only)"""
+    chapter = current_user.get('chapter', '')
     
-    # Allow admin role or specific national titles
-    allowed_titles = ['National President', 'National Vice President', 'National Secretary', 'NPrez', 'NVP', 'NSEC']
-    
-    if role == 'admin' or title in allowed_titles:
-        return True
-    return False
+    # Only users in National chapter can access AI knowledge
+    return chapter == 'National'
 
 @api_router.get("/ai-knowledge")
 async def get_ai_knowledge(current_user: dict = Depends(verify_token)):
