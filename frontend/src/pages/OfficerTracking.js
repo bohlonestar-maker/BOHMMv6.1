@@ -60,9 +60,11 @@ function OfficerTracking() {
   const userTitle = localStorage.getItem('title');
   const userRole = localStorage.getItem('role');
   
-  // Check if user can edit (Secretaries only: NSEC, ADSEC, HASEC, HSSEC)
+  // Check if user can edit (Secretaries: NSEC, ADSEC, HASEC, HSSEC + NVP)
+  // SEC = any secretary title, NVP = National Vice President
   useEffect(() => {
-    const canUserEdit = userRole === 'admin' || userTitle === 'SEC';
+    const editTitles = ['SEC', 'NVP'];
+    const canUserEdit = userRole === 'admin' || editTitles.includes(userTitle);
     setCanEdit(canUserEdit);
   }, [userTitle, userRole]);
 

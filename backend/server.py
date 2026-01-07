@@ -6918,13 +6918,16 @@ SANCTIONS (Progressive Discipline):
 
 # ==================== OFFICER TRACKING (Attendance & Dues) ====================
 
-OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'Enf', 'SEC', 'CD', 'T', 'ENF', 'PM', 'CC', 'CMD', 'CCLC']
-SEC_EDIT_TITLES = ['SEC']  # NSEC, ADSEC, HASEC, HSSEC - all have title 'SEC'
+OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'Enf', 'SEC', 'CD', 'T', 'ENF', 'PM', 'CC', 'CMD', 'CCLC', 'NVP']
+# Titles that can edit officer tracking: Secretaries (NSEC, ADSEC, HASEC, HSSEC) and NVP
+OFFICER_TRACKING_EDIT_TITLES = ['SEC', 'NVP']
 CHAPTERS = ['National', 'AD', 'HA', 'HS']
 
 def is_secretary(user: dict) -> bool:
-    """Check if user is a Secretary who can edit (NSEC, ADSEC, HASEC, HSSEC)"""
-    return user.get('title') == 'SEC' or user.get('role') == 'admin'
+    """Check if user can edit officer tracking (NSEC, ADSEC, HASEC, HSSEC, NVP)"""
+    user_title = user.get('title', '')
+    # Check if title is SEC (Secretary) or NVP (National Vice President)
+    return user_title in OFFICER_TRACKING_EDIT_TITLES or user.get('role') == 'admin'
 
 def is_any_officer(user: dict) -> bool:
     """Check if user is any officer (can view)"""
