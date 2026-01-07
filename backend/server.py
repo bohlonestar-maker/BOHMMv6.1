@@ -7138,7 +7138,7 @@ async def record_dues(record: DuesRecord, current_user: dict = Depends(verify_to
     if not is_secretary(current_user):
         raise HTTPException(status_code=403, detail="Only Secretaries, NVP, and NPrez can edit dues")
     
-    # Check for existing record
+    # Check for existing record in officer_dues collection
     existing = await db.officer_dues.find_one({
         "member_id": record.member_id,
         "month": record.month
@@ -7164,22 +7164,36 @@ async def record_dues(record: DuesRecord, current_user: dict = Depends(verify_to
         record_data["created_by"] = current_user.get('username')
         await db.officer_dues.insert_one(record_data)
     
-    # Update member's dues_history array in member database
-    dues_entry = {
-        "month": record.month,
-        "status": record.status,
-        "notes": record.notes
-    }
-    
-    # Remove old entry for same month if exists, then add new one
-    await db.members.update_one(
-        {"id": record.member_id},
-        {"$pull": {"dues_history": {"month": record.month}}}
-    )
-    await db.members.update_one(
-        {"id": record.member_id},
-        {"$push": {"dues_history": dues_entry}}
-    )
+    # Parse month format "Mon_YYYY" (e.g., "Jan_2026") to get year and month index
+    try:
+        month_abbr, year_str = record.month.split('_')
+        month_map = {'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                     'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11}
+        month_index = month_map.get(month_abbr, 0)
+        
+        # Get the member's current dues data
+        member = await db.members.find_one({"id": record.member_id})
+        if member:
+            dues = member.get('dues', {})
+            
+            # Initialize year array if it doesn't exist
+            if year_str not in dues:
+                dues[year_str] = [{"status": "unpaid", "note": ""} for _ in range(12)]
+            
+            # Update the specific month
+            dues[year_str][month_index] = {
+                "status": record.status,
+                "note": record.notes or ""
+            }
+            
+            # Save back to member document
+            await db.members.update_one(
+                {"id": record.member_id},
+                {"$set": {"dues": dues}}
+            )
+            logger.info(f"Updated member {record.member_id} dues for {record.month}: {record.status}")
+    except Exception as e:
+        logger.error(f"Failed to update member dues field: {str(e)}")
     
     return {"message": "Dues recorded and member updated", "id": record_data["id"]}
 
