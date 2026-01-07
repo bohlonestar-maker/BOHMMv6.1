@@ -339,6 +339,16 @@ function App() {
               )
             }
           />
+          <Route
+            path="/officer-tracking"
+            element={
+              isAuthenticated ? (
+                <OfficerTracking />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
         <KeepAlive />
         {isAuthenticated && <MessageNotifier />}
