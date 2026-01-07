@@ -1,0 +1,509 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { Badge } from "../components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { Textarea } from "../components/ui/textarea";
+import { toast } from "sonner";
+import { Users, Calendar, DollarSign, CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+const CHAPTERS = ['National', 'AD', 'HA', 'HS'];
+const MEETING_TYPES = [
+  { value: 'national_officer', label: 'National Officer Meeting' },
+  { value: 'chapter_officer', label: 'Chapter Officer Meeting' },
+  { value: 'prospect', label: 'Prospect Meeting' },
+  { value: 'member', label: 'Member Meeting' }
+];
+
+function OfficerTracking() {
+  const navigate = useNavigate();
+  const [officers, setOfficers] = useState({});
+  const [attendance, setAttendance] = useState([]);
+  const [dues, setDues] = useState([]);
+  const [summary, setSummary] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [selectedChapter, setSelectedChapter] = useState('National');
+  const [activeTab, setActiveTab] = useState('attendance');
+  const [canEdit, setCanEdit] = useState(false);
+  
+  // Attendance Dialog
+  const [attendanceDialog, setAttendanceDialog] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [attendanceForm, setAttendanceForm] = useState({
+    meeting_date: new Date().toISOString().split('T')[0],
+    meeting_type: 'national_officer',
+    status: 'present',
+    notes: ''
+  });
+  
+  // Dues Dialog
+  const [duesDialog, setDuesDialog] = useState(false);
+  const [duesForm, setDuesForm] = useState({
+    quarter: `Q${Math.ceil((new Date().getMonth() + 1) / 3)}_${new Date().getFullYear()}`,
+    status: 'paid',
+    amount_paid: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
+  
+  const token = localStorage.getItem('token');
+  const userChapter = localStorage.getItem('chapter');
+  const userTitle = localStorage.getItem('title');
+  const userRole = localStorage.getItem('role');
+  
+  // Check if user can edit (National officers only)
+  useEffect(() => {
+    const nationalEditTitles = ['Prez', 'VP', 'S@A', 'ENF', 'SEC', 'T', 'CD'];
+    const canUserEdit = userRole === 'admin' || (userChapter === 'National' && nationalEditTitles.includes(userTitle));
+    setCanEdit(canUserEdit);
+  }, [userChapter, userTitle, userRole]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [officersRes, attendanceRes, duesRes, summaryRes] = await Promise.all([
+        axios.get(`${BACKEND_URL}/api/officer-tracking/officers`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BACKEND_URL}/api/officer-tracking/attendance`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BACKEND_URL}/api/officer-tracking/dues`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BACKEND_URL}/api/officer-tracking/summary`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      
+      setOfficers(officersRes.data);
+      setAttendance(attendanceRes.data);
+      setDues(duesRes.data);
+      setSummary(summaryRes.data);
+    } catch (error) {
+      if (error.response?.status === 403) {
+        toast.error("Access denied. Officers only.");
+        navigate('/');
+      } else {
+        toast.error("Failed to load data");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [token, navigate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const getAttendanceForMember = (memberId) => {
+    return attendance.filter(a => a.member_id === memberId);
+  };
+
+  const getDuesForMember = (memberId) => {
+    return dues.filter(d => d.member_id === memberId);
+  };
+
+  const getAttendanceStats = (memberId) => {
+    const records = getAttendanceForMember(memberId);
+    const present = records.filter(r => r.status === 'present').length;
+    const total = records.length;
+    return { present, total, rate: total > 0 ? Math.round(present / total * 100) : 0 };
+  };
+
+  const getCurrentQuarterDues = (memberId) => {
+    const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}_${new Date().getFullYear()}`;
+    return dues.find(d => d.member_id === memberId && d.quarter === currentQuarter);
+  };
+
+  const openAttendanceDialog = (member) => {
+    setSelectedMember(member);
+    setAttendanceForm({
+      meeting_date: new Date().toISOString().split('T')[0],
+      meeting_type: selectedChapter === 'National' ? 'national_officer' : 'chapter_officer',
+      status: 'present',
+      notes: ''
+    });
+    setAttendanceDialog(true);
+  };
+
+  const openDuesDialog = (member) => {
+    setSelectedMember(member);
+    const existing = getCurrentQuarterDues(member.id);
+    setDuesForm({
+      quarter: `Q${Math.ceil((new Date().getMonth() + 1) / 3)}_${new Date().getFullYear()}`,
+      status: existing?.status || 'unpaid',
+      amount_paid: existing?.amount_paid || '',
+      payment_date: existing?.payment_date || new Date().toISOString().split('T')[0],
+      notes: existing?.notes || ''
+    });
+    setDuesDialog(true);
+  };
+
+  const handleAttendanceSubmit = async () => {
+    try {
+      await axios.post(`${BACKEND_URL}/api/officer-tracking/attendance`, {
+        member_id: selectedMember.id,
+        ...attendanceForm
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      
+      toast.success("Attendance recorded");
+      setAttendanceDialog(false);
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to record attendance");
+    }
+  };
+
+  const handleDuesSubmit = async () => {
+    try {
+      await axios.post(`${BACKEND_URL}/api/officer-tracking/dues`, {
+        member_id: selectedMember.id,
+        ...duesForm,
+        amount_paid: duesForm.amount_paid ? parseFloat(duesForm.amount_paid) : null
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      
+      toast.success("Dues updated");
+      setDuesDialog(false);
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to update dues");
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      present: <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Present</Badge>,
+      absent: <Badge className="bg-red-600"><XCircle className="w-3 h-3 mr-1" />Absent</Badge>,
+      excused: <Badge className="bg-yellow-600"><Clock className="w-3 h-3 mr-1" />Excused</Badge>,
+      paid: <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Paid</Badge>,
+      unpaid: <Badge className="bg-red-600"><XCircle className="w-3 h-3 mr-1" />Unpaid</Badge>,
+      partial: <Badge className="bg-yellow-600"><Clock className="w-3 h-3 mr-1" />Partial</Badge>,
+      exempt: <Badge className="bg-blue-600">Exempt</Badge>
+    };
+    return badges[status] || <Badge>{status}</Badge>;
+  };
+
+  const getQuarters = () => {
+    const quarters = [];
+    const now = new Date();
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() - (i * 3), 1);
+      const q = Math.ceil((date.getMonth() + 1) / 3);
+      quarters.push(`Q${q}_${date.getFullYear()}`);
+    }
+    return [...new Set(quarters)];
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4 max-w-7xl">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Users className="h-6 w-6" />
+              Officer Tracking
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Meeting Attendance & Dues by Chapter
+              {!canEdit && <span className="text-yellow-500 ml-2">(View Only)</span>}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {CHAPTERS.map(chapter => (
+          <Card key={chapter} 
+            className={`cursor-pointer transition-all ${selectedChapter === chapter ? 'ring-2 ring-primary' : ''}`}
+            onClick={() => setSelectedChapter(chapter)}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{chapter}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{officers[chapter]?.length || 0}</div>
+              <div className="text-xs text-muted-foreground">Officers</div>
+              {summary[chapter] && (
+                <div className="mt-2 text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span>Attendance:</span>
+                    <span className={summary[chapter].attendance_rate >= 80 ? 'text-green-500' : 'text-yellow-500'}>
+                      {summary[chapter].attendance_rate}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Dues Paid:</span>
+                    <span>{summary[chapter].dues_paid}/{summary[chapter].dues_total}</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{selectedChapter} Chapter Officers</CardTitle>
+          <CardDescription>Track attendance and dues for {selectedChapter} officers</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="attendance">
+                <Calendar className="w-4 h-4 mr-2" />
+                Attendance
+              </TabsTrigger>
+              <TabsTrigger value="dues">
+                <DollarSign className="w-4 h-4 mr-2" />
+                Dues
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="attendance">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Officer</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Attendance Rate</TableHead>
+                    <TableHead>Last Meeting</TableHead>
+                    {canEdit && <TableHead>Action</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(officers[selectedChapter] || []).map(officer => {
+                    const stats = getAttendanceStats(officer.id);
+                    const lastRecord = getAttendanceForMember(officer.id).sort((a, b) => 
+                      new Date(b.meeting_date) - new Date(a.meeting_date)
+                    )[0];
+                    
+                    return (
+                      <TableRow key={officer.id}>
+                        <TableCell className="font-medium">{officer.handle}</TableCell>
+                        <TableCell>{officer.title}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className={stats.rate >= 80 ? 'text-green-500' : stats.rate >= 50 ? 'text-yellow-500' : 'text-red-500'}>
+                              {stats.rate}%
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              ({stats.present}/{stats.total})
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {lastRecord ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs">{lastRecord.meeting_date}</span>
+                              {getStatusBadge(lastRecord.status)}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">No records</span>
+                          )}
+                        </TableCell>
+                        {canEdit && (
+                          <TableCell>
+                            <Button size="sm" onClick={() => openAttendanceDialog(officer)}>
+                              Record
+                            </Button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TabsContent>
+
+            <TabsContent value="dues">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Officer</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Current Quarter</TableHead>
+                    <TableHead>Payment Date</TableHead>
+                    {canEdit && <TableHead>Action</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(officers[selectedChapter] || []).map(officer => {
+                    const currentDues = getCurrentQuarterDues(officer.id);
+                    
+                    return (
+                      <TableRow key={officer.id}>
+                        <TableCell className="font-medium">{officer.handle}</TableCell>
+                        <TableCell>{officer.title}</TableCell>
+                        <TableCell>
+                          {currentDues ? getStatusBadge(currentDues.status) : (
+                            <Badge variant="outline">Not Recorded</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {currentDues?.payment_date ? (
+                            <span className="text-xs">{currentDues.payment_date}</span>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </TableCell>
+                        {canEdit && (
+                          <TableCell>
+                            <Button size="sm" onClick={() => openDuesDialog(officer)}>
+                              {currentDues ? 'Update' : 'Record'}
+                            </Button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Attendance Dialog */}
+      <Dialog open={attendanceDialog} onOpenChange={setAttendanceDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Record Attendance</DialogTitle>
+            <DialogDescription>
+              Recording attendance for {selectedMember?.handle}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Meeting Date</Label>
+              <Input 
+                type="date" 
+                value={attendanceForm.meeting_date}
+                onChange={(e) => setAttendanceForm({...attendanceForm, meeting_date: e.target.value})}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Meeting Type</Label>
+              <Select value={attendanceForm.meeting_type} onValueChange={(v) => setAttendanceForm({...attendanceForm, meeting_type: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MEETING_TYPES.map(t => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={attendanceForm.status} onValueChange={(v) => setAttendanceForm({...attendanceForm, status: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="present">Present</SelectItem>
+                  <SelectItem value="absent">Absent</SelectItem>
+                  <SelectItem value="excused">Excused</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Notes (Optional)</Label>
+              <Textarea 
+                value={attendanceForm.notes}
+                onChange={(e) => setAttendanceForm({...attendanceForm, notes: e.target.value})}
+                placeholder="Any additional notes..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAttendanceDialog(false)}>Cancel</Button>
+            <Button onClick={handleAttendanceSubmit}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dues Dialog */}
+      <Dialog open={duesDialog} onOpenChange={setDuesDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Dues</DialogTitle>
+            <DialogDescription>
+              Recording dues for {selectedMember?.handle}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Quarter</Label>
+              <Select value={duesForm.quarter} onValueChange={(v) => setDuesForm({...duesForm, quarter: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {getQuarters().map(q => (
+                    <SelectItem key={q} value={q}>{q.replace('_', ' ')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={duesForm.status} onValueChange={(v) => setDuesForm({...duesForm, status: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="unpaid">Unpaid</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="exempt">Exempt</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Amount Paid</Label>
+              <Input 
+                type="number" 
+                step="0.01"
+                value={duesForm.amount_paid}
+                onChange={(e) => setDuesForm({...duesForm, amount_paid: e.target.value})}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Payment Date</Label>
+              <Input 
+                type="date" 
+                value={duesForm.payment_date}
+                onChange={(e) => setDuesForm({...duesForm, payment_date: e.target.value})}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Notes (Optional)</Label>
+              <Textarea 
+                value={duesForm.notes}
+                onChange={(e) => setDuesForm({...duesForm, notes: e.target.value})}
+                placeholder="Any additional notes..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDuesDialog(false)}>Cancel</Button>
+            <Button onClick={handleDuesSubmit}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export default OfficerTracking;
