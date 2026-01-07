@@ -7042,7 +7042,7 @@ async def record_attendance(record: AttendanceRecord, current_user: dict = Depen
     if not is_secretary(current_user):
         raise HTTPException(status_code=403, detail="Only Secretaries, NVP, and NPrez can edit attendance")
     
-    # Check for existing record
+    # Check for existing record in officer_attendance collection
     existing = await db.officer_attendance.find_one({
         "member_id": record.member_id,
         "meeting_date": record.meeting_date,
@@ -7070,23 +7070,56 @@ async def record_attendance(record: AttendanceRecord, current_user: dict = Depen
         record_data["created_by"] = current_user.get('username')
         await db.officer_attendance.insert_one(record_data)
     
-    # Update member's meeting_attendance array in member database
-    attendance_entry = {
-        "date": record.meeting_date,
-        "type": record.meeting_type,
-        "status": record.status,
-        "notes": record.notes
-    }
-    
-    # Remove old entry for same date/type if exists, then add new one
-    await db.members.update_one(
-        {"id": record.member_id},
-        {"$pull": {"meeting_attendance": {"date": record.meeting_date, "type": record.meeting_type}}}
-    )
-    await db.members.update_one(
-        {"id": record.member_id},
-        {"$push": {"meeting_attendance": attendance_entry}}
-    )
+    # Update member's meeting_attendance in the member database
+    # Format: {"2026": [{date: "2026-01-07", status: 0|1|2, note: ""}, ...]}
+    try:
+        year_str = record.meeting_date.split('-')[0]  # Extract year from "2026-01-07"
+        
+        # Map status string to number: present=1, absent=0, excused=2
+        status_map = {'present': 1, 'absent': 0, 'excused': 2}
+        status_num = status_map.get(record.status, 0)
+        
+        # Get the member's current attendance data
+        member = await db.members.find_one({"id": record.member_id})
+        if member:
+            attendance = member.get('meeting_attendance', {})
+            
+            # Initialize year array if it doesn't exist
+            if year_str not in attendance or not isinstance(attendance.get(year_str), list):
+                attendance[year_str] = []
+            
+            # Check if meeting for this date already exists
+            year_meetings = attendance[year_str]
+            existing_idx = None
+            for i, m in enumerate(year_meetings):
+                if isinstance(m, dict) and m.get('date') == record.meeting_date:
+                    existing_idx = i
+                    break
+            
+            meeting_entry = {
+                "date": record.meeting_date,
+                "status": status_num,
+                "note": record.notes or ""
+            }
+            
+            if existing_idx is not None:
+                # Update existing meeting
+                year_meetings[existing_idx] = meeting_entry
+            else:
+                # Add new meeting and sort by date
+                year_meetings.append(meeting_entry)
+                year_meetings.sort(key=lambda x: x.get('date', '') if isinstance(x, dict) else '')
+            
+            attendance[year_str] = year_meetings
+            
+            # Save back to member document
+            await db.members.update_one(
+                {"id": record.member_id},
+                {"$set": {"meeting_attendance": attendance}}
+            )
+            logger.info(f"Updated member {record.member_id} attendance for {record.meeting_date}: {record.status}")
+    except Exception as e:
+        logger.error(f"Failed to update member attendance field: {str(e)}")
     
     return {"message": "Attendance recorded and member updated", "id": record_data["id"]}
 
