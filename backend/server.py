@@ -492,7 +492,8 @@ def decrypt_support_message(message_data: dict) -> dict:
     
     return decrypted
 
-FRONTEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '')
+# Frontend URL for invite links - use FRONTEND_URL env var, or derive from CORS_ORIGINS, or fallback
+FRONTEND_URL = os.environ.get('FRONTEND_URL') or os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:3000').replace('/api', '')
 
 # Email sending function
 async def send_invite_email(email: str, token: str, role: str):
