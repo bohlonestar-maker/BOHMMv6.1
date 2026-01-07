@@ -10,7 +10,7 @@ import { Badge } from "../components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "sonner";
-import { Users, Calendar, DollarSign, CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { Users, Calendar, DollarSign, CheckCircle, XCircle, Clock, ArrowLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
@@ -26,7 +26,7 @@ const MEETING_TYPES = [
 
 function OfficerTracking() {
   const navigate = useNavigate();
-  const [officers, setOfficers] = useState({});
+  const [members, setMembers] = useState({});
   const [attendance, setAttendance] = useState([]);
   const [dues, setDues] = useState([]);
   const [summary, setSummary] = useState({});
@@ -34,6 +34,7 @@ function OfficerTracking() {
   const [selectedChapter, setSelectedChapter] = useState('National');
   const [activeTab, setActiveTab] = useState('attendance');
   const [canEdit, setCanEdit] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Attendance Dialog
   const [attendanceDialog, setAttendanceDialog] = useState(false);
@@ -56,28 +57,26 @@ function OfficerTracking() {
   });
   
   const token = localStorage.getItem('token');
-  const userChapter = localStorage.getItem('chapter');
   const userTitle = localStorage.getItem('title');
   const userRole = localStorage.getItem('role');
   
-  // Check if user can edit (National officers only)
+  // Check if user can edit (Secretaries only: NSEC, ADSEC, HASEC, HSSEC)
   useEffect(() => {
-    const nationalEditTitles = ['Prez', 'VP', 'S@A', 'ENF', 'SEC', 'T', 'CD'];
-    const canUserEdit = userRole === 'admin' || (userChapter === 'National' && nationalEditTitles.includes(userTitle));
+    const canUserEdit = userRole === 'admin' || userTitle === 'SEC';
     setCanEdit(canUserEdit);
-  }, [userChapter, userTitle, userRole]);
+  }, [userTitle, userRole]);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [officersRes, attendanceRes, duesRes, summaryRes] = await Promise.all([
-        axios.get(`${BACKEND_URL}/api/officer-tracking/officers`, { headers: { Authorization: `Bearer ${token}` } }),
+      const [membersRes, attendanceRes, duesRes, summaryRes] = await Promise.all([
+        axios.get(`${BACKEND_URL}/api/officer-tracking/members`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${BACKEND_URL}/api/officer-tracking/attendance`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${BACKEND_URL}/api/officer-tracking/dues`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${BACKEND_URL}/api/officer-tracking/summary`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
-      setOfficers(officersRes.data);
+      setMembers(membersRes.data);
       setAttendance(attendanceRes.data);
       setDues(duesRes.data);
       setSummary(summaryRes.data);
@@ -148,7 +147,7 @@ function OfficerTracking() {
         ...attendanceForm
       }, { headers: { Authorization: `Bearer ${token}` } });
       
-      toast.success("Attendance recorded");
+      toast.success("Attendance recorded & member updated");
       setAttendanceDialog(false);
       fetchData();
     } catch (error) {
@@ -164,7 +163,7 @@ function OfficerTracking() {
         amount_paid: duesForm.amount_paid ? parseFloat(duesForm.amount_paid) : null
       }, { headers: { Authorization: `Bearer ${token}` } });
       
-      toast.success("Dues updated");
+      toast.success("Dues updated & member record updated");
       setDuesDialog(false);
       fetchData();
     } catch (error) {
@@ -196,6 +195,13 @@ function OfficerTracking() {
     return [...new Set(quarters)];
   };
 
+  // Filter members by search term
+  const filteredMembers = (members[selectedChapter] || []).filter(member => 
+    member.handle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -215,11 +221,11 @@ function OfficerTracking() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Users className="h-6 w-6" />
-              Officer Tracking
+              Member Tracking
             </h1>
             <p className="text-muted-foreground text-sm">
               Meeting Attendance & Dues by Chapter
-              {!canEdit && <span className="text-yellow-500 ml-2">(View Only)</span>}
+              {!canEdit && <span className="text-yellow-500 ml-2">(View Only - Secretaries can edit)</span>}
             </p>
           </div>
         </div>
@@ -236,8 +242,8 @@ function OfficerTracking() {
               <CardTitle className="text-lg">{chapter}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{officers[chapter]?.length || 0}</div>
-              <div className="text-xs text-muted-foreground">Officers</div>
+              <div className="text-2xl font-bold">{members[chapter]?.length || 0}</div>
+              <div className="text-xs text-muted-foreground">Members</div>
               {summary[chapter] && (
                 <div className="mt-2 text-xs space-y-1">
                   <div className="flex justify-between">
@@ -260,8 +266,21 @@ function OfficerTracking() {
       {/* Main Content */}
       <Card>
         <CardHeader>
-          <CardTitle>{selectedChapter} Chapter Officers</CardTitle>
-          <CardDescription>Track attendance and dues for {selectedChapter} officers</CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle>{selectedChapter} Chapter Members</CardTitle>
+              <CardDescription>Track attendance and dues for all {selectedChapter} members</CardDescription>
+            </div>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search members..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -277,104 +296,108 @@ function OfficerTracking() {
             </TabsList>
 
             <TabsContent value="attendance">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Officer</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Attendance Rate</TableHead>
-                    <TableHead>Last Meeting</TableHead>
-                    {canEdit && <TableHead>Action</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(officers[selectedChapter] || []).map(officer => {
-                    const stats = getAttendanceStats(officer.id);
-                    const lastRecord = getAttendanceForMember(officer.id).sort((a, b) => 
-                      new Date(b.meeting_date) - new Date(a.meeting_date)
-                    )[0];
-                    
-                    return (
-                      <TableRow key={officer.id}>
-                        <TableCell className="font-medium">{officer.handle}</TableCell>
-                        <TableCell>{officer.title}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className={stats.rate >= 80 ? 'text-green-500' : stats.rate >= 50 ? 'text-yellow-500' : 'text-red-500'}>
-                              {stats.rate}%
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              ({stats.present}/{stats.total})
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {lastRecord ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs">{lastRecord.meeting_date}</span>
-                              {getStatusBadge(lastRecord.status)}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">No records</span>
-                          )}
-                        </TableCell>
-                        {canEdit && (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Member</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Attendance Rate</TableHead>
+                      <TableHead>Last Meeting</TableHead>
+                      {canEdit && <TableHead>Action</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMembers.map(member => {
+                      const stats = getAttendanceStats(member.id);
+                      const lastRecord = getAttendanceForMember(member.id).sort((a, b) => 
+                        new Date(b.meeting_date) - new Date(a.meeting_date)
+                      )[0];
+                      
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell className="font-medium">{member.handle}</TableCell>
+                          <TableCell>{member.title || '-'}</TableCell>
                           <TableCell>
-                            <Button size="sm" onClick={() => openAttendanceDialog(officer)}>
-                              Record
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <span className={stats.rate >= 80 ? 'text-green-500' : stats.rate >= 50 ? 'text-yellow-500' : 'text-red-500'}>
+                                {stats.rate}%
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                ({stats.present}/{stats.total})
+                              </span>
+                            </div>
                           </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <TableCell>
+                            {lastRecord ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs">{lastRecord.meeting_date}</span>
+                                {getStatusBadge(lastRecord.status)}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">No records</span>
+                            )}
+                          </TableCell>
+                          {canEdit && (
+                            <TableCell>
+                              <Button size="sm" onClick={() => openAttendanceDialog(member)}>
+                                Record
+                              </Button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
 
             <TabsContent value="dues">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Officer</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Current Quarter</TableHead>
-                    <TableHead>Payment Date</TableHead>
-                    {canEdit && <TableHead>Action</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(officers[selectedChapter] || []).map(officer => {
-                    const currentDues = getCurrentQuarterDues(officer.id);
-                    
-                    return (
-                      <TableRow key={officer.id}>
-                        <TableCell className="font-medium">{officer.handle}</TableCell>
-                        <TableCell>{officer.title}</TableCell>
-                        <TableCell>
-                          {currentDues ? getStatusBadge(currentDues.status) : (
-                            <Badge variant="outline">Not Recorded</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {currentDues?.payment_date ? (
-                            <span className="text-xs">{currentDues.payment_date}</span>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">-</span>
-                          )}
-                        </TableCell>
-                        {canEdit && (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Member</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Current Quarter</TableHead>
+                      <TableHead>Payment Date</TableHead>
+                      {canEdit && <TableHead>Action</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMembers.map(member => {
+                      const currentDues = getCurrentQuarterDues(member.id);
+                      
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell className="font-medium">{member.handle}</TableCell>
+                          <TableCell>{member.title || '-'}</TableCell>
                           <TableCell>
-                            <Button size="sm" onClick={() => openDuesDialog(officer)}>
-                              {currentDues ? 'Update' : 'Record'}
-                            </Button>
+                            {currentDues ? getStatusBadge(currentDues.status) : (
+                              <Badge variant="outline">Not Recorded</Badge>
+                            )}
                           </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <TableCell>
+                            {currentDues?.payment_date ? (
+                              <span className="text-xs">{currentDues.payment_date}</span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">-</span>
+                            )}
+                          </TableCell>
+                          {canEdit && (
+                            <TableCell>
+                              <Button size="sm" onClick={() => openDuesDialog(member)}>
+                                {currentDues ? 'Update' : 'Record'}
+                              </Button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
