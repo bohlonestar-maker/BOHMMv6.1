@@ -6918,16 +6918,16 @@ SANCTIONS (Progressive Discipline):
 
 # ==================== OFFICER TRACKING (Attendance & Dues) ====================
 
-OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'Enf', 'SEC', 'CD', 'T', 'ENF', 'PM', 'CC', 'CMD', 'CCLC', 'NVP']
-# Titles that can edit officer tracking: Secretaries (NSEC, ADSEC, HASEC, HSSEC) and NVP
-OFFICER_TRACKING_EDIT_TITLES = ['SEC', 'NVP']
+OFFICER_TITLES = ['Prez', 'VP', 'S@A', 'Enf', 'SEC', 'CD', 'T', 'ENF', 'PM', 'CC', 'CMD', 'CCLC', 'NVP', 'NPrez']
+# Titles that can edit A&D (Attendance & Dues): Secretaries, NVP, and NPrez
+AD_EDIT_TITLES = ['SEC', 'NVP', 'NPrez']
 CHAPTERS = ['National', 'AD', 'HA', 'HS']
 
 def is_secretary(user: dict) -> bool:
-    """Check if user can edit officer tracking (NSEC, ADSEC, HASEC, HSSEC, NVP)"""
+    """Check if user can edit A&D (NSEC, ADSEC, HASEC, HSSEC, NVP, NPrez)"""
     user_title = user.get('title', '')
-    # Check if title is SEC (Secretary) or NVP (National Vice President)
-    return user_title in OFFICER_TRACKING_EDIT_TITLES or user.get('role') == 'admin'
+    # Check if title is SEC (Secretary), NVP (National Vice President), or NPrez (National President)
+    return user_title in AD_EDIT_TITLES or user.get('role') == 'admin'
 
 def is_any_officer(user: dict) -> bool:
     """Check if user is any officer (can view)"""
@@ -6942,10 +6942,8 @@ class AttendanceRecord(BaseModel):
 
 class DuesRecord(BaseModel):
     member_id: str
-    quarter: str  # 'Q1_2026', 'Q2_2026', etc.
-    status: str  # 'paid', 'unpaid', 'partial', 'exempt'
-    amount_paid: Optional[float] = None
-    payment_date: Optional[str] = None
+    month: str  # 'Jan_2026', 'Feb_2026', etc. or just current month
+    status: str  # 'paid', 'late', 'unpaid'
     notes: Optional[str] = None
 
 @api_router.get("/officer-tracking/members")
