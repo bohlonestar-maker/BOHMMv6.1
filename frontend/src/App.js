@@ -332,7 +332,7 @@ function App() {
             path="/ai-knowledge"
             element={
               isAuthenticated && (userRole === 'admin' || ['National President', 'National Vice President', 'National Secretary', 'NPrez', 'NVP', 'NSEC'].includes(userTitle)) ? (
-                <AIKnowledgeManager token={token} />
+                <AIKnowledgeManager token={localStorage.getItem('token')} />
               ) : (
                 <Navigate to="/" replace />
               )
