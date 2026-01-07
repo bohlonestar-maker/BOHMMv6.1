@@ -321,7 +321,7 @@ class ADFeatureTester:
             success, delete_response = self.run_test(
                 "Delete A&D Test Member",
                 "DELETE",
-                f"members/{test_member_id}",
+                f"members/{test_member_id}?reason=Testing cleanup",
                 200
             )
         
