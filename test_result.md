@@ -1153,3 +1153,57 @@ Verifying responsive design of "Manage Invitation Links" dialog
 - **Test Results**: 22/22 tests passed (100% success rate)
 - **Critical Issues**: None
 - **Minor Issues**: None
+
+## Officer Tracking Feature Testing Results (2026-01-07)
+
+### Feature Summary
+- **Page**: `/officer-tracking` - Member Tracking page for tracking meeting attendance and dues
+- **View Access**: All officers can view the page
+- **Edit Access**: Only SEC (Secretaries: NSEC, ADSEC, HASEC, HSSEC) and NVP (National Vice President) can edit
+- **Admin Access**: Admin users can also view and edit
+
+### Backend API Test Results ✅ ALL WORKING (Testing Agent - 2026-01-07)
+
+#### Core Functionality Tests ✅ ALL WORKING
+1. **Admin Access (admin/2X13y75Z)**: ✅ Full view and edit permissions
+2. **SEC Access (Lonestar/boh2158tc)**: ✅ Full view and edit permissions
+3. **NVP Access**: ✅ Full view and edit permissions
+4. **Regular Officers (VP, Prez)**: ✅ View access only, edit properly denied with 403
+5. **Non-Officers**: ✅ All access properly denied with 403
+
+#### API Endpoints Tested ✅ ALL WORKING
+1. **GET /api/officer-tracking/members**: ✅ Returns members by chapter (National, AD, HA, HS)
+2. **GET /api/officer-tracking/attendance**: ✅ Returns attendance records
+3. **POST /api/officer-tracking/attendance**: ✅ Edit restricted to SEC/NVP/Admin only
+4. **GET /api/officer-tracking/dues**: ✅ Returns dues records
+5. **POST /api/officer-tracking/dues**: ✅ Edit restricted to SEC/NVP/Admin only
+6. **GET /api/officer-tracking/summary**: ✅ Returns chapter summaries
+
+#### Permission Logic Verified ✅ WORKING
+- **View Access**: All officers can view
+- **Edit Titles**: SEC, NVP
+- **Admin Override**: Admin users can always edit
+- **403 Enforcement**: Non-authorized edit attempts properly rejected
+
+#### Test Statistics
+- **Total Tests**: 22
+- **Passed Tests**: 22
+- **Success Rate**: 100.0%
+- **Critical Functionality**: 100% working
+
+### Implementation Details
+- **Backend**: `is_secretary()` function updated to check for `SEC` or `NVP` titles
+- **Frontend**: `OfficerTracking.js` updated with matching permission logic
+- **Edit Titles Array**: `['SEC', 'NVP']`
+
+### Key Files Modified
+- `/app/backend/server.py`: Lines 6921-6932 - Permission functions
+- `/app/frontend/src/pages/OfficerTracking.js`: Lines 59-68 - Frontend permission check
+
+## Testing Agent Communication - Officer Tracking Feature
+- **Agent**: Testing Agent
+- **Message**: Officer Tracking feature thoroughly tested and verified working. All API endpoints function correctly with new permission logic. Admin and SEC users have full access. Regular officers have view-only access. Non-officers properly denied. All critical functionality working as designed.
+- **Test Date**: 2026-01-07
+- **Test Results**: 22/22 tests passed (100% success rate)
+- **Critical Issues**: None
+- **Minor Issues**: None - All functionality working perfectly
