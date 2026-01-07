@@ -10247,8 +10247,12 @@ class BOHDirectoryAPITester:
             print("❌ Login failed - cannot continue with other tests")
             return self.generate_report()
         
-        # PRIORITY TEST: Officer Tracking Feature (HIGHEST PRIORITY - Review Request)
-        print("\n🔥 RUNNING HIGHEST PRIORITY TEST: OFFICER TRACKING FEATURE")
+        # PRIORITY TEST: A & D (Attendance & Dues) Feature (HIGHEST PRIORITY - Review Request)
+        print("\n🔥 RUNNING HIGHEST PRIORITY TEST: A & D (ATTENDANCE & DUES) FEATURE")
+        self.test_attendance_and_dues_feature()
+        
+        # PRIORITY TEST: Officer Tracking Feature (HIGH PRIORITY)
+        print("\n🔥 RUNNING HIGH PRIORITY TEST: OFFICER TRACKING FEATURE")
         self.test_officer_tracking_feature()
         
         # PRIORITY TEST: NoSQL Injection Security Fix (HIGH PRIORITY)
