@@ -227,7 +227,7 @@ function OfficerTracking() {
             </h1>
             <p className="text-muted-foreground text-sm">
               Meeting Attendance & Dues by Chapter
-              {!canEdit && <span className="text-yellow-500 ml-2">(View Only - Secretaries can edit)</span>}
+              {!canEdit && <span className="text-yellow-500 ml-2">(View Only - Secretaries & NVP can edit)</span>}
             </p>
           </div>
         </div>
