@@ -9948,6 +9948,293 @@ class BOHDirectoryAPITester:
         
         print(f"   👮 Officer Tracking feature testing completed")
 
+    def test_attendance_and_dues_feature(self):
+        """Test the updated A & D (Attendance & Dues) feature with simplified dues tracking"""
+        print(f"\n📋 Testing A & D (Attendance & Dues) Feature...")
+        
+        # Test credentials from review request
+        test_credentials = [
+            ("admin", "2X13y75Z"),
+            ("Lonestar", "boh2158tc")
+        ]
+        
+        # Test 1: Login with admin credentials
+        original_token = self.token
+        admin_login_success = False
+        
+        for username, password in test_credentials:
+            success, login_response = self.run_test(
+                f"Login as {username}",
+                "POST",
+                "auth/login",
+                200,
+                data={"username": username, "password": password}
+            )
+            
+            if success and 'token' in login_response:
+                self.token = login_response['token']
+                admin_login_success = True
+                print(f"   ✅ Successfully logged in as {username}")
+                break
+        
+        if not admin_login_success:
+            print("❌ Failed to login with test credentials - cannot continue A & D tests")
+            self.token = original_token
+            return
+        
+        # Test 2: GET /api/officer-tracking/members - Get all members by chapter
+        success, members_response = self.run_test(
+            "GET Officer Tracking Members",
+            "GET",
+            "officer-tracking/members",
+            200
+        )
+        
+        if success:
+            # Verify response structure - should be organized by chapter
+            expected_chapters = ["National", "AD", "HA", "HS"]
+            if isinstance(members_response, dict):
+                found_chapters = [chapter for chapter in expected_chapters if chapter in members_response]
+                if len(found_chapters) >= 1:
+                    self.log_test("Officer Tracking Members - Chapter Organization", True, f"Found chapters: {found_chapters}")
+                else:
+                    self.log_test("Officer Tracking Members - Chapter Organization", False, f"Expected chapters not found: {list(members_response.keys())}")
+            else:
+                self.log_test("Officer Tracking Members - Response Format", False, "Response is not a dictionary")
+        
+        # Test 3: Create a test member for dues testing
+        test_member = {
+            "chapter": "National",
+            "title": "Member",
+            "handle": "ADTestMember",
+            "name": "A&D Test Member",
+            "email": "adtest@example.com",
+            "phone": "555-0123",
+            "address": "123 Test Street"
+        }
+        
+        success, created_member = self.run_test(
+            "Create Test Member for A&D",
+            "POST",
+            "members",
+            201,
+            data=test_member
+        )
+        
+        test_member_id = None
+        if success and 'id' in created_member:
+            test_member_id = created_member['id']
+            print(f"   Created test member ID: {test_member_id}")
+        
+        # Test 4: POST /api/officer-tracking/dues - Test new simplified format
+        if test_member_id:
+            # Test scenario a: POST dues with status "paid"
+            paid_dues_data = {
+                "member_id": test_member_id,
+                "month": "Jan_2026",
+                "status": "paid",
+                "notes": "Paid in full on time"
+            }
+            
+            success, paid_response = self.run_test(
+                "POST Dues - Status Paid",
+                "POST",
+                "officer-tracking/dues",
+                200,
+                data=paid_dues_data
+            )
+            
+            # Test scenario b: POST dues with status "late"
+            late_dues_data = {
+                "member_id": test_member_id,
+                "month": "Feb_2026",
+                "status": "late",
+                "notes": "Payment received 5 days late"
+            }
+            
+            success, late_response = self.run_test(
+                "POST Dues - Status Late",
+                "POST",
+                "officer-tracking/dues",
+                200,
+                data=late_dues_data
+            )
+            
+            # Test scenario c: POST dues with status "unpaid"
+            unpaid_dues_data = {
+                "member_id": test_member_id,
+                "month": "Mar_2026",
+                "status": "unpaid",
+                "notes": "No payment received"
+            }
+            
+            success, unpaid_response = self.run_test(
+                "POST Dues - Status Unpaid",
+                "POST",
+                "officer-tracking/dues",
+                200,
+                data=unpaid_dues_data
+            )
+            
+            # Test scenario d: Verify simplified dues model (no quarter, amount_paid, payment_date fields)
+            # Try to POST with old format fields (should still work but ignore extra fields)
+            old_format_data = {
+                "member_id": test_member_id,
+                "month": "Apr_2026",
+                "status": "paid",
+                "notes": "Testing old format compatibility",
+                "quarter": "Q2",  # Should be ignored
+                "amount_paid": 25.00,  # Should be ignored
+                "payment_date": "2026-04-01"  # Should be ignored
+            }
+            
+            success, old_format_response = self.run_test(
+                "POST Dues - Old Format Compatibility",
+                "POST",
+                "officer-tracking/dues",
+                200,
+                data=old_format_data
+            )
+            
+            # Test scenario e: Verify month format is "Mon_YYYY"
+            invalid_month_data = {
+                "member_id": test_member_id,
+                "month": "January 2026",  # Wrong format
+                "status": "paid",
+                "notes": "Testing invalid month format"
+            }
+            
+            success, invalid_month_response = self.run_test(
+                "POST Dues - Invalid Month Format",
+                "POST",
+                "officer-tracking/dues",
+                400,  # Should fail with bad request
+                data=invalid_month_data
+            )
+            
+            # Test valid month format variations
+            valid_months = ["May_2026", "Jun_2026", "Jul_2026"]
+            for month in valid_months:
+                month_data = {
+                    "member_id": test_member_id,
+                    "month": month,
+                    "status": "paid",
+                    "notes": f"Testing {month} format"
+                }
+                
+                success, month_response = self.run_test(
+                    f"POST Dues - Valid Month {month}",
+                    "POST",
+                    "officer-tracking/dues",
+                    200,
+                    data=month_data
+                )
+        
+        # Test 5: POST /api/officer-tracking/attendance - Should still work with updated permissions
+        if test_member_id:
+            attendance_data = {
+                "member_id": test_member_id,
+                "meeting_date": "2026-01-15",
+                "status": "present",
+                "notes": "Attended full meeting"
+            }
+            
+            success, attendance_response = self.run_test(
+                "POST Attendance - Updated Permissions",
+                "POST",
+                "officer-tracking/attendance",
+                200,
+                data=attendance_data
+            )
+        
+        # Test 6: Test permission system - Admin should have edit access
+        if test_member_id:
+            admin_dues_data = {
+                "member_id": test_member_id,
+                "month": "Jan_2027",
+                "status": "paid",
+                "notes": "Admin test"
+            }
+            
+            success, admin_dues_response = self.run_test(
+                "Admin User - Dues Edit Access",
+                "POST",
+                "officer-tracking/dues",
+                200,
+                data=admin_dues_data
+            )
+        
+        # Test 7: Verify GET endpoints still work
+        success, dues_list = self.run_test(
+            "GET Officer Tracking Dues",
+            "GET",
+            "officer-tracking/dues",
+            200
+        )
+        
+        success, attendance_list = self.run_test(
+            "GET Officer Tracking Attendance",
+            "GET",
+            "officer-tracking/attendance",
+            200
+        )
+        
+        success, summary_data = self.run_test(
+            "GET Officer Tracking Summary",
+            "GET",
+            "officer-tracking/summary",
+            200
+        )
+        
+        # Test 8: Test with SEC user (Lonestar) if we haven't already
+        if not any("Lonestar" in str(result) for result in self.test_results[-10:]):
+            sec_success, sec_login = self.run_test(
+                "Login as SEC User (Lonestar)",
+                "POST",
+                "auth/login",
+                200,
+                data={"username": "Lonestar", "password": "boh2158tc"}
+            )
+            
+            if sec_success and 'token' in sec_login:
+                sec_token = self.token
+                self.token = sec_login['token']
+                
+                # Test SEC user can edit dues
+                if test_member_id:
+                    sec_dues_data = {
+                        "member_id": test_member_id,
+                        "month": "Feb_2027",
+                        "status": "late",
+                        "notes": "SEC user test"
+                    }
+                    
+                    success, sec_dues_response = self.run_test(
+                        "SEC User - Dues Edit Access",
+                        "POST",
+                        "officer-tracking/dues",
+                        200,
+                        data=sec_dues_data
+                    )
+                
+                # Restore admin token
+                self.token = sec_token
+        
+        # Clean up test member
+        if test_member_id:
+            success, delete_response = self.run_test(
+                "Delete A&D Test Member",
+                "DELETE",
+                f"members/{test_member_id}",
+                200
+            )
+        
+        # Restore original token
+        self.token = original_token
+        
+        print(f"   📋 A & D (Attendance & Dues) feature testing completed")
+        return test_member_id
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Brothers of the Highway Directory API Tests")
