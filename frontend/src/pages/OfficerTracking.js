@@ -456,8 +456,7 @@ function OfficerTracking() {
                   </TableBody>
                 </Table>
               </div>
-            </TabsContent>
-          </Tabs>
+          )}
         </CardContent>
       </Card>
 
