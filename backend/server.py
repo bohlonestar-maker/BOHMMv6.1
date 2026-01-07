@@ -6401,18 +6401,20 @@ ADDITIONAL OFFICER DUTIES:
         else:
             system_context = base_context
 
-        # Initialize LLM Chat with Emergent key
-        session_id = f"chat_{current_user['username']}_{hash(chat_msg.message) % 10000}"
-        client = LlmChat(
-            api_key=api_key,
-            session_id=session_id,
-            system_message=system_context
-        )
+        # Initialize OpenAI client
+        client = OpenAI(api_key=api_key)
         
         # Send user message and get response
-        from emergentintegrations.llm.openai import UserMessage
-        user_msg = UserMessage(text=chat_msg.message)
-        bot_response = await client.send_message(user_msg)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_context},
+                {"role": "user", "content": chat_msg.message}
+            ],
+            max_tokens=1000
+        )
+        
+        bot_response = response.choices[0].message.content
         
         return {"response": bot_response}
         
