@@ -158,6 +158,17 @@ async def start_discord_bot():
         import discord
         from datetime import timezone
         
+        # Users to ignore in Discord analytics (by display name)
+        IGNORED_DISCORD_USERS = [
+            "HSB Hillbilly",
+            "hsb hillbilly",
+        ]
+        
+        def should_ignore_user(member):
+            """Check if a user should be ignored from analytics"""
+            display_name = member.display_name if hasattr(member, 'display_name') else str(member)
+            return display_name.lower() in [name.lower() for name in IGNORED_DISCORD_USERS]
+        
         # Discord Analytics Bot Class with Voice and Text Tracking
         class DiscordActivityBot(discord.Client):
             def __init__(self):
