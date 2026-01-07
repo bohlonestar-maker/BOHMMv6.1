@@ -300,13 +300,19 @@ function OfficerTracking() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="attendance">
-                <Calendar className="w-4 h-4 mr-2" />
+            <TabsList className="mb-4 bg-slate-800 p-1 gap-2">
+              <TabsTrigger 
+                value="attendance"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white px-6 py-2.5 text-base font-semibold"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
                 Attendance
               </TabsTrigger>
-              <TabsTrigger value="dues">
-                <DollarSign className="w-4 h-4 mr-2" />
+              <TabsTrigger 
+                value="dues"
+                className="data-[state=active]:bg-green-600 data-[state=active]:text-white px-6 py-2.5 text-base font-semibold"
+              >
+                <DollarSign className="w-5 h-5 mr-2" />
                 Dues
               </TabsTrigger>
             </TabsList>
