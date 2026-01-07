@@ -7176,9 +7176,14 @@ async def record_dues(record: DuesRecord, current_user: dict = Depends(verify_to
         if member:
             dues = member.get('dues', {})
             
-            # Initialize year array if it doesn't exist
-            if year_str not in dues:
+            # Initialize year array if it doesn't exist or is invalid
+            if year_str not in dues or not isinstance(dues.get(year_str), list) or len(dues.get(year_str, [])) < 12:
                 dues[year_str] = [{"status": "unpaid", "note": ""} for _ in range(12)]
+            
+            # Ensure each month entry is a proper dict (fix any invalid entries)
+            for i in range(12):
+                if not isinstance(dues[year_str][i], dict):
+                    dues[year_str][i] = {"status": "unpaid", "note": ""}
             
             # Update the specific month
             dues[year_str][month_index] = {
