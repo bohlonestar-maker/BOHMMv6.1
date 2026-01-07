@@ -248,6 +248,7 @@ class ADFeatureTester:
             attendance_data = {
                 "member_id": test_member_id,
                 "meeting_date": "2026-01-15",
+                "meeting_type": "regular",  # Added required field
                 "status": "present",
                 "notes": "Attended full meeting"
             }
