@@ -2668,6 +2668,11 @@ async def export_members_csv(current_user: dict = Depends(verify_token)):
     if is_admin:
         header.extend(['Military Service', 'Military Branch', 'First Responder'])
     
+    # Add Trucking Experience for basic_info permission
+    if is_admin or permissions.get("basic_info"):
+        header.append('Trucking Experience Start')
+        header.append('Years of Experience')
+    
     if is_admin or permissions.get("dues_tracking"):
         month_names = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December']
