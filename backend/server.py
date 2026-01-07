@@ -6423,6 +6423,427 @@ ADDITIONAL OFFICER DUTIES:
         raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
 
 
+# ==================== AI KNOWLEDGE MANAGEMENT ====================
+
+class AIKnowledgeEntry(BaseModel):
+    title: str
+    content: str
+    category: str  # general, chain_of_command, bylaws, meetings, admin_only
+    is_active: bool = True
+    admin_only: bool = False
+
+class AIKnowledgeUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    is_active: Optional[bool] = None
+    admin_only: Optional[bool] = None
+
+def check_ai_admin_access(current_user: dict):
+    """Check if user has access to AI knowledge management (NPrez, NVP, NSEC, or admin)"""
+    role = current_user.get('role', '')
+    title = current_user.get('title', '')
+    
+    # Allow admin role or specific national titles
+    allowed_titles = ['National President', 'National Vice President', 'National Secretary', 'NPrez', 'NVP', 'NSEC']
+    
+    if role == 'admin' or title in allowed_titles:
+        return True
+    return False
+
+@api_router.get("/ai-knowledge")
+async def get_ai_knowledge(current_user: dict = Depends(verify_token)):
+    """Get all AI knowledge entries - restricted to NPrez, NVP, NSEC"""
+    if not check_ai_admin_access(current_user):
+        raise HTTPException(status_code=403, detail="Only National President, Vice President, or Secretary can manage AI knowledge")
+    
+    entries = await db.ai_knowledge.find({}, {"_id": 0}).to_list(length=None)
+    return entries
+
+@api_router.post("/ai-knowledge")
+async def create_ai_knowledge(entry: AIKnowledgeEntry, current_user: dict = Depends(verify_token)):
+    """Create a new AI knowledge entry - restricted to NPrez, NVP, NSEC"""
+    if not check_ai_admin_access(current_user):
+        raise HTTPException(status_code=403, detail="Only National President, Vice President, or Secretary can manage AI knowledge")
+    
+    new_entry = {
+        "id": str(uuid.uuid4()),
+        "title": entry.title,
+        "content": entry.content,
+        "category": entry.category,
+        "is_active": entry.is_active,
+        "admin_only": entry.admin_only,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": current_user.get('username'),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_by": current_user.get('username')
+    }
+    
+    await db.ai_knowledge.insert_one(new_entry)
+    return {"message": "Knowledge entry created", "id": new_entry["id"]}
+
+@api_router.put("/ai-knowledge/{entry_id}")
+async def update_ai_knowledge(entry_id: str, update: AIKnowledgeUpdate, current_user: dict = Depends(verify_token)):
+    """Update an AI knowledge entry - restricted to NPrez, NVP, NSEC"""
+    if not check_ai_admin_access(current_user):
+        raise HTTPException(status_code=403, detail="Only National President, Vice President, or Secretary can manage AI knowledge")
+    
+    existing = await db.ai_knowledge.find_one({"id": entry_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Knowledge entry not found")
+    
+    update_data = {k: v for k, v in update.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    update_data["updated_by"] = current_user.get('username')
+    
+    await db.ai_knowledge.update_one({"id": entry_id}, {"$set": update_data})
+    return {"message": "Knowledge entry updated"}
+
+@api_router.delete("/ai-knowledge/{entry_id}")
+async def delete_ai_knowledge(entry_id: str, current_user: dict = Depends(verify_token)):
+    """Delete an AI knowledge entry - restricted to NPrez, NVP, NSEC"""
+    if not check_ai_admin_access(current_user):
+        raise HTTPException(status_code=403, detail="Only National President, Vice President, or Secretary can manage AI knowledge")
+    
+    result = await db.ai_knowledge.delete_one({"id": entry_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Knowledge entry not found")
+    
+    return {"message": "Knowledge entry deleted"}
+
+@api_router.post("/ai-knowledge/initialize")
+async def initialize_ai_knowledge(current_user: dict = Depends(verify_token)):
+    """Initialize AI knowledge from existing hardcoded content - one time setup"""
+    if not check_ai_admin_access(current_user):
+        raise HTTPException(status_code=403, detail="Only National President, Vice President, or Secretary can manage AI knowledge")
+    
+    # Check if already initialized
+    existing_count = await db.ai_knowledge.count_documents({})
+    if existing_count > 0:
+        return {"message": f"Knowledge base already has {existing_count} entries. Clear first to reinitialize."}
+    
+    # Default knowledge entries based on existing hardcoded content
+    default_entries = [
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Organization Overview",
+            "content": """Brothers of the Highway TC is a men-only trucking organization
+Mission: Support and unite professional truck drivers
+Requirements: Must have Class A CDL, cannot be in 1% MC clubs
+Structure: National Board oversees Chapters (National, AD, HA, HS)
+Legal Status: 501(c)(3) non-profit organization""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Mission Statement",
+            "content": """"We are a Trucker Club that is family oriented, community minded and dedicated to shaping the future while honoring the past. We are a Trucker Club working on bringing back the old school ways of trucking. We are committed to doing what it takes to bring back the respect to the industry by bringing a brotherhood to the industry again.""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Core Values & Activities",
+            "content": """- Respect To Others While Driving
+- Help Other Drivers In Need
+- Doing Trash Pick Ups To Keep Lots Clean
+- Creating The Family Away From Family
+- Donating To Various Charities
+- Create A Brotherhood
+- Showing All Around Respect
+- Doing What It Takes To Make A Change
+- Most Of All Bring The Respect Back To Drivers""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Logo Elements & Meanings",
+            "content": """- Phoenix Wings: Represents "Rise of The Old School Brotherhood from the Ashes"
+- Old School Truck: Represents Old School Trucking Ways
+- Chains: Represents Unity among members
+- Tombstones: Represents Our Fallen Brothers
+- Truck Number (2158): Alphanumeric identifier for BOH
+- TC: Truckers Club designation""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "National Officers Chain of Command",
+            "content": """- National President (NPrez): Q-Ball - CEO, Chairman of National Board, handles external relations
+- National Vice President (NVP): Keltic Reaper - Second in command, assumes NPrez duties in absence
+- National Sergeant at Arms (NS@A): Repo - "Legal office" of organization, enforces and interprets By-laws
+- National Enforcer (NENF): Gear Jammer - Prospect management oversight
+- National Treasurer (NT): California Kid - Budget Committee member, handles finances
+- National Secretary (NSEC): Lonestar - Budget Committee member, administrative duties
+- National Chapter Director (NCD): Shooter - Administrative position (not in Chain of Command)""",
+            "category": "chain_of_command",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Additional National Positions",
+            "content": """- Club Chaplain (CC): Sancho
+- Club Media Director (CMD): Grizz
+- Club Counselor & Life Coach (CCLC): Scar""",
+            "category": "chain_of_command",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Highway Asylum (HA) Chapter Officers",
+            "content": """- HA President (HAPrez): Chap
+- HA Vice President (HAVP): Sancho
+- HA Sergeant at Arms (HAS@A): Tapeworm
+- HA Enforcer (HAENF): *Vacant*
+- HA Secretary (HASEC): Hee Haw
+- HA Prospect Manager (HAPM): Phantom""",
+            "category": "chain_of_command",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Highway Souls (HS) Chapter Officers",
+            "content": """- HS President (HSPrez): Bobkat
+- HS Vice President (HSVP): Graveyard
+- HS Sergeant at Arms (HSS@A): Trucker Dave
+- HS Enforcer (HSENF): Rainwater
+- HS Secretary (HSSEC): Sodbuster""",
+            "category": "chain_of_command",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Asphalt Demons (AD) Chapter Officers",
+            "content": """- AD President (ADPrez): Hotshot
+- AD Vice President (ADVP): Clutch
+- AD Sergeant at Arms (ADS@A): *Vacant*
+- AD Enforcer (ADENF): Rookie
+- AD Secretary (ADSEC): Two Stacks""",
+            "category": "chain_of_command",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Membership Process",
+            "content": """1. Open Enrollment - Public recruiting phase
+2. Vetting - Initial interview with Training Chapter
+3. Hangaround Phase - Test commitment, chat activity
+4. Prospect Phase - 4-6 weeks with assignments, weekly meetings
+5. Brother - Full member after vote""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Prospect Requirements",
+            "content": """- Attend weekly meetings (Thursdays 4pm CST - MANDATORY)
+- Complete weekly assignments (essays, trash pickup, meet-ups)
+- Purchase 2 supporter gear items before membering
+- Learn: Mission Statement, Logo Elements, Chain of Command
+- 100% meeting attendance required
+- Active chat participation in Discord
+- Must memorize Chain of Command structure""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Key Bylaws",
+            "content": """- No criminal activity, discrimination, or harassment
+- Respect all officers, members, prospects at all times
+- Follow Chain of Command always - MUST follow CoC without deviation
+- No 1% MC affiliation while in BOH
+- Class A CDL required (students with permit may prospect)
+- No sex offenders, no drug use/possession
+- No reckless driving or property damage""",
+            "category": "bylaws",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Meet-ups & Events",
+            "content": """- 3 annual sanctioned meet-ups
+- Driver appreciation events
+- Family days
+- Community service (trash pickups)""",
+            "category": "meetings",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Social Media & Communications",
+            "content": """- Discord: Primary platform for voice/text chat
+- Facebook Family Page: Public outreach, professional posts only
+- TikTok: Recruiting tool, PG-level content, 21+ only
+- Respect and professional presentation required on all platforms""",
+            "category": "general",
+            "is_active": True,
+            "admin_only": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Officer Rules & Governance (Admin Only)",
+            "content": """ARTICLE I: GENERAL RULES OF ORDER
+- Voting: Officers cannot vote for themselves for promotion/demotion/removal
+- Service: Officers serve at pleasure of NPrez and National Board
+- Observation Period: 7 days, new officers have no authority during this time
+- Probation: 90 days with training and evaluation, can be removed for poor performance
+
+ARTICLE II: OFFICER DUTIES & RESPONSIBILITIES
+- Officers must fulfill duties while upholding Member By-laws
+- Chain of Command must always be followed
+- Officer Meetings: National (Wed 3pm EST), Chapter (Wed 5pm EST)
+- 100% attendance required unless approved by CoC
+
+ARTICLE IV: OFFICER NON-PERFORMANCE
+- Dereliction of Duty: Can result in sanction up to removal
+- 2/3 vote required to discipline (majority for National Board)
+- Officers can be voted out except National Committee officers (NPrez removes them)""",
+            "category": "admin_only",
+            "is_active": True,
+            "admin_only": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Disciplinary Process (Admin Only)",
+            "content": """ARTICLE V: OFFICER DISCIPLINARY PROCESS
+- Sanction requests must be submitted within 72 hours to NENF
+- Investigation begins within 72 hours by Chapter President
+- NS@A drafts Notification of Sanction
+- NRC convenes Disciplinary Hearing (with NVP, NS@A, NRC)
+- Officer receives notification within 7 days for signature
+- Appeals: Submit within 72 hours to NENF, committee reviews within 72 hours
+- Officers limited to 2 strikes (vs 3 for members)
+- Strikes remain 90 days on record
+
+SANCTIONS (Progressive Discipline):
+1. Verbal Warning - Least severe, discussion with Officer
+2. Written Warning - Progressive step, documented in Member file
+3. Strike - Most severe (3 strikes for members = removal, 2 strikes for Officers = removal)""",
+            "category": "admin_only",
+            "is_active": True,
+            "admin_only": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "National Governing Bodies (Admin Only)",
+            "content": """NATIONAL GOVERNING BODIES:
+- National Budget Committee: Oversees quarterly/annual budget, maintains IRS compliance
+  Members: National President (Q-Ball), National Treasurer (California Kid), National Secretary (Lonestar)
+- National Board: All National Officers (sans National President for voting to maintain odd number)
+  Includes: National Vice President (Keltic Reaper), National Sergeant at Arms (Repo), National Enforcer (Gear Jammer), National Treasurer (California Kid), National Secretary (Lonestar)
+  Responsible for: Policy creation, membership roll, general operating orders""",
+            "category": "admin_only",
+            "is_active": True,
+            "admin_only": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "title": "Meeting Schedule (Admin Only)",
+            "content": """MEETINGS:
+- National Officer: Wednesdays 3pm EST
+- Chapter Officer: Wednesdays 5pm EST  
+- Prospect: Thursdays 4pm CST (mandatory, 100% attendance)
+- Member meetings vary by chapter
+- Meeting rules: Microphones muted in app, cameras on (when <20 people), follow Robert's Rules of Order""",
+            "category": "admin_only",
+            "is_active": True,
+            "admin_only": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": current_user.get('username'),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": current_user.get('username')
+        }
+    ]
+    
+    await db.ai_knowledge.insert_many(default_entries)
+    return {"message": f"Initialized {len(default_entries)} knowledge entries"}
+
+
 # ==================== EVENT ENDPOINTS ====================
 
 @api_router.get("/events")
