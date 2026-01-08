@@ -6945,7 +6945,15 @@ class DuesRecord(BaseModel):
 @api_router.get("/officer-tracking/members")
 async def get_members_by_chapter(current_user: dict = Depends(verify_token)):
     """Get all members organized by chapter - all officers can view"""
-    if not is_any_officer(current_user) and current_user.get('role') != 'admin':
+    user_title = current_user.get('title', '')
+    user_role = current_user.get('role', '')
+    
+    # Log for debugging
+    logger.info(f"A&D access attempt - User: {current_user.get('username')}, Title: {user_title}, Role: {user_role}")
+    
+    # Allow all officers and admins
+    if not is_any_officer(current_user) and user_role != 'admin':
+        logger.warning(f"A&D access denied - User: {current_user.get('username')}, Title: {user_title}")
         raise HTTPException(status_code=403, detail="Only officers can access this page")
     
     result = {}
